@@ -25,8 +25,8 @@ module.exports = (app) => {
   });
 
   // Create group
-  router.post('/groups', async (req, res) => {
-    const { name, description, members } = req.body;
+  router.post('/', authenticateToken, async (req, res) => {
+    const { name, description, member_ids } = req.body;
 
     try {
       const group = await prisma.group.create({
@@ -34,16 +34,15 @@ module.exports = (app) => {
           name,
           description,
           members: {
-            create: members?.map(memberId => ({
-              member: {
-                connect: { id: parseInt(memberId) }
-              }
+            create: member_ids?.map(memberId => ({
+              memberId: parseInt(memberId)
             })) || []
           }
         }
       });
       res.status(201).json(group);
     } catch (error) {
+      console.error('Error creating group:', error);
       res.status(500).json({ message: 'Error creating group' });
     }
   });
