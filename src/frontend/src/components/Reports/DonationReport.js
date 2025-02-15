@@ -9,29 +9,31 @@ const DonationReport = () => {
   });
   const [totalDonations, setTotalDonations] = useState(0);
 
+  useEffect(() => {
+    fetchDonations();
+  }, [dateRange]);
+
   const fetchDonations = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/reports/donations`,
-        {
-          params: dateRange,
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
-      );
-      setDonations(response.data);
-      setTotalDonations(response.data.reduce((sum, donation) => sum + parseFloat(donation.amount), 0));
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/reports/donations`, {
+        params: {
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate
+        },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      setDonations(response.data.donations);
+      setTotalDonations(response.data.total);
     } catch (error) {
       console.error('Error fetching donation report:', error);
+      alert('Error generating donation report. Please try again.');
     }
   };
 
   const handlePrint = () => {
     window.print();
   };
-
-  useEffect(() => {
-    fetchDonations();
-  }, [dateRange]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

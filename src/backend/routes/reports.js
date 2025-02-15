@@ -1,21 +1,29 @@
+const express = require('express');
+const router = express.Router();
+const { authenticateToken } = require('../middleware/auth');
+
 module.exports = (app) => {
   const prisma = app.get('prisma');
 
-  // Get donation report
-  app.get('/reports/donations', async (req, res) => {
-    const { startDate, endDate } = req.query;
+  // Donation Report Route
+  app.get('/reports/donations', authenticateToken, async (req, res) => {
     try {
+      const { startDate, endDate } = req.query;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.donationDate = {
+          gte: new Date(startDate),
+          lte: new Date(endDate)
+        };
+      }
+
       const donations = await prisma.donation.findMany({
-        where: {
-          donationDate: {
-            gte: new Date(startDate),
-            lte: new Date(endDate)
-          }
-        },
+        where: whereClause,
         include: {
           member: {
             select: {
-              id: true,
               firstName: true,
               lastName: true
             }
@@ -25,48 +33,69 @@ module.exports = (app) => {
           donationDate: 'desc'
         }
       });
-      res.json(donations);
+
+      const total = donations.reduce((sum, donation) => sum + parseFloat(donation.amount), 0);
+
+      res.json({
+        donations,
+        total
+      });
     } catch (error) {
+      console.error('Error generating donation report:', error);
       res.status(500).json({ message: 'Error generating donation report' });
     }
   });
 
-  // Get membership report
-  app.get('/reports/members', async (req, res) => {
-    const { startDate, endDate } = req.query;
+  // Membership Report Route
+  app.get('/reports/members', authenticateToken, async (req, res) => {
     try {
+      const { startDate, endDate } = req.query;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.membership_date = {
+          gte: new Date(startDate),
+          lte: new Date(endDate)
+        };
+      }
+
       const members = await prisma.member.findMany({
-        where: {
-          membershipDate: {
-            gte: new Date(startDate),
-            lte: new Date(endDate)
-          }
-        },
+        where: whereClause,
         include: {
           groups: {
             include: {
               group: {
                 select: {
-                  id: true,
                   name: true
                 }
               }
             }
           }
         },
-        orderBy: [
-          { lastName: 'asc' },
-          { firstName: 'asc' }
-        ]
+        orderBy: {
+          lastName: 'asc'
+        }
       });
-      res.json(members);
+
+      // Transform the data to include group names
+      const formattedMembers = members.map(member => ({
+        ...member,
+        groups: member.groups.map(membership => membership.group.name)
+      }));
+
+      res.json({
+        members: formattedMembers,
+        total: members.length
+      });
     } catch (error) {
+      console.error('Error generating membership report:', error);
       res.status(500).json({ message: 'Error generating membership report' });
     }
   });
 
-  // Get groups report
-  app.get('/reports/groups', async (req, res) => {
+  // Group Report Route
+  app.get('/reports/groups', authenticateToken, async (req, res) => {
     try {
       const groups = await prisma.group.findMany({
         include: {
@@ -74,21 +103,38 @@ module.exports = (app) => {
             include: {
               member: {
                 select: {
-                  id: true,
                   firstName: true,
-                  lastName: true,
-                  email: true,
-                  cellPhone: true,
-                  joinedDate: true
+                  lastName: true
                 }
               }
             }
           }
+        },
+        orderBy: {
+          name: 'asc'
         }
       });
-      res.json(groups);
+
+      // Transform the data to a more usable format
+      const formattedGroups = groups.map(group => ({
+        id: group.id,
+        name: group.name,
+        description: group.description,
+        members: group.members.map(membership => ({
+          firstName: membership.member.firstName,
+          lastName: membership.member.lastName
+        }))
+      }));
+
+      res.json({
+        groups: formattedGroups,
+        total: groups.length
+      });
     } catch (error) {
-      res.status(500).json({ message: 'Error generating groups report' });
+      console.error('Error generating group report:', error);
+      res.status(500).json({ message: 'Error generating group report' });
     }
   });
+
+  return router;
 }; 

@@ -7,19 +7,23 @@ const MembershipReport = () => {
     startDate: '',
     endDate: ''
   });
+  const [totalMembers, setTotalMembers] = useState(0);
 
   const fetchMembers = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/reports/members`,
-        {
-          params: dateRange,
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
-      );
-      setMembers(response.data);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/reports/members`, {
+        params: {
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate
+        },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      setMembers(response.data.members);
+      setTotalMembers(response.data.total);
     } catch (error) {
       console.error('Error fetching membership report:', error);
+      alert('Error generating membership report. Please try again.');
     }
   };
 
@@ -66,7 +70,7 @@ const MembershipReport = () => {
         <div className="p-6">
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900">Summary</h2>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{members.length}</p>
+            <p className="mt-2 text-3xl font-bold text-gray-900">{totalMembers}</p>
             <p className="text-sm text-gray-500">Total Members</p>
           </div>
 

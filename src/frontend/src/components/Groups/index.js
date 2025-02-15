@@ -23,13 +23,22 @@ const Groups = () => {
     }
   };
 
-  const handleAddGroup = () => {
-    setSelectedGroup(null);
-    setShowForm(true);
+  const handleEditGroup = async (group) => {
+    try {
+      // Fetch the complete group data including members
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/groups/${group.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setSelectedGroup(response.data);
+      setShowForm(true);
+    } catch (error) {
+      console.error('Error fetching group details:', error);
+      alert('Error loading group details. Please try again.');
+    }
   };
 
-  const handleEditGroup = (group) => {
-    setSelectedGroup(group);
+  const handleAddGroup = () => {
+    setSelectedGroup(null);
     setShowForm(true);
   };
 

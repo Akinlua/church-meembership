@@ -38,7 +38,8 @@ app.set('authenticateToken', authenticateToken);
 // Routes
 require('./routes/auth')(app);
 require('./routes/members')(app);
-require('./routes/groups')(app);
+const groupsRouter = require('./routes/groups')(app);
+app.use('/groups', groupsRouter);
 require('./routes/donations')(app);
 require('./routes/reports')(app);
 require('./routes/dashboard')(app);

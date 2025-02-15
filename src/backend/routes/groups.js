@@ -1,32 +1,31 @@
+const express = require('express');
+const router = express.Router();
+const { authenticateToken } = require('../middleware/auth');
+
 module.exports = (app) => {
   const prisma = app.get('prisma');
 
-  // Get all groups with members
-  app.get('/groups', async (req, res) => {
+  // Get all groups
+  router.get('/', authenticateToken, async (req, res) => {
     try {
       const groups = await prisma.group.findMany({
         include: {
           members: {
             include: {
-              member: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true
-                }
-              }
+              member: true
             }
           }
         }
       });
       res.json(groups);
     } catch (error) {
+      console.error('Error fetching groups:', error);
       res.status(500).json({ message: 'Error fetching groups' });
     }
   });
 
   // Create group
-  app.post('/groups', async (req, res) => {
+  router.post('/groups', async (req, res) => {
     const { name, description, members } = req.body;
 
     try {
@@ -50,11 +49,11 @@ module.exports = (app) => {
   });
 
   // Update group
-  app.put('/groups/:id', async (req, res) => {
-    const { name, description, members } = req.body;
-    const groupId = parseInt(req.params.id);
-
+  router.put('/:id', authenticateToken, async (req, res) => {
     try {
+      const { name, description, member_ids } = req.body;
+      const groupId = parseInt(req.params.id);
+
       await prisma.$transaction(async (tx) => {
         // Delete existing members
         await tx.groupMember.deleteMany({
@@ -62,25 +61,70 @@ module.exports = (app) => {
         });
 
         // Update group and add new members
-        await tx.group.update({
+        const updatedGroup = await tx.group.update({
           where: { id: groupId },
           data: {
             name,
             description,
             members: {
-              create: members?.map(memberId => ({
-                member: {
-                  connect: { id: parseInt(memberId) }
-                }
+              create: member_ids?.map(memberId => ({
+                memberId: parseInt(memberId)
               })) || []
+            }
+          },
+          include: {
+            members: {
+              include: {
+                member: true
+              }
             }
           }
         });
-      });
 
-      res.json({ message: 'Group updated successfully' });
+        res.json(updatedGroup);
+      });
     } catch (error) {
+      console.error('Error updating group:', error);
       res.status(500).json({ message: 'Error updating group' });
     }
   });
+
+  // Get single group with members
+  router.get('/:id', authenticateToken, async (req, res) => {
+    try {
+      const group = await prisma.group.findUnique({
+        where: {
+          id: parseInt(req.params.id)
+        },
+        include: {
+          members: {
+            include: {
+              member: true
+            }
+          }
+        }
+      });
+
+      if (!group) {
+        return res.status(404).json({ message: 'Group not found' });
+      }
+
+      // Transform the data to include member IDs
+      const formattedGroup = {
+        ...group,
+        members: group.members.map(membership => ({
+          member_id: membership.member.id,
+          firstName: membership.member.firstName,
+          lastName: membership.member.lastName
+        }))
+      };
+
+      res.json(formattedGroup);
+    } catch (error) {
+      console.error('Error fetching group:', error);
+      res.status(500).json({ message: 'Error fetching group' });
+    }
+  });
+
+  return router;
 }; 
