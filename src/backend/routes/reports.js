@@ -3,6 +3,13 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const PDFDocument = require('pdfkit');
 
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount);
+};
+
 module.exports = (app) => {
   const prisma = app.get('prisma');
 
@@ -137,16 +144,24 @@ module.exports = (app) => {
     }
   });
 
-  app.post('/reports/donations/pdf', authenticateToken, async (req, res) => {
+  router.post('/donations/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
+      
+      // Create date filter
+      let whereClause = {};
+      if (startDate || endDate) {
+        whereClause.donationDate = {};
+        if (startDate) {
+          whereClause.donationDate.gte = new Date(startDate);
+        }
+        if (endDate) {
+          whereClause.donationDate.lte = new Date(endDate);
+        }
+      }
+
       const donations = await prisma.donation.findMany({
-        where: {
-          donationDate: {
-            gte: startDate ? new Date(startDate) : undefined,
-            lte: endDate ? new Date(endDate) : undefined
-          }
-        },
+        where: whereClause,
         include: {
           member: {
             select: {
@@ -160,49 +175,138 @@ module.exports = (app) => {
         }
       });
 
-      const doc = new PDFDocument();
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename=donation-report.pdf`);
-      doc.pipe(res);
+      // Calculate totals by type
+      const totalsByType = donations.reduce((acc, donation) => {
+        acc[donation.donationType] = (acc[donation.donationType] || 0) + parseFloat(donation.amount);
+        return acc;
+      }, {});
 
-      // Add report header
-      doc.fontSize(20).text('Donation Report', { align: 'center' });
-      doc.moveDown();
-      
-      if (startDate && endDate) {
-        doc.fontSize(12).text(`Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`);
-        doc.moveDown();
-      }
+      const totalAmount = donations.reduce((sum, donation) => sum + parseFloat(donation.amount), 0);
 
-      // Add table headers
-      const tableTop = 150;
-      doc.fontSize(10);
-      doc.text('Date', 50, tableTop);
-      doc.text('Member', 150, tableTop);
-      doc.text('Type', 250, tableTop);
-      doc.text('Amount', 400, tableTop, { align: 'right' });
-
-      // Add table rows
-      let y = tableTop + 20;
-      let total = 0;
-
-      donations.forEach(donation => {
-        doc.text(new Date(donation.donationDate).toLocaleDateString(), 50, y);
-        doc.text(`${donation.member.firstName} ${donation.member.lastName}`, 150, y);
-        doc.text(donation.donationType, 250, y);
-        doc.text(formatCurrency(donation.amount), 400, y, { align: 'right' });
-        y += 20;
-        total += parseFloat(donation.amount);
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4'
       });
 
-      // Add total
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=donations-report.pdf');
+
+      doc.pipe(res);
+
+      // Add church logo/name
+      doc.fontSize(24)
+         .font('Helvetica-Bold')
+         .text('Church Management System', { align: 'center' });
+      
+      doc.moveDown(0.5)
+         .fontSize(18)
+         .font('Helvetica')
+         .text('Donation Report', { align: 'center' });
+
+      // Add date range and generation info
+      doc.moveDown()
+         .fontSize(10)
+         .text(`Generated on: ${new Date().toLocaleDateString()}`, { align: 'right' });
+
+      if (startDate || endDate) {
+        doc.text(`Period: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'right' });
+      }
+
+      doc.moveDown(2);
+
+      // Draw table
+      const tableTop = 200;
+      const columnSpacing = 20;
+      const columns = {
+        date: { x: 50, width: 100 },
+        member: { x: 170, width: 150 },
+        type: { x: 340, width: 100 },
+        amount: { x: 460, width: 80 }
+      };
+
+      // Draw header
+      doc.font('Helvetica-Bold')
+         .fontSize(10);
+
+      // Header background
+      doc.rect(50, tableTop - 5, 490, 20)
+         .fill('#f3f4f6');
+
+      // Header text
+      doc.fillColor('#000000')
+         .text('Date', columns.date.x, tableTop)
+         .text('Member', columns.member.x, tableTop)
+         .text('Type', columns.type.x, tableTop)
+         .text('Amount', columns.amount.x, tableTop);
+
+      // Draw rows
+      let yPosition = tableTop + 25;
+      doc.font('Helvetica').fontSize(10);
+
+      donations.forEach((donation, i) => {
+        if (yPosition > 700) {
+          doc.addPage();
+          yPosition = 50;
+          
+          // Repeat header on new page
+          doc.rect(50, yPosition - 5, 490, 20)
+             .fill('#f3f4f6');
+          
+          doc.fillColor('#000000')
+             .font('Helvetica-Bold')
+             .text('Date', columns.date.x, yPosition)
+             .text('Member', columns.member.x, yPosition)
+             .text('Type', columns.type.x, yPosition)
+             .text('Amount', columns.amount.x, yPosition);
+          
+          yPosition += 25;
+          doc.font('Helvetica');
+        }
+
+        // Alternate row background
+        if (i % 2 === 0) {
+          doc.rect(50, yPosition - 5, 490, 20)
+             .fill('#f9fafb');
+        }
+
+        doc.fillColor('#000000')
+           .text(new Date(donation.donationDate).toLocaleDateString(), columns.date.x, yPosition)
+           .text(`${donation.member.firstName} ${donation.member.lastName}`, columns.member.x, yPosition)
+           .text(donation.donationType, columns.type.x, yPosition)
+           .text(formatCurrency(donation.amount), columns.amount.x, yPosition);
+
+        yPosition += 20;
+      });
+
+      // Add summary section
+      doc.moveDown(2)
+         .font('Helvetica-Bold')
+         .fontSize(12)
+         .text('Summary by Donation Type', 50);
+
       doc.moveDown();
-      doc.fontSize(12).text(`Total: ${formatCurrency(total)}`, { align: 'right' });
+      Object.entries(totalsByType).forEach(([type, amount]) => {
+        doc.text(`${type}: ${formatCurrency(amount)}`, 70);
+      });
+
+      doc.moveDown()
+         .text(`Total Donations: ${formatCurrency(totalAmount)}`, 50);
+
+      // Add footer
+      doc.fontSize(8)
+         .font('Helvetica')
+         .text('Confidential Document - For Internal Use Only', 50, doc.page.height - 50, {
+           align: 'center',
+           width: doc.page.width - 100
+         });
 
       doc.end();
     } catch (error) {
       console.error('Error generating PDF:', error);
-      res.status(500).json({ message: 'Error generating PDF report' });
+      if (!res.headersSent) {
+        res.status(500).json({ message: 'Error generating PDF report', error: error.message });
+      }
     }
   });
 

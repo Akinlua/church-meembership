@@ -14,6 +14,13 @@ const DonationReport = () => {
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState(null);
 
+  const handleDateChange = (type, date) => {
+    setDateRange(prev => ({
+      ...prev,
+      [type]: date
+    }));
+  };
+
   const fetchReport = async () => {
     try {
       setLoading(true);
@@ -37,7 +44,7 @@ const DonationReport = () => {
 
   useEffect(() => {
     fetchReport();
-  }, [dateRange]);
+  }, []);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -89,26 +96,35 @@ const DonationReport = () => {
     <div className="space-y-6 p-6 bg-white rounded-lg shadow">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Donation Report</h2>
-        <div className="flex gap-4">
-          <button onClick={generatePDF} className="px-4 py-2 bg-green-600 text-white rounded">
-            Download PDF
-          </button>
-        </div>
       </div>
 
       <div className="flex justify-between items-center mb-6">
         <div className="flex gap-4">
           <DatePickerField
             label="Start Date"
-            selected={dateRange.startDate}
-            onChange={(date) => setDateRange(prev => ({ ...prev, startDate: date }))}
+            value={dateRange.startDate}
+            onChange={(date) => handleDateChange('startDate', date)}
+            dateFormat="MM/dd/yyyy"
           />
           <DatePickerField
             label="End Date"
-            selected={dateRange.endDate}
-            onChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
+            value={dateRange.endDate}
+            onChange={(date) => handleDateChange('endDate', date)}
+            dateFormat="MM/dd/yyyy"
           />
+          <button 
+            onClick={fetchReport}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Generate Report
+          </button>
         </div>
+        <button 
+          onClick={generatePDF} 
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Download PDF
+        </button>
       </div>
 
       {loading ? (

@@ -42,7 +42,8 @@ require('./routes/members')(app);
 const groupsRouter = require('./routes/groups')(app);
 app.use('/groups', groupsRouter);
 require('./routes/donations')(app);
-require('./routes/reports')(app);
+const reportsRouter = require('./routes/reports')(app);
+app.use('/reports', reportsRouter);
 require('./routes/dashboard')(app);
 
 async function start() {

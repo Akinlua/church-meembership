@@ -98,13 +98,29 @@ module.exports = (app) => {
   app.get('/members/:id', async (req, res) => {
     try {
       const member = await prisma.member.findUnique({
-        where: { id: parseInt(req.params.id) }
+        where: { id: parseInt(req.params.id) },
+        include: {
+          groups: {
+            include: {
+              group: true
+            }
+          }
+        }
       });
-      if (!member) {
-        return res.status(404).json({ message: 'Member not found' });
-      }
-      res.json(member);
+
+      // Transform the groups data to match the expected format
+      const formattedMember = {
+        ...member,
+        groups: member.groups.map(membership => ({
+          id: membership.group.id,
+          name: membership.group.name,
+          description: membership.group.description
+        }))
+      };
+
+      res.json(formattedMember);
     } catch (error) {
+      console.error('Error fetching member:', error);
       res.status(500).json({ message: 'Error fetching member' });
     }
   });

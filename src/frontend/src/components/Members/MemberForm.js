@@ -34,14 +34,16 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
       try {
         await fetchGroups();
         if (member) {
-          const groupIds = member.groups?.map(g => g.group?.id || g.groupId || g.id) || [];
+          const groupIds = member.groups?.map(g => {
+            // Handle different possible group structures
+            return g.group?.id || g.groupId || g.id;
+          }).filter(id => id) || [];
+          
           setFormData(prev => ({
             ...prev,
             groups: groupIds
           }));
         }
-        console.log('Member groups:', member?.groups);
-        console.log('Formatted group IDs:', formData.groups);
       } finally {
         setFormLoading(false);
       }
@@ -140,6 +142,10 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
     }
   };
 
+  const formatMemberName = (group) => {
+    return group.name || `${group.firstName} ${group.lastName}`.trim();
+  };
+
   return (
     <div className="relative">
       {formLoading ? (
@@ -168,7 +174,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   <input
                     type="text"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     value={formData.first_name}
                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                   />
@@ -177,7 +183,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   <label className="block text-sm font-medium text-gray-700">Middle Name</label>
                   <input
                     type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     value={formData.middle_name}
                     onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
                   />
@@ -259,7 +265,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   <label className="block text-sm font-medium text-gray-700">Email</label>
                   <input
                     type="email"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
@@ -316,7 +322,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                           />
                           <label className="ml-3 block text-sm text-gray-700">
-                            {group.name}
+                            {formatMemberName(group)}
                           </label>
                         </div>
                       ))}
