@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
+const PDFDocument = require('pdfkit');
 
 module.exports = (app) => {
   const prisma = app.get('prisma');
@@ -133,6 +134,75 @@ module.exports = (app) => {
     } catch (error) {
       console.error('Error generating group report:', error);
       res.status(500).json({ message: 'Error generating group report' });
+    }
+  });
+
+  app.post('/reports/donations/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+      const donations = await prisma.donation.findMany({
+        where: {
+          donationDate: {
+            gte: startDate ? new Date(startDate) : undefined,
+            lte: endDate ? new Date(endDate) : undefined
+          }
+        },
+        include: {
+          member: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
+          }
+        },
+        orderBy: {
+          donationDate: 'desc'
+        }
+      });
+
+      const doc = new PDFDocument();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename=donation-report.pdf`);
+      doc.pipe(res);
+
+      // Add report header
+      doc.fontSize(20).text('Donation Report', { align: 'center' });
+      doc.moveDown();
+      
+      if (startDate && endDate) {
+        doc.fontSize(12).text(`Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`);
+        doc.moveDown();
+      }
+
+      // Add table headers
+      const tableTop = 150;
+      doc.fontSize(10);
+      doc.text('Date', 50, tableTop);
+      doc.text('Member', 150, tableTop);
+      doc.text('Type', 250, tableTop);
+      doc.text('Amount', 400, tableTop, { align: 'right' });
+
+      // Add table rows
+      let y = tableTop + 20;
+      let total = 0;
+
+      donations.forEach(donation => {
+        doc.text(new Date(donation.donationDate).toLocaleDateString(), 50, y);
+        doc.text(`${donation.member.firstName} ${donation.member.lastName}`, 150, y);
+        doc.text(donation.donationType, 250, y);
+        doc.text(formatCurrency(donation.amount), 400, y, { align: 'right' });
+        y += 20;
+        total += parseFloat(donation.amount);
+      });
+
+      // Add total
+      doc.moveDown();
+      doc.fontSize(12).text(`Total: ${formatCurrency(total)}`, { align: 'right' });
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      res.status(500).json({ message: 'Error generating PDF report' });
     }
   });
 

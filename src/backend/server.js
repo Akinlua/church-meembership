@@ -45,7 +45,15 @@ require('./routes/donations')(app);
 require('./routes/reports')(app);
 require('./routes/dashboard')(app);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-}); 
+async function start() {
+    await prisma.$connect();
+    console.log('Connected to database');
+
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    }); 
+}
+
+start();
+

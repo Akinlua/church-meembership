@@ -42,8 +42,10 @@ const DonationReport = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
-    }).format(amount);
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(parseFloat(amount));
   };
 
   const formatDate = (date) => {
@@ -54,23 +56,47 @@ const DonationReport = () => {
     }).format(new Date(date));
   };
 
-  const handlePrint = () => {
-    window.print();
+  const generatePDF = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/reports/donations/pdf`,
+        {
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          responseType: 'blob'
+        }
+      );
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `donation-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="space-y-6 p-6 bg-white rounded-lg shadow print:shadow-none">
-      <div className="flex justify-between items-center print:hidden">
+    <div className="space-y-6 p-6 bg-white rounded-lg shadow">
+      <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Donation Report</h2>
-        <button
-          onClick={handlePrint}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Print Report
-        </button>
+        <div className="flex gap-4">
+          <button onClick={generatePDF} className="px-4 py-2 bg-green-600 text-white rounded">
+            Download PDF
+          </button>
+        </div>
       </div>
 
-      <div className="flex justify-between items-center mb-6 print:hidden">
+      <div className="flex justify-between items-center mb-6">
         <div className="flex gap-4">
           <DatePickerField
             label="Start Date"

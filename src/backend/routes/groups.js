@@ -129,12 +129,25 @@ module.exports = (app) => {
     }
   });
 
-  // Add delete endpoint for groups
+  // Delete group
   router.delete('/:id', authenticateToken, async (req, res) => {
     try {
-      await prisma.group.delete({
-        where: { id: parseInt(req.params.id) }
+      const groupId = parseInt(req.params.id);
+
+      // First delete all member relationships
+      await prisma.groupMember.deleteMany({
+        where: {
+          groupId: groupId
+        }
       });
+
+      // Then delete the group
+      await prisma.group.delete({
+        where: {
+          id: groupId
+        }
+      });
+
       res.json({ message: 'Group deleted successfully' });
     } catch (error) {
       console.error('Error deleting group:', error);

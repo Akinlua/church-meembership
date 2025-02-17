@@ -7,9 +7,9 @@ import { PageLoader } from '../common/Loader';
 
 const Members = () => {
   const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -35,54 +35,74 @@ const Members = () => {
     setShowForm(true);
   };
 
-  const handleEditMember = (member) => {
-    setSelectedMember(member);
-    setShowForm(true);
+  const handleEditMember = async (member) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/members/${member.id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setSelectedMember(response.data);
+      setShowForm(true);
+    } catch (error) {
+      console.error('Error fetching member details:', error);
+    }
+  };
+
+  const handleDeleteMember = async (id) => {
+    if (window.confirm('Are you sure you want to delete this member?')) {
+      try {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/members/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        await fetchMembers();
+      } catch (error) {
+        console.error('Error deleting member:', error);
+      }
+    }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Church Members</h1>
-            <button
-              onClick={handleAddMember}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-              </svg>
-              Add New Member
-            </button>
-          </div>
+    <>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Members</h1>
+          <button
+            onClick={handleAddMember}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Add Member
+          </button>
         </div>
 
-        <div className="p-6">
-          {loading ? (
-            <PageLoader />
-          ) : (
-            <>
-              {showForm ? (
-                <MemberForm
-                  member={selectedMember}
-                  onClose={() => setShowForm(false)}
-                  onSubmit={() => {
-                    setShowForm(false);
-                    fetchMembers();
-                  }}
-                />
-              ) : (
-                <MemberList
-                  members={members}
-                  onEdit={handleEditMember}
-                />
-              )}
-            </>
-          )}
-        </div>
+        {loading ? (
+          <PageLoader />
+        ) : (
+          <MemberList 
+            members={members} 
+            onEdit={handleEditMember}
+            onDelete={handleDeleteMember}
+          />
+        )}
       </div>
-    </div>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-8 border shadow-lg rounded-md bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <MemberForm
+              member={selectedMember}
+              onClose={() => {
+                setShowForm(false);
+                setSelectedMember(null);
+              }}
+              onSubmit={async () => {
+                await fetchMembers();
+                setShowForm(false);
+                setSelectedMember(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

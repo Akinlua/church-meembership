@@ -22,7 +22,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
     membership_date: member?.membershipDate || null,
     baptismal_date: member?.baptismalDate || null,
     profile_image: member?.profileImage || '',
-    groups: member?.groups?.map(g => g.groupId || g.group?.id || g.id) || []
+    groups: member?.groups?.map(g => g.group?.id || g.groupId || g.id) || []
   });
   
   const [availableGroups, setAvailableGroups] = useState([]);
@@ -33,12 +33,21 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
     const loadFormData = async () => {
       try {
         await fetchGroups();
+        if (member) {
+          const groupIds = member.groups?.map(g => g.group?.id || g.groupId || g.id) || [];
+          setFormData(prev => ({
+            ...prev,
+            groups: groupIds
+          }));
+        }
+        console.log('Member groups:', member?.groups);
+        console.log('Formatted group IDs:', formData.groups);
       } finally {
         setFormLoading(false);
       }
     };
     loadFormData();
-  }, []);
+  }, [member]);
 
   const fetchGroups = async () => {
     try {

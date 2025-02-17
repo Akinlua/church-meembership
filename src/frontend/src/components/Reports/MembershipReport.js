@@ -9,22 +9,28 @@ const MembershipReport = () => {
     endDate: null
   });
   const [totalMembers, setTotalMembers] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const fetchMembers = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/reports/members`, {
-        params: {
-          startDate: dateRange.startDate,
-          endDate: dateRange.endDate
-        },
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (dateRange.startDate) params.append('startDate', dateRange.startDate);
+      if (dateRange.endDate) params.append('endDate', dateRange.endDate);
+
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/reports/members?${params}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
+
       setMembers(response.data.members);
       setTotalMembers(response.data.total);
     } catch (error) {
       console.error('Error fetching membership report:', error);
-      alert('Error generating membership report. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
