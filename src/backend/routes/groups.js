@@ -53,35 +53,30 @@ module.exports = (app) => {
       const { name, description, member_ids } = req.body;
       const groupId = parseInt(req.params.id);
 
-      await prisma.$transaction(async (tx) => {
-        // Delete existing members
-        await tx.groupMember.deleteMany({
-          where: { groupId }
-        });
-
-        // Update group and add new members
-        const updatedGroup = await tx.group.update({
-          where: { id: groupId },
-          data: {
-            name,
-            description,
-            members: {
-              create: member_ids?.map(memberId => ({
-                memberId: parseInt(memberId)
-              })) || []
-            }
-          },
-          include: {
-            members: {
-              include: {
-                member: true
+      const updatedGroup = await prisma.group.update({
+        where: { id: groupId },
+        data: {
+          name,
+          description,
+          members: {
+            deleteMany: {}, // Remove all existing connections
+            create: member_ids.map(memberId => ({
+              member: {
+                connect: { id: parseInt(memberId) }
               }
+            }))
+          }
+        },
+        include: {
+          members: {
+            include: {
+              member: true
             }
           }
-        });
-
-        res.json(updatedGroup);
+        }
       });
+
+      res.json(updatedGroup);
     } catch (error) {
       console.error('Error updating group:', error);
       res.status(500).json({ message: 'Error updating group' });
@@ -98,7 +93,15 @@ module.exports = (app) => {
         include: {
           members: {
             include: {
-              member: true
+              member: {
+                include: {
+                  groups: {
+                    include: {
+                      group: true
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -108,13 +111,14 @@ module.exports = (app) => {
         return res.status(404).json({ message: 'Group not found' });
       }
 
-      // Transform the data to include member IDs
+      // Transform the data to include member details and their groups
       const formattedGroup = {
         ...group,
         members: group.members.map(membership => ({
-          member_id: membership.member.id,
+          id: membership.member.id,
           firstName: membership.member.firstName,
-          lastName: membership.member.lastName
+          lastName: membership.member.lastName,
+          groups: membership.member.groups.map(g => g.group.id)
         }))
       };
 
@@ -122,6 +126,19 @@ module.exports = (app) => {
     } catch (error) {
       console.error('Error fetching group:', error);
       res.status(500).json({ message: 'Error fetching group' });
+    }
+  });
+
+  // Add delete endpoint for groups
+  router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+      await prisma.group.delete({
+        where: { id: parseInt(req.params.id) }
+      });
+      res.json({ message: 'Group deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting group:', error);
+      res.status(500).json({ message: 'Error deleting group' });
     }
   });
 

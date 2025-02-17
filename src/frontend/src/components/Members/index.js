@@ -3,9 +3,11 @@ import MemberList from './MemberList';
 import MemberForm from './MemberForm';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
+import { PageLoader } from '../common/Loader';
 
 const Members = () => {
   const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const { currentUser } = useAuth();
@@ -16,12 +18,15 @@ const Members = () => {
 
   const fetchMembers = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setMembers(response.data);
     } catch (error) {
       console.error('Error fetching members:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,20 +59,26 @@ const Members = () => {
         </div>
 
         <div className="p-6">
-          {showForm ? (
-            <MemberForm
-              member={selectedMember}
-              onClose={() => setShowForm(false)}
-              onSubmit={() => {
-                setShowForm(false);
-                fetchMembers();
-              }}
-            />
+          {loading ? (
+            <PageLoader />
           ) : (
-            <MemberList
-              members={members}
-              onEdit={handleEditMember}
-            />
+            <>
+              {showForm ? (
+                <MemberForm
+                  member={selectedMember}
+                  onClose={() => setShowForm(false)}
+                  onSubmit={() => {
+                    setShowForm(false);
+                    fetchMembers();
+                  }}
+                />
+              ) : (
+                <MemberList
+                  members={members}
+                  onEdit={handleEditMember}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

@@ -22,6 +22,8 @@ model Member {
   firstName      String     @map("first_name")
   middleName     String?    @map("middle_name")
   lastName       String     @map("last_name")
+  memberNumber   Int        @unique @default(autoincrement()) @map("member_number")
+  isActive       Boolean    @default(true) @map("is_active")
   address        String?
   city           String?
   state          String?
@@ -32,6 +34,7 @@ model Member {
   email          String?
   membershipDate DateTime?  @map("membership_date")
   baptismalDate  DateTime?  @map("baptismal_date")
+  profileImage   String?    @map("profile_image")
   createdAt      DateTime   @default(now()) @map("created_at")
   donations      Donation[]
   groups         GroupMember[]
@@ -65,6 +68,7 @@ model Donation {
   member       Member   @relation(fields: [memberId], references: [id])
   memberId     Int      @map("member_id")
   amount       Decimal  @db.Decimal(10, 2)
+  donationType String   @map("donation_type")
   donationDate DateTime @map("donation_date")
   notes        String?
   createdAt    DateTime @default(now()) @map("created_at")

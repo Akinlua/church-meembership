@@ -1,27 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import DatePickerField from '../common/DatePickerField';
+import { ButtonLoader, PageLoader } from '../common/Loader';
 
 const DonationForm = ({ donation, onClose, onSubmit }) => {
+  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(true);
   const [members, setMembers] = useState([]);
   const [formData, setFormData] = useState({
-    member_id: donation?.id || '',
+    member_id: donation?.memberId || '',
     amount: donation?.amount || '',
-    donation_date: donation?.donationDate ? new Date(donation.donationDate).toISOString().split('T')[0] : '',
+    donation_type: donation?.donationType || '',
+    donation_date: donation?.donationDate ? new Date(donation.donationDate) : null,
     notes: donation?.notes || ''
   });
 
+  const donationTypes = [
+    'Tithe',
+    'Offering',
+    'Building Fund',
+    'Missions',
+    'Special Event',
+    'Other'
+  ];
+
   useEffect(() => {
-    fetchMembers();
-    // Update form data when donation prop changes
-    if (donation) {
-      setFormData({
-        member_id: donation.id || '',
-        amount: donation.amount || '',
-        donation_date: donation.donationDate ? new Date(donation.donationDate).toISOString().split('T')[0] : '',
-        notes: donation.notes || ''
-      });
-    }
-  }, [donation]);
+    const loadFormData = async () => {
+      try {
+        await fetchMembers();
+        if (donation) {
+          setFormData({
+            member_id: donation.memberId || '',
+            amount: donation.amount || '',
+            donation_type: donation.donationType || '',
+            donation_date: donation.donationDate ? new Date(donation.donationDate) : null,
+            notes: donation.notes || ''
+          });
+        }
+      } finally {
+        setFormLoading(false);
+      }
+    };
+    loadFormData();
+  }, []);
 
   const fetchMembers = async () => {
     try {
@@ -36,6 +57,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const url = `${process.env.REACT_APP_API_URL}/donations${donation ? `/${donation.id}` : ''}`;
       const method = donation ? 'put' : 'post';
@@ -44,86 +66,119 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       
-      onSubmit();
+      await onSubmit();
     } catch (error) {
       console.error('Error saving donation:', error);
       alert('Error saving donation. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const formatCurrency = (value) => {
+    const number = parseFloat(value);
+    if (isNaN(number)) return value;
+    return number.toFixed(2);
+  };
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-6">{donation ? 'Edit' : 'Add'} Donation</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Member</label>
-            <select
-              value={formData.member_id}
-              onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
-            >
-              <option value="">Select Member</option>
-              {members.map(member => (
-                <option key={member.id} value={member.id}>
-                  {`${member.firstName} ${member.lastName}`}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Amount</label>
-            <input
-              type="number"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
-              step="0.01"
-              min="0"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Donation Date</label>
-            <input
-              type="date"
-              value={formData.donation_date}
-              onChange={(e) => setFormData({ ...formData, donation_date: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Notes</label>
-            <textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              rows="3"
-            />
-          </div>
+    <div className="relative">
+      {formLoading ? (
+        <div className="min-h-[400px]">
+          <PageLoader />
         </div>
+      ) : (
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-2xl font-bold mb-6">{donation ? 'Edit' : 'Add'} Donation</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Member</label>
+                <select
+                  value={formData.member_id}
+                  onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select Member</option>
+                  {members.map(member => (
+                    <option key={member.id} value={member.id}>
+                      {`${member.firstName} ${member.lastName}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        <div className="flex justify-end space-x-3 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-          >
-            {donation ? 'Update' : 'Add'} Donation
-          </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Donation Type</label>
+                <select
+                  value={formData.donation_type}
+                  onChange={(e) => setFormData({ ...formData, donation_type: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select Donation Type</option>
+                  {donationTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Amount</label>
+                <div className="mt-1 relative rounded-md shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-500 sm:text-sm">$</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: formatCurrency(e.target.value) })}
+                    className="mt-1 block w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <DatePickerField
+                label="Donation Date"
+                value={formData.donation_date}
+                onChange={(date) => setFormData({ ...formData, donation_date: date })}
+                required
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Notes</label>
+                <textarea
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loading}
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              >
+                {loading ? <ButtonLoader /> : donation ? 'Update' : 'Add'} Donation
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      )}
     </div>
   );
 };

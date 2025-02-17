@@ -30,6 +30,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Apply authentication middleware to protected routes
+app.use('/uploads', express.static('public/uploads'));
 app.use(['/members', '/groups', '/donations', '/reports', '/dashboard'], authenticateToken);
 
 // Make authenticateToken available to routes

@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import GroupList from './GroupList';
 import GroupForm from './GroupForm';
 import axios from 'axios';
+import { PageLoader } from '../common/Loader';
+
 
 const Groups = () => {
   const [groups, setGroups] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchGroups();
@@ -14,12 +17,15 @@ const Groups = () => {
 
   const fetchGroups = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/groups`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setGroups(response.data);
     } catch (error) {
       console.error('Error fetching groups:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,6 +48,17 @@ const Groups = () => {
     setShowForm(true);
   };
 
+  const handleDeleteGroup = async (id) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/groups/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      await fetchGroups();
+    } catch (error) {
+      console.error('Error deleting group:', error);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -61,7 +78,11 @@ const Groups = () => {
         </div>
 
         <div className="p-6">
-          {showForm ? (
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <PageLoader />
+            </div>
+          ) : showForm ? (
             <GroupForm
               group={selectedGroup}
               onClose={() => setShowForm(false)}
@@ -74,6 +95,8 @@ const Groups = () => {
             <GroupList
               groups={groups}
               onEdit={handleEditGroup}
+              onDelete={handleDeleteGroup}
+              loading={loading}
             />
           )}
         </div>
