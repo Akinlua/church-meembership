@@ -10,6 +10,7 @@ const MembershipReport = () => {
   });
   const [totalMembers, setTotalMembers] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
 
   const fetchMembers = async () => {
     try {
@@ -36,6 +37,10 @@ const MembershipReport = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleViewDetails = (member) => {
+    setSelectedMember(member);
   };
 
   useEffect(() => {
@@ -80,6 +85,9 @@ const MembershipReport = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Profile
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Name
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -91,11 +99,25 @@ const MembershipReport = () => {
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Groups
                   </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {members.map((member) => (
                   <tr key={member.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 flex-shrink-0">
+                          <img 
+                            className="h-10 w-10 rounded-full object-cover"
+                            src={member.profileImage || '/default-avatar.png'} 
+                            alt=""
+                          />
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {`${member.firstName} ${member.lastName}`}
                     </td>
@@ -118,6 +140,14 @@ const MembershipReport = () => {
                         ))}
                       </div>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => handleViewDetails(member)}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        View Details
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -131,6 +161,46 @@ const MembershipReport = () => {
           </div>
         </div>
       </div>
+
+      {/* Member Details Modal */}
+      {selectedMember && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="flex flex-col items-center">
+              <img 
+                src={selectedMember.profileImage || '/default-avatar.png'}
+                alt=""
+                className="h-32 w-32 rounded-full object-cover mb-4"
+              />
+              <h3 className="text-lg font-bold mb-4">
+                {`${selectedMember.firstName} ${selectedMember.lastName}`}
+              </h3>
+              <div className="w-full space-y-2">
+                <p><span className="font-semibold">Email:</span> {selectedMember.email}</p>
+                <p><span className="font-semibold">Phone:</span> {selectedMember.phone}</p>
+                <p><span className="font-semibold">Address:</span> {selectedMember.address}</p>
+                <p><span className="font-semibold">Membership Date:</span> {new Date(selectedMember.membershipDate).toLocaleDateString()}</p>
+                <div>
+                  <span className="font-semibold">Groups:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedMember.groups.map((group, index) => (
+                      <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                        {group}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedMember(null)}
+                className="mt-6 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
