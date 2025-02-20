@@ -42,6 +42,32 @@ const DonationReport = () => {
     }
   };
 
+  const downloadTypeSummaryPDF = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/reports/donations/type-summary/pdf`,
+        {
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          responseType: 'blob'
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'donation-type-summary-report.pdf');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading type summary PDF:', error);
+    }
+  };
+
   useEffect(() => {
     fetchReport();
   }, []);
@@ -123,7 +149,13 @@ const DonationReport = () => {
           onClick={generatePDF} 
           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
         >
-          Download PDF
+          Download Donation Report PDF
+        </button>
+        <button 
+          onClick={downloadTypeSummaryPDF} 
+          className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+        >
+          Download Type Report PDF
         </button>
       </div>
 
