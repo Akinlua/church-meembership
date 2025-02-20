@@ -444,8 +444,8 @@ module.exports = (app) => {
       const columns = {
         date: { x: 50, width: 100 },
         member: { x: 170, width: 150 },
-        type: { x: 340, width: 100 },
-        amount: { x: 460, width: 80 }
+        amount: { x: 340, width: 100 },
+        type: { x: 460, width: 80 }
       };
 
       // Draw header
