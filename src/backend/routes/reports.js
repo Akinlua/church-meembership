@@ -460,8 +460,8 @@ module.exports = (app) => {
       doc.fillColor('#000000')
          .text('Date', columns.date.x, tableTop)
          .text('Member', columns.member.x, tableTop)
-         .text('Type', columns.type.x, tableTop)
-         .text('Amount', columns.amount.x, tableTop);
+         .text('Amount', columns.amount.x, tableTop)
+         .text('Type', columns.type.x, tableTop);
 
       // Draw rows
       let yPosition = tableTop + 25;
