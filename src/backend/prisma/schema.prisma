@@ -74,4 +74,12 @@ model Donation {
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("donations")
+  DonationType DonationType[]
+}
+
+model DonationType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  donations   Donation[]
 } 

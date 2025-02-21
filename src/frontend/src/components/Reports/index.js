@@ -8,11 +8,18 @@ import DonationTypeSummaryReport from './DonationTypeSummaryReport';
 const Reports = () => {
   const [activeReport, setActiveReport] = useState('donations');
   const [loading, setLoading] = useState(false);
+  const [loadingTypeReport, setLoadingTypeReport] = useState(false);
 
   const handleDownload = async (reportType) => {
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
     setLoading(false);
+  };
+
+  const handleDownloadTypeReport = async () => {
+    setLoadingTypeReport(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setLoadingTypeReport(false);
   };
 
   return (
@@ -41,22 +48,13 @@ const Reports = () => {
           >
             {loading ? 'Loading...' : 'Groups'}
           </button>
-          {/* <button
-            onClick={() => setActiveReport('totalDonations')}
-            className={`px-4 py-2 rounded ${
-              activeReport === 'totalDonations' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
-          >
-            Total Donations
-          </button>
           <button
-            onClick={() => setActiveReport('donationTypeSummary')}
-            className={`px-4 py-2 rounded ${
-              activeReport === 'donationTypeSummary' ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
+            onClick={() => { setActiveReport('donationTypeSummary'); handleDownloadTypeReport(); }}
+            className={`px-4 py-2 rounded ${activeReport === 'donationTypeSummary' ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${loadingTypeReport ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={loadingTypeReport}
           >
-            Donation Type Summary
-          </button> */}
+            {loadingTypeReport ? 'Loading...' : 'Donation Type Summary'}
+          </button>
         </div>
       </div>
 

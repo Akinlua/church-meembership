@@ -1,3 +1,7 @@
+const { authenticateToken } = require('../middleware/auth');
+const PDFDocument = require('pdfkit');
+const { PassThrough } = require('stream');
+
 module.exports = (app) => {
   const prisma = app.get('prisma');
 
@@ -54,6 +58,7 @@ module.exports = (app) => {
           memberId: parseInt(req.body.member_id),
           amount: parseFloat(req.body.amount),
           donationDate: new Date(req.body.donation_date),
+          donationType: req.body.donation_type,
           notes: req.body.notes
         }
       });
@@ -73,6 +78,109 @@ module.exports = (app) => {
     } catch (error) {
       console.error('Error deleting donation:', error);
       res.status(500).json({ message: 'Error deleting donation' });
+    }
+  });
+
+  // Add this route to fetch donation types
+  app.get('/donation-types', async (req, res) => {
+    try {
+      const donationTypes = await prisma.donationType.findMany(); // Assuming you have a donationType model
+      res.json(donationTypes);
+    } catch (error) {
+      console.error('Error fetching donation types:', error);
+      res.status(500).json({ message: 'Error fetching donation types' });
+    }
+  });
+
+   // Get all donation types
+   app.get('/donation-types', authenticateToken, async (req, res) => {
+    try {
+      const donationTypes = await prisma.donationType.findMany();
+      res.json(donationTypes);
+    } catch (error) {
+      console.error('Error fetching donation types:', error);
+      res.status(500).json({ message: 'Error fetching donation types' });
+    }
+  });
+
+  // Add a new donation type
+  app.post('/donation-types', authenticateToken, async (req, res) => {
+    const { name, description } = req.body;
+    try {
+      const newType = await prisma.donationType.create({
+        data: { name, description }
+      });
+      res.status(201).json(newType);
+    } catch (error) {
+      console.error('Error adding donation type:', error);
+      res.status(500).json({ message: 'Error adding donation type' });
+    }
+  });
+
+  // Edit a donation type
+  app.put('/donation-types/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { name, description } = req.body;
+    try {
+      const updatedType = await prisma.donationType.update({
+        where: { id: parseInt(id) },
+        data: { name, description }
+      });
+      res.json(updatedType);
+    } catch (error) {
+      console.error('Error updating donation type:', error);
+      res.status(500).json({ message: 'Error updating donation type' });
+    }
+  });
+
+  // Delete a donation type
+  app.delete('/donation-types/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    try {
+      await prisma.donationType.delete({
+        where: { id: parseInt(id) }
+      });
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting donation type:', error);
+      res.status(500).json({ message: 'Error deleting donation type' });
+    }
+  });
+
+  // Add this route to download donation types as a PDF
+  app.get('/donation-types/download', authenticateToken, async (req, res) => {
+    try {
+      const donationTypes = await prisma.donationType.findMany({
+        select: {
+          name: true,
+          description: true
+        }
+      });
+
+      const doc = new PDFDocument();
+      const passThrough = new PassThrough();
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=donation_types_report.pdf');
+
+      doc.pipe(passThrough);
+      doc.pipe(res);
+
+      doc.fontSize(20).text('Donation Types Report', { align: 'center' });
+      doc.moveDown();
+
+      doc.fontSize(12).text('Name', { continued: true }).text('Description', { align: 'right' });
+      doc.moveDown();
+
+      donationTypes.forEach(type => {
+        doc.text(type.name, { continued: true }).text(type.description, { align: 'right' });
+        doc.moveDown();
+      });
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating donation types report:', error);
+      res.status(500).json({ message: 'Error generating donation types report' });
     }
   });
 }; 

@@ -10,6 +10,7 @@ import Navigation from './components/Navigation';
 import PrivateRoute from './components/PrivateRoute';
 import Signup from './components/Signup';
 import { useAuth } from './contexts/AuthContext';
+import DonationTypeList from './components/Donations/DonationTypeList';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -26,6 +27,7 @@ function App() {
           <Route path="/donations" element={<PrivateRoute><Donations /></PrivateRoute>} />
           <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/donation-types" element={<DonationTypeList />} />
         </Routes>
       </div>
     </div>

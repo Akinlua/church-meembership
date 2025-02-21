@@ -7,6 +7,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
   const [members, setMembers] = useState([]);
+  const [donationTypes, setDonationTypes] = useState([]);
   const [formData, setFormData] = useState({
     member_id: donation?.memberId || '',
     amount: donation?.amount || '',
@@ -15,19 +16,11 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
     notes: donation?.notes || ''
   });
 
-  const donationTypes = [
-    'Tithe',
-    'Offering',
-    'Building Fund',
-    'Missions',
-    'Special Event',
-    'Other'
-  ];
-
   useEffect(() => {
     const loadFormData = async () => {
       try {
         await fetchMembers();
+        await fetchDonationTypes();
         if (donation) {
           setFormData({
             member_id: donation.memberId || '',
@@ -52,6 +45,17 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       setMembers(response.data);
     } catch (error) {
       console.error('Error fetching members:', error);
+    }
+  };
+
+  const fetchDonationTypes = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/donation-types`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setDonationTypes(response.data);
+    } catch (error) {
+      console.error('Error fetching donation types:', error);
     }
   };
 
@@ -119,7 +123,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                 >
                   <option value="">Select Donation Type</option>
                   {donationTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
+                    <option key={type.id} value={type.name}>{type.name}</option>
                   ))}
                 </select>
               </div>
