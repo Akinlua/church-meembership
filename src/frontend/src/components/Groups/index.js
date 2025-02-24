@@ -96,7 +96,8 @@ const Groups = () => {
               groups={groups}
               onEdit={handleEditGroup}
               onDelete={handleDeleteGroup}
-              loading={loading}
+              selectedGroup={selectedGroup}
+              setSelectedGroup={setSelectedGroup}
             />
           )}
         </div>

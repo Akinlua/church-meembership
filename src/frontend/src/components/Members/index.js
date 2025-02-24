@@ -80,6 +80,8 @@ const Members = () => {
             members={members} 
             onEdit={handleEditMember}
             onDelete={handleDeleteMember}
+            selectedMember={selectedMember}
+            setSelectedMember={setSelectedMember}
           />
         )}
       </div>

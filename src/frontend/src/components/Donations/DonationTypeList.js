@@ -26,13 +26,14 @@ const DonationTypeList = () => {
     setShowForm(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this donation type?')) {
+  const handleDelete = async () => {
+    if (selectedType && window.confirm('Are you sure you want to delete this donation type?')) {
       try {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/donation-types/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/donation-types/${selectedType.id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setMessage('Donation type deleted successfully.');
+        setSelectedType(null); // Clear selection after deletion
         fetchDonationTypes(); // Refresh the list
       } catch (error) {
         console.error('Error deleting donation type:', error);
@@ -61,6 +62,14 @@ const DonationTypeList = () => {
     }
   };
 
+  const handleSelect = (type) => {
+    if (selectedType && selectedType.id === type.id) {
+      setSelectedType(null); // Deselect if already selected
+    } else {
+      setSelectedType(type); // Select the donation type
+    }
+  };
+
   useEffect(() => {
     fetchDonationTypes();
   }, []);
@@ -81,44 +90,50 @@ const DonationTypeList = () => {
         Add Donation Type
       </button>
       {message && <div className="mb-4 text-green-600">{message}</div>}
-      {showForm && (
+      {showForm ? (
         <DonationTypeForm
           onClose={() => setShowForm(false)}
           onSubmit={fetchDonationTypes}
           initialData={selectedType}
         />
-      )}
-      <table className="min-w-full divide-y divide-gray-200 mt-4">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {donationTypes.map(type => (
-            <tr key={type.id} className="hover:bg-gray-100 transition duration-200">
-              <td className="px-6 py-4 whitespace-nowrap">{type.name}</td>
-              <td className="px-6 py-4 whitespace-nowrap">{type.description}</td>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <button 
-                  onClick={() => handleEdit(type)} 
-                  className="text-blue-600 hover:text-blue-800 transition duration-200"
-                >
-                  Edit
-                </button>
-                <button 
-                  onClick={() => handleDelete(type.id)} 
-                  className="text-red-600 hover:text-red-800 ml-2 transition duration-200"
-                >
-                  Delete
-                </button>
-              </td>
+      ) : (
+        <table className="min-w-full divide-y divide-gray-200 mt-4">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {donationTypes.map(type => (
+              <tr 
+                key={type.id} 
+                className={`hover:bg-gray-100 transition duration-200 ${selectedType && selectedType.id === type.id ? 'bg-gray-200' : ''}`}
+                onClick={() => handleSelect(type)} // Select on row click
+              >
+                <td className="px-6 py-4 whitespace-nowrap">{type.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{type.description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {selectedType && (
+        <div className="mt-4">
+          <button 
+            onClick={() => handleEdit(selectedType)} 
+            className="mr-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
+          >
+            Edit
+          </button>
+          <button 
+            onClick={handleDelete} 
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-200"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 };

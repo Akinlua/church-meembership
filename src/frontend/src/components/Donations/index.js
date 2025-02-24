@@ -49,6 +49,11 @@ const Donations = () => {
     }
   };
 
+  const handleFormClose = () => {
+    setShowForm(false);
+    fetchDonations();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
@@ -61,7 +66,13 @@ const Donations = () => {
         </button>
       </div>
 
-      {loading ? (
+      {showForm ? (
+        <DonationForm
+          donation={selectedDonation}
+          onClose={handleFormClose}
+          onSubmit={fetchDonations}
+        />
+      ) : loading ? (
         <div className="flex justify-center items-center h-64">
           <PageLoader />
         </div>
@@ -70,17 +81,9 @@ const Donations = () => {
           donations={donations} 
           onEdit={handleEditDonation} 
           onDelete={handleDeleteDonation}
-        />
-      )}
-
-      {showForm && (
-        <DonationForm
-          donation={selectedDonation}
-          onClose={() => setShowForm(false)}
-          onSubmit={async () => {
-            await fetchDonations();
-            setShowForm(false);
-          }}
+          loading={loading}
+          selectedDonation={selectedDonation}
+          setSelectedDonation={setSelectedDonation}
         />
       )}
     </div>
