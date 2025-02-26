@@ -71,6 +71,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       });
       
       await onSubmit();
+      onClose();
     } catch (error) {
       console.error('Error saving donation:', error);
       alert('Error saving donation. Please try again.');
@@ -135,12 +136,14 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                     <span className="text-gray-500 sm:text-sm">$</span>
                   </div>
                   <input
-                    type="text"
+                    type="number"
                     value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: formatCurrency(e.target.value) })}
+                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                    onBlur={() => setFormData({ ...formData, amount: formatCurrency(formData.amount) })}
                     className="mt-1 block w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
                     placeholder="0.00"
+                    step="0.01"
                   />
                 </div>
               </div>
