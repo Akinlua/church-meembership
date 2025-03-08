@@ -22,6 +22,9 @@ const Navigation = () => {
             <Link to="/members" className="hover:text-gray-300">
               Members
             </Link>
+            <Link to="/member-lookup" className="hover:text-gray-300">
+              Member Lookup
+            </Link>
             <Link to="/groups" className="hover:text-gray-300">
               Groups
             </Link>

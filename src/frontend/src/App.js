@@ -11,6 +11,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Signup from './components/Signup';
 import { useAuth } from './contexts/AuthContext';
 import DonationTypeList from './components/Donations/DonationTypeList';
+import MemberDropdown from './components/Members/MemberDropdown';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -23,6 +24,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/members" element={<PrivateRoute><Members /></PrivateRoute>} />
+          <Route path="/member-lookup" element={<PrivateRoute><MemberDropdown /></PrivateRoute>} />
           <Route path="/groups" element={<PrivateRoute><Groups /></PrivateRoute>} />
           <Route path="/donations" element={<PrivateRoute><Donations /></PrivateRoute>} />
           <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
