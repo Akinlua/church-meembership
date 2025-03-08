@@ -10,6 +10,7 @@ const MemberDropdown = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -25,6 +26,16 @@ const MemberDropdown = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Auto-hide notification after 5 seconds
+  useEffect(() => {
+    if (notification.show) {
+      const timer = setTimeout(() => {
+        setNotification({ ...notification, show: false });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification.show]);
 
   const fetchMembers = async () => {
     try {
@@ -60,8 +71,75 @@ const MemberDropdown = () => {
     setShowForm(true);
   };
 
+  const handleMemberAdded = async (newMemberId) => {
+    try {
+      // Refresh the members list
+      await fetchMembers();
+      
+      // Get the newly added member details
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/members/${newMemberId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      const newMember = response.data;
+      
+      // Select the new member
+      setSelectedMember(newMember);
+      setSearchTerm(`${newMember.firstName} ${newMember.lastName}`);
+      
+      // Show success notification
+      setNotification({
+        show: true,
+        message: `${newMember.firstName} ${newMember.lastName} was successfully added!`,
+        type: 'success'
+      });
+      
+      // Close the form
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error fetching new member details:', error);
+      setNotification({
+        show: true,
+        message: 'Member was added but could not display details.',
+        type: 'warning'
+      });
+      await fetchMembers();
+      setShowForm(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
+      {notification.show && (
+        <div className={`fixed top-5 right-5 px-6 py-4 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 ${
+          notification.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' : 
+          notification.type === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' : 
+          'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+        }`}>
+          <div className="flex items-center">
+            {notification.type === 'success' && (
+              <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            {notification.type === 'warning' && (
+              <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            )}
+            <p>{notification.message}</p>
+            <button 
+              className="ml-auto text-gray-500 hover:text-gray-800" 
+              onClick={() => setNotification({...notification, show: false})}
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Member Lookup</h1>
         
@@ -206,9 +284,9 @@ const MemberDropdown = () => {
               onClose={() => {
                 setShowForm(false);
               }}
-              onSubmit={async () => {
-                await fetchMembers();
-                setShowForm(false);
+              onSubmit={async (memberId) => {
+                // Pass the member ID to the handler for selection
+                await handleMemberAdded(memberId);
               }}
             />
           </div>

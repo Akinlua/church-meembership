@@ -133,7 +133,11 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       console.log('Server response:', response.data);
-      await onSubmit();
+      
+      // If it's a new member (post request), pass the ID back
+      // If it's an update (put request), pass the existing ID back
+      const memberId = member ? member.id : response.data.id;
+      await onSubmit(memberId);
     } catch (error) {
       console.error('Error saving member:', error);
       alert('Error saving member. Please try again.');

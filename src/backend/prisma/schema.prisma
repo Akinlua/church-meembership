@@ -55,7 +55,7 @@ model Group {
 model GroupMember {
   group     Group    @relation(fields: [groupId], references: [id])
   groupId   Int      @map("group_id")
-  member    Member   @relation(fields: [memberId], references: [id])
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
   memberId  Int      @map("member_id")
   createdAt DateTime @default(now()) @map("created_at")
 
