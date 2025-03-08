@@ -108,7 +108,7 @@ const MemberDropdown = () => {
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-1/3 mb-6 md:mb-0 flex justify-center">
                     <img
-                      src={selectedMember.profileImage || '/default-avatar.png'}
+                      src={selectedMember.profileImage || '/default.jpg'}
                       alt={`${selectedMember.firstName} ${selectedMember.lastName}`}
                       className="h-48 w-48 rounded-full object-cover"
                     />
