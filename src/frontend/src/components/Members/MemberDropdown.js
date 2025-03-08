@@ -87,7 +87,7 @@ const MemberDropdown = () => {
                         <div className="flex-shrink-0 h-8 w-8 mr-3">
                           <img
                             className="h-8 w-8 rounded-full object-cover"
-                            src={member.profileImage || '/default-avatar.png'}
+                            src={member.profileImage || '/default.jpg'}
                             alt=""
                           />
                         </div>
