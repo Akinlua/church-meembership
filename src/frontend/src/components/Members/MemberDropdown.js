@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
+import MemberForm from './MemberForm';
 
 const MemberDropdown = () => {
   const [members, setMembers] = useState([]);
@@ -8,6 +9,7 @@ const MemberDropdown = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -53,6 +55,11 @@ const MemberDropdown = () => {
     setShowDropdown(true);
   };
 
+  const handleAddMember = () => {
+    setSelectedMember(null);
+    setShowForm(true);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-lg p-6">
@@ -62,45 +69,54 @@ const MemberDropdown = () => {
           <PageLoader />
         ) : (
           <>
-            <div className="relative mb-8" ref={dropdownRef}>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select a Member
-              </label>
-              <input
-                type="text"
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Search for a member..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onClick={handleInputClick}
-              />
-              
-              {showDropdown && (
-                <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
-                  {filteredMembers.length > 0 ? (
-                    filteredMembers.map((member) => (
-                      <div
-                        key={member.id}
-                        className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleSelectMember(member)}
-                      >
-                        <div className="flex-shrink-0 h-8 w-8 mr-3">
-                          <img
-                            className="h-8 w-8 rounded-full object-cover"
-                            src={member.profileImage || '/default.jpg'}
-                            alt=""
-                          />
+            <div className="flex mb-8 items-end gap-4">
+              <div className="relative flex-grow" ref={dropdownRef}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select a Member
+                </label>
+                <input
+                  type="text"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Search for a member..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onClick={handleInputClick}
+                />
+                
+                {showDropdown && (
+                  <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
+                    {filteredMembers.length > 0 ? (
+                      filteredMembers.map((member) => (
+                        <div
+                          key={member.id}
+                          className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => handleSelectMember(member)}
+                        >
+                          <div className="flex-shrink-0 h-8 w-8 mr-3">
+                            <img
+                              className="h-8 w-8 rounded-full object-cover"
+                              src={member.profileImage || '/default.jpg'}
+                              alt=""
+                            />
+                          </div>
+                          <div>
+                            {member.firstName} {member.lastName}
+                          </div>
                         </div>
-                        <div>
-                          {member.firstName} {member.lastName}
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="px-4 py-2 text-gray-500">No members found</div>
-                  )}
-                </div>
-              )}
+                      ))
+                    ) : (
+                      <div className="px-4 py-2 text-gray-500">No members found</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleAddMember}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 h-10"
+              >
+                Add Member
+              </button>
             </div>
 
             {selectedMember && (
@@ -181,6 +197,23 @@ const MemberDropdown = () => {
           </>
         )}
       </div>
+
+      {showForm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-8 border shadow-lg rounded-md bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <MemberForm
+              member={null}
+              onClose={() => {
+                setShowForm(false);
+              }}
+              onSubmit={async () => {
+                await fetchMembers();
+                setShowForm(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
