@@ -83,45 +83,30 @@ module.exports = (app) => {
     }
   });
 
-  // Get single group with members
+  // Get specific group with members
   router.get('/:id', authenticateToken, async (req, res) => {
     try {
       const group = await prisma.group.findUnique({
-        where: {
-          id: parseInt(req.params.id)
-        },
+        where: { id: parseInt(req.params.id) },
         include: {
           members: {
             include: {
-              member: {
-                include: {
-                  groups: {
-                    include: {
-                      group: true
-                    }
-                  }
-                }
-              }
+              member: true
             }
           }
         }
       });
-
+      
       if (!group) {
         return res.status(404).json({ message: 'Group not found' });
       }
-
-      // Transform the data to include member details and their groups
+      
+      // Format the response to include member details
       const formattedGroup = {
         ...group,
-        members: group.members.map(membership => ({
-          id: membership.member.id,
-          firstName: membership.member.firstName,
-          lastName: membership.member.lastName,
-          groups: membership.member.groups.map(g => g.group.id)
-        }))
+        members: group.members.map(membership => membership.member)
       };
-
+      
       res.json(formattedGroup);
     } catch (error) {
       console.error('Error fetching group:', error);

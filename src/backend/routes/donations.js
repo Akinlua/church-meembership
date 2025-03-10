@@ -147,6 +147,24 @@ module.exports = (app) => {
     }
   });
 
+  // Add this route to get a specific donation type by ID
+  app.get('/donation-types/:id', authenticateToken, async (req, res) => {
+    try {
+      const donationType = await prisma.donationType.findUnique({
+        where: { id: parseInt(req.params.id) }
+      });
+      
+      if (!donationType) {
+        return res.status(404).json({ message: 'Donation type not found' });
+      }
+      
+      res.json(donationType);
+    } catch (error) {
+      console.error('Error fetching donation type:', error);
+      res.status(500).json({ message: 'Error fetching donation type' });
+    }
+  });
+
   // Add this route to download donation types as a PDF
   app.get('/donation-types/download', authenticateToken, async (req, res) => {
     try {
@@ -181,6 +199,33 @@ module.exports = (app) => {
     } catch (error) {
       console.error('Error generating donation types report:', error);
       res.status(500).json({ message: 'Error generating donation types report' });
+    }
+  });
+
+  // Get a specific donation by ID
+  app.get('/donations/:id', async (req, res) => {
+    try {
+      const donation = await prisma.donation.findUnique({
+        where: { id: parseInt(req.params.id) },
+        include: {
+          member: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      });
+      
+      if (!donation) {
+        return res.status(404).json({ message: 'Donation not found' });
+      }
+      
+      res.json(donation);
+    } catch (error) {
+      console.error('Error fetching donation details:', error);
+      res.status(500).json({ message: 'Error fetching donation details' });
     }
   });
 }; 

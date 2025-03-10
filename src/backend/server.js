@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
 
 // Apply authentication middleware to protected routes
 app.use('/uploads', express.static('public/uploads'));
-app.use(['/members', '/groups', '/donations', '/reports', '/dashboard'], authenticateToken);
+app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/vendors', '/expense-categories', '/charges'], authenticateToken);
 
 // Make authenticateToken available to routes
 app.set('authenticateToken', authenticateToken);
@@ -45,6 +45,10 @@ require('./routes/donations')(app);
 const reportsRouter = require('./routes/reports')(app);
 app.use('/reports', reportsRouter);
 require('./routes/dashboard')(app);
+require('./routes/visitors')(app);
+require('./routes/vendors')(app);
+require('./routes/expenseCategories')(app);
+require('./routes/charges')(app);
 
 async function start() {
     await prisma.$connect();

@@ -82,4 +82,67 @@ model DonationType {
   name        String   @unique
   description String?
   donations   Donation[]
+}
+
+model Visitor {
+  id             Int       @id @default(autoincrement())
+  firstName      String    @map("first_name")
+  lastName       String    @map("last_name")
+  middleInitial  String?   @map("middle_initial")
+  visitorNumber  Int       @unique @default(autoincrement()) @map("visitor_number")
+  address        String?
+  city           String?
+  state          String?
+  zipCode        String?   @map("zip_code")
+  cellPhone      String?   @map("cell_phone")
+  email          String?
+  homeChurch     String?   @map("home_church")
+  profileImage   String?   @map("profile_image")
+  visitDate      DateTime  @default(now()) @map("visit_date")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@map("visitors")
+}
+
+model Vendor {
+  id           Int      @id @default(autoincrement())
+  lastName     String
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?
+  phone        String?
+  email        String?
+  accountNumber String?
+  vendorNumber String?  @unique
+  // profileImage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  Charge Charge[]
+}
+
+model ExpenseCategory {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Charge Charge[]
+}
+
+model Charge {
+  id              Int             @id @default(autoincrement())
+  amount          Decimal         @db.Decimal(10, 2)
+  dueDate         DateTime
+  // isPaid          Boolean         @default(false)
+  // notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  vendorId        Int
+  vendor          Vendor          @relation(fields: [vendorId], references: [id])
+  expenseCategoryId Int
+  expenseCategory ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
 } 
