@@ -119,8 +119,14 @@ module.exports = (app) => {
   // Get single member
   app.get('/members/:id', async (req, res) => {
     try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid member ID format' });
+      }
+      
       const member = await prisma.member.findUnique({
-        where: { id: parseInt(req.params.id) },
+        where: { id: id },
         include: {
           groups: {
             include: {
@@ -129,6 +135,10 @@ module.exports = (app) => {
           }
         }
       });
+      
+      if (!member) {
+        return res.status(404).json({ message: 'Member not found' });
+      }
 
       // Transform the groups data to match the expected format
       const formattedMember = {
@@ -173,6 +183,7 @@ module.exports = (app) => {
           membershipDate: req.body.membership_date,
           baptismalDate: req.body.baptismal_date,
           profileImage: req.body.profile_image,
+          pastChurch: req.body.past_church,
           groups: {
             create: req.body.groups.map(groupId => ({
               group: {
@@ -221,6 +232,7 @@ module.exports = (app) => {
           membershipDate: req.body.membership_date,
           baptismalDate: req.body.baptismal_date,
           profileImage: req.body.profile_image,
+          pastChurch: req.body.past_church,
           groups: {
             deleteMany: {}, // Remove all existing connections
             create: req.body.groups.map(groupId => ({

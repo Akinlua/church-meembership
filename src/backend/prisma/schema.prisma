@@ -35,6 +35,7 @@ model Member {
   membershipDate DateTime?  @map("membership_date")
   baptismalDate  DateTime?  @map("baptismal_date")
   profileImage   String?    @map("profile_image")
+  pastChurch     String?    @map("past_church")
   createdAt      DateTime   @default(now()) @map("created_at")
   donations      Donation[]
   groups         GroupMember[]

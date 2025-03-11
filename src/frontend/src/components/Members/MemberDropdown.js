@@ -304,6 +304,9 @@ const MemberDropdown = () => {
                         <p className="mb-1">
                           <span className="font-medium">Member Number:</span> {selectedMember.memberNumber || 'N/A'}
                         </p>
+                        <p className="mb-1">
+                          <span className="font-medium">Past Church:</span> {selectedMember.pastChurch || 'N/A'}
+                        </p>
                       </div>
                     </div>
                     
