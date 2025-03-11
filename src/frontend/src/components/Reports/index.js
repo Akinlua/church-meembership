@@ -10,6 +10,10 @@ const Reports = () => {
   const [loading, setLoading] = useState(false);
   const [loadingTypeReport, setLoadingTypeReport] = useState(false);
 
+  const handleReportChange = (reportType) => {
+    setActiveReport(reportType);
+  };
+
   const handleDownload = async (reportType) => {
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -23,47 +27,97 @@ const Reports = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Reports</h1>
-        <div className="space-x-2">
-          <button
-            onClick={() => { setActiveReport('donations'); handleDownload('donation'); }}
-            className={`px-4 py-2 rounded ${activeReport === 'donations' ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : 'Donations'}
-          </button>
-          <button
-            onClick={() => { setActiveReport('membership'); handleDownload('membership'); }}
-            className={`px-4 py-2 rounded ${activeReport === 'membership' ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : 'Membership'}
-          </button>
-          <button
-            onClick={() => { setActiveReport('groups'); handleDownload('groups'); }}
-            className={`px-4 py-2 rounded ${activeReport === 'groups' ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={loading}
-          >
-            {loading ? 'Loading...' : 'Groups'}
-          </button>
-          <button
-            onClick={() => { setActiveReport('donationTypeSummary'); handleDownloadTypeReport(); }}
-            className={`px-4 py-2 rounded ${activeReport === 'donationTypeSummary' ? 'bg-blue-500 text-white' : 'bg-gray-200'} ${loadingTypeReport ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={loadingTypeReport}
-          >
-            {loadingTypeReport ? 'Loading...' : 'Donation Type Summary'}
-          </button>
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Reports</h1>
+        
+        {/* Report Type Selection */}
+        <div className="bg-white rounded-lg shadow-sm mb-6">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-700">Select Report Type</h2>
+          </div>
+          <div className="p-4">
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => handleReportChange('donations')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeReport === 'donations' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Donations
+              </button>
+              
+              <button
+                onClick={() => handleReportChange('membership')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeReport === 'membership' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Membership
+              </button>
+              
+              <button
+                onClick={() => handleReportChange('groups')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeReport === 'groups' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Groups
+              </button>
+              
+              {/* <button
+                onClick={() => handleReportChange('totalDonations')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeReport === 'totalDonations' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Total Donations
+              </button>
+              
+              <button
+                onClick={() => handleReportChange('donationTypeSummary')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeReport === 'donationTypeSummary' 
+                    ? 'bg-blue-600 text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Donation Type Summary
+              </button> */}
+            </div>
+          </div>
         </div>
       </div>
-
-      {activeReport === 'donations' && <DonationReport />}
-      {activeReport === 'membership' && <MembershipReport />}
-      {activeReport === 'groups' && <GroupReport />}
-      {activeReport === 'totalDonations' && <TotalDonationReport />}
-      {activeReport === 'donationTypeSummary' && <DonationTypeSummaryReport />}
-    </div>
+      
+      {/* Report Content */}
+      {/* <div className="bg-white rounded-lg shadow-md"> */}
+        {/* <div className="p-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {activeReport === 'donations' && 'Donation Report'}
+            {activeReport === 'membership' && 'Membership Report'}
+            {activeReport === 'groups' && 'Group Report'}
+            {activeReport === 'totalDonations' && 'Total Donations Report'}
+            {activeReport === 'donationTypeSummary' && 'Donation Type Summary Report'}
+          </h2>
+        </div> */}
+        
+        <div className="p-5">
+          {activeReport === 'donations' && <DonationReport />}
+          {activeReport === 'membership' && <MembershipReport />}
+          {activeReport === 'groups' && <GroupReport />}
+          {/* {activeReport === 'totalDonations' && <TotalDonationReport />}
+          {activeReport === 'donationTypeSummary' && <DonationTypeSummaryReport />} */}
+        </div>
+      </div>
+    // </div>
   );
 };
 

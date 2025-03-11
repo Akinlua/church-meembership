@@ -1,0 +1,41 @@
+/* Ensure the date picker is visible and positioned properly */
+.date-picker-wrapper {
+  position: relative;
+}
+
+.date-picker-popper {
+  z-index: 9999 !important;
+}
+
+.calendar-container {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid #e2e8f0;
+  z-index: 9999;
+}
+
+/* Override react-datepicker inline styles to ensure visibility */
+.react-datepicker {
+  font-size: 0.9rem !important;
+}
+
+.react-datepicker__header {
+  padding-top: 8px !important;
+}
+
+.react-datepicker__month {
+  margin: 0.4rem !important;
+}
+
+.react-datepicker__day-name, 
+.react-datepicker__day, 
+.react-datepicker__time-name {
+  width: 2rem !important;
+  line-height: 2rem !important;
+}
+
+/* Additional fix for modals and dialogs */
+.react-datepicker-popper {
+  position: fixed !important;
+} 

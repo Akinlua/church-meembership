@@ -146,135 +146,132 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="relative">
-      {formLoading ? (
-        <div className="min-h-[400px]">
-          <PageLoader />
+    <div className="px-2 py-4 max-w-4xl mx-auto">
+      <h2 className="text-xl font-bold mb-4 text-center">
+        {vendor ? 'Edit Vendor' : 'Add Vendor Form'}
+      </h2>
+
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-12 gap-x-4 gap-y-2">
+          <div className="col-span-3 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">Last Name</label>
+          </div>
+          <div className="col-span-9">
+            <input
+              type="text"
+              value={formData.last_name}
+              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+              required
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div className="col-span-3 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">Address</label>
+          </div>
+          <div className="col-span-9">
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+            />
+          </div>
+          
+          <div className="col-span-3 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">City</label>
+          </div>
+          <div className="col-span-5">
+            <input
+              type="text"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+            />
+          </div>
+          <div className="col-span-1 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">State</label>
+          </div>
+          <div className="col-span-3">
+            <input
+              type="text"
+              value={formData.state}
+              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+              maxLength="2"
+            />
+          </div>
+
+          <div className="col-span-3 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">Phone</label>
+          </div>
+          <div className="col-span-4">
+            <input
+              type="text"
+              value={formData.phone}
+              onChange={handlePhoneChange}
+              placeholder="(123) 456-7890"
+              className={`w-full px-2 py-1 border ${phoneError ? 'border-red-300' : 'border-gray-300'} rounded`}
+            />
+            {phoneError && (
+              <p className="text-xs text-red-600">{phoneError}</p>
+            )}
+          </div>
+          <div className="col-span-1 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">Zip</label>
+          </div>
+          <div className="col-span-4">
+            <input
+              type="text"
+              value={formData.zip_code}
+              onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+              maxLength="10"
+            />
+          </div>
+
+          <div className="col-span-3 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+          </div>
+          <div className="col-span-9">
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+            />
+          </div>
+
+          <div className="col-span-3 flex items-center">
+            <label className="block text-sm font-medium text-gray-700">Account #</label>
+          </div>
+          <div className="col-span-9">
+            <input
+              type="text"
+              value={formData.account_number}
+              onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
+              className="w-full px-2 py-1 border border-gray-300 rounded"
+            />
+          </div>
         </div>
-      ) : (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-6">{vendor ? 'Edit' : 'Add'} Vendor</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Last Name</label>
-              <input
-                type="text"
-                value={formData.last_name}
-                onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Address</label>
-              <input
-                type="text"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">City</label>
-                <input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">State</label>
-                <input
-                  type="text"
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Zip Code</label>
-                <input
-                  type="text"
-                  value={formData.zip_code}
-                  onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Phone</label>
-                <input
-                  type="text"
-                  value={formData.phone}
-                  onChange={handlePhoneChange}
-                  placeholder="(123) 456-7890"
-                  className={`mt-1 block w-full rounded-md ${phoneError ? 'border-red-300' : 'border-gray-300'} shadow-sm focus:border-blue-500 focus:ring-blue-500`}
-                />
-                {phoneError && (
-                  <p className="mt-1 text-sm text-red-600">{phoneError}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Account #</label>
-              <input
-                type="text"
-                value={formData.account_number}
-                onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="mt-1 block w-full"
-              />
-            </div> */}
-
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                {loading ? <ButtonLoader /> : vendor ? 'Update' : 'Add'} Vendor
-              </button>
-            </div>
-          </form>
+        
+        <div className="flex justify-end mt-6 space-x-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            {loading ? <ButtonLoader text={vendor ? "Updating..." : "Saving..."} /> : (vendor ? "Update" : "Add Vendor")}
+          </button>
         </div>
-      )}
+      </form>
     </div>
   );
 };

@@ -149,6 +149,12 @@ const MemberDropdown = () => {
     }
   };
 
+  const handleCancel = () => {
+    setSearchTerm('');
+    setSelectedMember(null);
+    setShowDropdown(false);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {notification.show && (
@@ -193,14 +199,28 @@ const MemberDropdown = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select a Member
                 </label>
-                <input
-                  type="text"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Search for a member by name or member number..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onClick={handleInputClick}
-                />
+                <div className="flex">
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Search for a member by name or member number..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onClick={handleInputClick}
+                  />
+                  <button
+                    onClick={handleCancel}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none border-t border-b border-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddMember}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
+                  >
+                    Add
+                  </button>
+                </div>
                 
                 {showDropdown && (
                   <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
@@ -219,7 +239,7 @@ const MemberDropdown = () => {
                             />
                           </div>
                           <div>
-                            {member.lastName} {member.firstName} - #{member.memberNumber}
+                            {member.lastName}, {member.firstName} - {member.memberNumber}
                           </div>
                         </div>
                       ))
@@ -229,13 +249,6 @@ const MemberDropdown = () => {
                   </div>
                 )}
               </div>
-
-              <button
-                onClick={handleAddMember}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 h-10"
-              >
-                Add Member
-              </button>
             </div>
 
             {selectedMember && (
@@ -251,7 +264,7 @@ const MemberDropdown = () => {
                   
                   <div className="md:w-2/3 md:pl-8">
                     <h2 className="text-2xl font-bold mb-4">
-                      {selectedMember.firstName} {selectedMember.middleName ? selectedMember.middleName + ' ' : ''}{selectedMember.lastName}
+                    {selectedMember.lastName}, {selectedMember.firstName} {selectedMember.middleName ? selectedMember.middleName + ' ' : ''}
                     </h2>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

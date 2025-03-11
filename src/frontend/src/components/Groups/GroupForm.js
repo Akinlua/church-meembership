@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ButtonLoader } from '../common/Loader';
+import { ButtonLoader, PageLoader } from '../common/Loader';
 
 const GroupForm = ({ group, onClose, onSubmit }) => {
   const [members, setMembers] = useState([]);
@@ -9,7 +9,6 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
     description: group?.description || '',
     member_ids: []
   });
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
 
@@ -28,8 +27,6 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
           }
           return member.toString();
         });
-        
-        console.log('Setting member IDs:', memberIds);
         
         setFormData(prev => ({
           ...prev,
@@ -71,7 +68,6 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      console.log('Submitting group data:', formData); // Debug log
       const url = `${process.env.REACT_APP_API_URL}/groups${group ? `/${group.id}` : ''}`;
       const method = group ? 'put' : 'post';
       
@@ -88,84 +84,100 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
     }
   };
 
-  // Debug output to check member IDs
-  console.log('Current formData.member_ids:', formData.member_ids);
-
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg">
+    <div className="px-2 py-4 max-w-4xl mx-auto">
+      <h2 className="text-xl font-bold mb-4 text-center">
+        {group ? 'Edit' : 'Add'} Group Form
+      </h2>
+      
       {formLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="min-h-[200px] flex justify-center items-center">
+          <PageLoader />
         </div>
       ) : (
-        <>
-          <h2 className="text-2xl font-bold mb-6">{group ? 'Edit' : 'Add'} Group</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Name</label>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-12 gap-x-4 gap-y-2">
+            <div className="col-span-3 flex items-center">
+              <label className="block text-sm font-medium text-gray-700">Group Name</label>
+            </div>
+            <div className="col-span-9">
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="w-full px-2 py-1 border border-gray-300 rounded"
                 required
               />
             </div>
             
-            <div>
+            <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">Description</label>
+            </div>
+            <div className="col-span-9">
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                rows={3}
+                className="w-full px-2 py-1 border border-gray-300 rounded"
+                rows="2"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Members</label>
-              <div className="max-h-60 overflow-y-auto border rounded-md">
-                {members.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center p-3 hover:bg-gray-50"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.member_ids.includes(member.id.toString())}
-                      onChange={() => toggleMember(member.id)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label className="ml-3 block text-sm text-gray-700">
-                      {member.firstName} {member.lastName}
-                    </label>
-                  </div>
-                ))}
+            
+            <div className="col-span-3 flex items-start pt-1">
+              <label className="block text-sm font-medium text-gray-700">Members</label>
+            </div>
+            <div className="col-span-9">
+              <div className="border border-gray-300 rounded max-h-[150px] overflow-y-auto bg-white">
+                {members.length === 0 ? (
+                  <p className="p-2 text-gray-500 text-sm">No active members found</p>
+                ) : (
+                  members.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center px-2 py-1 hover:bg-gray-50 border-b border-gray-200 last:border-b-0"
+                    >
+                      <input
+                        type="checkbox"
+                        id={`member-${member.id}`}
+                        checked={formData.member_ids.includes(member.id.toString())}
+                        onChange={() => toggleMember(member.id)}
+                        className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <label 
+                        htmlFor={`member-${member.id}`} 
+                        className="ml-2 block text-sm text-gray-700 cursor-pointer"
+                      >
+                        {member.firstName} {member.lastName}
+                      </label>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="mt-1 text-xs text-gray-500">
+                {formData.member_ids.length} member{formData.member_ids.length !== 1 ? 's' : ''} selected
               </div>
             </div>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                {loading ? <ButtonLoader /> : group ? 'Update' : 'Create'} Group
-              </button>
-            </div>
-          </form>
-        </>
+          </div>
+          
+          <div className="flex justify-end mt-6 space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              {loading ? <ButtonLoader text={group ? "Updating..." : "Saving..."} /> : (group ? "Update" : "Add Group")}
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );
 };
 
-export default GroupForm; 
+export default GroupForm;

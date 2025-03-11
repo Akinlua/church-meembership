@@ -35,7 +35,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       }
     };
     loadFormData();
-  }, []);
+  }, [donation]);
 
   const fetchMembers = async () => {
     try {
@@ -87,104 +87,118 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="px-2 py-4 max-w-4xl mx-auto">
+      <h2 className="text-xl font-bold mb-4 text-center">
+        {donation ? 'Edit Donation' : 'Add Donation Form'}
+      </h2>
+
       {formLoading ? (
-        <div className="min-h-[400px]">
+        <div className="min-h-[200px] flex items-center justify-center">
           <PageLoader />
         </div>
       ) : (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-6">{donation ? 'Edit' : 'Add'} Donation</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Member</label>
-                <select
-                  value={formData.member_id}
-                  onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select Member</option>
-                  {members.map(member => (
-                    <option key={member.id} value={member.id}>
-                      {`${member.firstName} ${member.lastName}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Donation Type</label>
-                <select
-                  value={formData.donation_type}
-                  onChange={(e) => setFormData({ ...formData, donation_type: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select Donation Type</option>
-                  {donationTypes.map(type => (
-                    <option key={type.id} value={type.name}>{type.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Amount</label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">$</span>
-                  </div>
-                  <input
-                    type="number"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    onBlur={() => setFormData({ ...formData, amount: formatCurrency(formData.amount) })}
-                    className="mt-1 block w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                    placeholder="0.00"
-                    step="0.01"
-                  />
-                </div>
-              </div>
-
-              <DatePickerField
-                label="Donation Date"
-                value={formData.donation_date}
-                onChange={(date) => setFormData({ ...formData, donation_date: date })}
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-12 gap-x-4 gap-y-2">
+            <div className="col-span-3 flex items-center">
+              <label className="block text-sm font-medium text-gray-700">Member</label>
+            </div>
+            <div className="col-span-9">
+              <select
+                value={formData.member_id}
+                onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
+                className="w-full px-2 py-1 border border-gray-300 rounded"
                 required
-              />
+              >
+                <option value="">Select Member</option>
+                {members.map(member => (
+                  <option key={member.id} value={member.id}>
+                    {`${member.firstName} ${member.lastName}`}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Notes</label>
-                <textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  rows="3"
+            <div className="col-span-3 flex items-center">
+              <label className="block text-sm font-medium text-gray-700">Donation Type</label>
+            </div>
+            <div className="col-span-9">
+              <select
+                value={formData.donation_type}
+                onChange={(e) => setFormData({ ...formData, donation_type: e.target.value })}
+                className="w-full px-2 py-1 border border-gray-300 rounded"
+                required
+              >
+                <option value="">Select Donation Type</option>
+                {donationTypes.map(type => (
+                  <option key={type.id} value={type.name}>{type.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-span-3 flex items-center">
+              <label className="block text-sm font-medium text-gray-700">Amount</label>
+            </div>
+            <div className="col-span-9">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 sm:text-sm">$</span>
+                </div>
+                <input
+                  type="number"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  onBlur={() => setFormData({ ...formData, amount: formatCurrency(formData.amount) })}
+                  required
+                  placeholder="0.00"
+                  step="0.01"
+                  className="w-full px-2 py-1 pl-7 border border-gray-300 rounded"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                {loading ? <ButtonLoader /> : donation ? 'Update' : 'Add'} Donation
-              </button>
+            <div className="col-span-3 flex items-center">
+              <label className="block text-sm font-medium text-gray-700">Donation Date</label>
             </div>
-          </form>
-        </div>
+            <div className="col-span-9">
+              <DatePickerField
+                value={formData.donation_date}
+                onChange={(date) => setFormData({ ...formData, donation_date: date })}
+                required
+                containerClassName="w-full"
+                inputClassName="w-full px-2 py-1 border border-gray-300 rounded"
+              />
+            </div>
+
+            <div className="col-span-3 flex items-center">
+              <label className="block text-sm font-medium text-gray-700">Notes</label>
+            </div>
+            <div className="col-span-9">
+              <textarea
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                className="w-full px-2 py-1 border border-gray-300 rounded"
+                rows="2"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-6 space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              {loading ? <ButtonLoader text={donation ? "Updating..." : "Saving..."} /> : (donation ? "Update" : "Add Donation")}
+            </button>
+          </div>
+        </form>
       )}
     </div>
   );

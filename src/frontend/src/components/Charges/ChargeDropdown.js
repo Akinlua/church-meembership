@@ -239,7 +239,7 @@ const ChargeDropdown = () => {
             onClick={handleAddCharge}
             className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
           >
-            Add Charge
+            Add
           </button>
         </div>
         

@@ -22,7 +22,7 @@ model Member {
   firstName      String     @map("first_name")
   middleName     String?    @map("middle_name")
   lastName       String     @map("last_name")
-  memberNumber   Int        @unique @default(autoincrement()) @map("member_number")
+  memberNumber   String     @unique @map("member_number")
   isActive       Boolean    @default(true) @map("is_active")
   address        String?
   city           String?
@@ -89,7 +89,7 @@ model Visitor {
   firstName      String    @map("first_name")
   lastName       String    @map("last_name")
   middleInitial  String?   @map("middle_initial")
-  visitorNumber  Int       @unique @default(autoincrement()) @map("visitor_number")
+  visitorNumber  String    @unique @map("visitor_number")
   address        String?
   city           String?
   state          String?

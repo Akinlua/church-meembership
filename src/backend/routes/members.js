@@ -53,6 +53,28 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
   }
 });
 
+// Add this helper function at the top of your file
+const generateMemberNumber = async (prisma) => {
+  // Find the highest member number
+  const lastMember = await prisma.member.findFirst({
+    orderBy: {
+      memberNumber: 'desc'
+    }
+  });
+  
+  // Start with 00101 if no members exist
+  if (!lastMember || !lastMember.memberNumber) {
+    return '00101';
+  }
+  
+  // If the last member has a formatted number, parse it and increment
+  const numericPart = parseInt(lastMember.memberNumber, 10);
+  const nextNumber = numericPart + 1;
+  
+  // Format to 5 digits with leading zeros
+  return nextNumber.toString().padStart(5, '0');
+};
+
 module.exports = (app) => {
   const prisma = app.get('prisma');
 
@@ -128,12 +150,17 @@ module.exports = (app) => {
   // Create member
   app.post('/members', async (req, res) => {
     try {
-      console.log('Received member data:', req.body); // Debug log
+      console.log('Received member data:', req.body);
+      
+      // Generate the next member number
+      const memberNumber = await generateMemberNumber(prisma);
+      
       const member = await prisma.member.create({
         data: {
           firstName: req.body.first_name,
           middleName: req.body.middle_name,
           lastName: req.body.last_name,
+          memberNumber: memberNumber, // Use the generated number
           isActive: req.body.is_active,
           address: req.body.address,
           city: req.body.city,
@@ -162,7 +189,8 @@ module.exports = (app) => {
           }
         }
       });
-      console.log('Created member:', member); // Debug log
+      
+      console.log('Created member:', member);
       res.json(member);
     } catch (error) {
       console.error('Error creating member:', error);

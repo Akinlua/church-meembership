@@ -176,6 +176,12 @@ const DonationTypeDropdown = () => {
     setIsEditing(false);
   };
 
+  const handleCancel = () => {
+    setSearchTerm('');
+    setSelectedType(null);
+    setShowDropdown(false);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Donation Types</h1>
@@ -206,10 +212,16 @@ const DonationTypeDropdown = () => {
             onClick={handleInputClick}
           />
           <button
+            onClick={handleCancel}
+            className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none border-t border-b border-gray-300"
+          >
+            Cancel
+          </button>
+          <button
             onClick={handleAddType}
             className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
           >
-            Add Type
+            Add
           </button>
         </div>
         

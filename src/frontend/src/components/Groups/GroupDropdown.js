@@ -170,6 +170,12 @@ const GroupDropdown = () => {
     setIsEditing(false);
   };
 
+  const handleCancel = () => {
+    setSearchTerm('');
+    setSelectedGroup(null);
+    setShowDropdown(false);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {notification.show && (
@@ -190,14 +196,28 @@ const GroupDropdown = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select a Group
                 </label>
-                <input
-                  type="text"
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Search for a group by name or ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onClick={handleInputClick}
-                />
+                <div className="flex">
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Search for a group by name or ID..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onClick={handleInputClick}
+                  />
+                  <button
+                    onClick={handleCancel}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none border-t border-b border-r border-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddGroup}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
+                  >
+                    Add
+                  </button>
+                </div>
                 
                 {showDropdown && (
                   <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
@@ -226,13 +246,6 @@ const GroupDropdown = () => {
                   </div>
                 )}
               </div>
-              
-              <button
-                onClick={handleAddGroup}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Add Group
-              </button>
             </div>
             
             {selectedGroup && (

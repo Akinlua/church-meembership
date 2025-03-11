@@ -35,7 +35,6 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
         await fetchGroups();
         if (member) {
           const groupIds = member.groups?.map(g => {
-            // Handle different possible group structures
             return g.group?.id || g.groupId || g.id;
           }).filter(id => id) || [];
           
@@ -70,11 +69,6 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
     return value;
   };
 
-  const validatePhoneNumber = (phone) => {
-    const phonePattern = /^\(\d{3}\) \d{3}-\d{4}$/;
-    return phonePattern.test(phone);
-  };
-
   const handlePhoneChange = (e) => {
     const formattedNumber = formatPhoneNumber(e.target.value);
     setFormData({ ...formData, cell_phone: formattedNumber });
@@ -107,10 +101,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
         setFormData(prev => ({ ...prev, profile_image: response.data.imageUrl }));
       } catch (error) {
         console.error('Error uploading image:', error);
-        alert('Error uploading image. Please try again.');
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
+        alert('Failed to upload image');
       } finally {
         setLoading(false);
       }
@@ -119,236 +110,294 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.cell_phone && !validatePhoneNumber(formData.cell_phone)) {
-      alert('Please enter a valid phone number in format (123) 456-7890');
-      return;
-    }
-    setLoading(true);
     try {
-      console.log('Submitting member data:', formData);
-      const url = `${process.env.REACT_APP_API_URL}/members${member ? `/${member.id}` : ''}`;
-      const method = member ? 'put' : 'post';
+      setLoading(true);
       
-      const response = await axios[method](url, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      console.log('Server response:', response.data);
+      if (member) {
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/members/${member.id}`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }
+        );
+      } else {
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/members`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          }
+        );
+      }
       
-      // If it's a new member (post request), pass the ID back
-      // If it's an update (put request), pass the existing ID back
-      const memberId = member ? member.id : response.data.id;
-      await onSubmit(memberId);
+      if (onSubmit) onSubmit();
     } catch (error) {
       console.error('Error saving member:', error);
-      alert('Error saving member. Please try again.');
+      alert('Failed to save member');
     } finally {
       setLoading(false);
     }
   };
 
-  const formatMemberName = (group) => {
-    return group.name || `${group.firstName} ${group.lastName}`.trim();
+  const formatMemberName = (member) => {
+    if (typeof member?.name === 'string') return member.name;
+    if (member?.firstName && member?.lastName) {
+      return `${member.lastName}, ${member.firstName}`;
+    }
+    return 'Unknown';
   };
 
+  if (formLoading) {
+    return <PageLoader />;
+  }
+
   return (
-    <div className="relative">
+    <div className="p-2">
+      <h2 className="text-xl font-bold mb-4 text-center">
+        {member ? 'Edit Member' : 'Add Member'}
+      </h2>
+      
       {formLoading ? (
-        <div className="min-h-[400px]">
-          <PageLoader />
-        </div>
+        <PageLoader />
       ) : (
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-bold mb-6">{member ? 'Edit' : 'Add'} Member</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
-                  <select
-                    value={formData.is_active ? 'active' : 'inactive'}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.value === 'active' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">First Name</label>
+        <div>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-12 gap-3">
+              {/* Left side - Personal info */}
+              <div className="col-span-9 grid grid-cols-12 gap-3">
+                <div className="col-span-5">
+                  <label className="block text-sm font-medium text-gray-700">First Name*</label>
                   <input
-                    type="text"
                     required
-                    className="mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    type="text"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.first_name}
                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Middle Name</label>
+                
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Middle</label>
                   <input
                     type="text"
-                    className="mt-1 block w-48 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.middle_name}
                     onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                
+                <div className="col-span-5">
+                  <label className="block text-sm font-medium text-gray-700">Last Name*</label>
                   <input
-                    type="text"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    type="text"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.last_name}
                     onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                   />
                 </div>
-                <div>
+                
+                <div className="col-span-12">
                   <label className="block text-sm font-medium text-gray-700">Address</label>
                   <input
                     type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   />
                 </div>
-                <div>
+                
+                <div className="col-span-5">
                   <label className="block text-sm font-medium text-gray-700">City</label>
                   <input
                     type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   />
                 </div>
-                <div>
+                
+                <div className="col-span-3">
                   <label className="block text-sm font-medium text-gray-700">State</label>
                   <input
                     type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">ZIP Code</label>
+                
+                <div className="col-span-4">
+                  <label className="block text-sm font-medium text-gray-700">Zip</label>
                   <input
                     type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.zip_code}
                     onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
                   />
                 </div>
-                <DatePickerField
-                  label="Birthday"
-                  value={formData.birthday}
-                  onChange={(date) => setFormData({ ...formData, birthday: date })}
-                />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Gender</label>
-                  <select
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                </div>
-                <div>
+                
+                <div className="col-span-4">
                   <label className="block text-sm font-medium text-gray-700">Cell Phone</label>
                   <input
                     type="text"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.cell_phone}
                     onChange={handlePhoneChange}
                     placeholder="(123) 456-7890"
                   />
                 </div>
-                <div>
+                
+                <div className="col-span-8">
                   <label className="block text-sm font-medium text-gray-700">Email</label>
                   <input
                     type="email"
-                    className="mt-1 block w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
-                <DatePickerField
-                  label="Membership Date"
-                  value={formData.membership_date}
-                  onChange={(date) => setFormData({ ...formData, membership_date: date })}
-                />
-                <DatePickerField
-                  label="Baptismal Date"
-                  value={formData.baptismal_date}
-                  onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
-                />
+                
+                <div className="col-span-4">
+                  <label className="block text-sm font-medium text-gray-700">Gender</label>
+                  <select
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    value={formData.gender}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+                
+                <div className="col-span-4">
+                  <DatePickerField
+                    label="Birthday"
+                    value={formData.birthday}
+                    onChange={(date) => setFormData({ ...formData, birthday: date })}
+                    className="text-sm"
+                  />
+                </div>
+                
+                <div className="col-span-4">
+                  <div className="flex items-center h-full mt-6">
+                    <input
+                      type="checkbox"
+                      id="is_active"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
+                      Active Member
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="col-span-6">
+                  <DatePickerField
+                    label="Membership Date"
+                    value={formData.membership_date}
+                    onChange={(date) => setFormData({ ...formData, membership_date: date })}
+                    className="text-sm"
+                  />
+                </div>
+                
+                <div className="col-span-6">
+                  <DatePickerField
+                    label="Baptismal Date"
+                    value={formData.baptismal_date}
+                    onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+              
+              {/* Right side - Image and Groups */}
+              <div className="col-span-3 flex flex-col space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+                  <p className="text-sm font-medium text-gray-700 mb-1">Member's Picture</p>
+                  <div className="border-2 border-dashed border-gray-300 rounded p-2 flex flex-col items-center justify-center h-40">
+                    {formData.profile_image ? (
+                      <img 
+                        src={formData.profile_image} 
+                        alt="Profile" 
+                        className="max-h-36 max-w-full object-contain"
+                      />
+                    ) : (
+                      <div className="text-center text-gray-400 text-sm">No image</div>
+                    )}
+                  </div>
                   <input
                     type="file"
                     ref={fileInputRef}
                     accept="image/*"
                     onChange={handleImageUpload}
-                    className="mt-1 block w-full"
+                    className="hidden"
                   />
-                </div>
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700">Groups</label>
                   <button
                     type="button"
-                    className="mt-1 relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    onClick={() => setShowGroupDropdown(!showGroupDropdown)}
+                    onClick={() => fileInputRef.current.click()}
+                    className="mt-2 w-full text-sm py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
                   >
-                    <span className="block truncate">
-                      {formData.groups.length} groups selected
-                    </span>
-                    <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </span>
+                    {formData.profile_image ? 'Change Image' : 'Upload Image'}
                   </button>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Groups</label>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className="w-full bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1 text-left text-sm cursor-default focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      onClick={() => setShowGroupDropdown(!showGroupDropdown)}
+                    >
+                      <span className="block truncate">
+                        {formData.groups.length} groups selected
+                      </span>
+                    </button>
 
-                  {showGroupDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
-                      {availableGroups.map((group) => (
-                        <div
-                          key={group.id}
-                          className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={() => toggleGroup(group.id)}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.groups.includes(group.id)}
-                            onChange={() => {}}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-                          <label className="ml-3 block text-sm text-gray-700">
-                            {formatMemberName(group)}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                    {showGroupDropdown && (
+                      <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-40 rounded-md py-1 text-sm overflow-auto focus:outline-none">
+                        {availableGroups.map((group) => (
+                          <div
+                            key={group.id}
+                            className="flex items-center px-3 py-1 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => toggleGroup(group.id)}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.groups.includes(group.id)}
+                              onChange={() => {}}
+                              className="h-3 w-3 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <label className="ml-2 block text-xs text-gray-700">
+                              {formatMemberName(group)}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="flex justify-end space-x-3 mt-4">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="px-3 py-1 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                className="px-3 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
               >
                 {loading ? <ButtonLoader /> : member ? 'Update' : 'Add'} Member
               </button>

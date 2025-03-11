@@ -37,6 +37,28 @@ const upload = multer({
   }
 });
 
+// Add this helper function at the top of your file
+const generateVisitorNumber = async (prisma) => {
+  // Find the highest visitor number
+  const lastVisitor = await prisma.visitor.findFirst({
+    orderBy: {
+      visitorNumber: 'desc'
+    }
+  });
+  
+  // Start with V00101 if no visitors exist
+  if (!lastVisitor || !lastVisitor.visitorNumber) {
+    return 'V00101';
+  }
+  
+  // If the last visitor has a formatted number, parse it and increment
+  const numericPart = parseInt(lastVisitor.visitorNumber.substring(1), 10);
+  const nextNumber = numericPart + 1;
+  
+  // Format to 5 digits with leading zeros and prepend 'V'
+  return 'V' + nextNumber.toString().padStart(5, '0');
+};
+
 module.exports = (app) => {
   const prisma = app.get('prisma');
 
@@ -94,12 +116,17 @@ module.exports = (app) => {
   // Create visitor
   app.post('/visitors', authenticateToken, async (req, res) => {
     try {
-      console.log('Received visitor data:', req.body); // Debug log
+      console.log('Received visitor data:', req.body);
+      
+      // Generate the next visitor number
+      const visitorNumber = await generateVisitorNumber(prisma);
+      
       const visitor = await prisma.visitor.create({
         data: {
           firstName: req.body.first_name,
           lastName: req.body.last_name,
           middleInitial: req.body.middle_initial,
+          visitorNumber: visitorNumber, // Use the generated number
           address: req.body.address,
           city: req.body.city,
           state: req.body.state,
@@ -108,10 +135,10 @@ module.exports = (app) => {
           email: req.body.email,
           homeChurch: req.body.home_church,
           profileImage: req.body.profile_image,
-        //   visitDate: req.body.visit_date || new Date()
         }
       });
-      console.log('Created visitor:', visitor); // Debug log
+      
+      console.log('Created visitor:', visitor);
       res.json(visitor);
     } catch (error) {
       console.error('Error creating visitor:', error);
@@ -138,7 +165,6 @@ module.exports = (app) => {
           email: req.body.email,
           homeChurch: req.body.home_church,
           profileImage: req.body.profile_image,
-        //   visitDate: req.body.visit_date
         }
       });
       
