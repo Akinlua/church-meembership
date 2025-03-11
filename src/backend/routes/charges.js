@@ -76,7 +76,7 @@ module.exports = (app) => {
 
   // Update charge
   app.put('/charges/:id', authenticateToken, async (req, res) => {
-    const { vendorId, expenseCategoryId, amount, dueDate, description } = req.body;
+    const { vendorId, expenseCategoryId, amount, dueDate, description, isPaid, markedForPayment } = req.body;
     
     try {
       const charge = await prisma.charge.update({
@@ -86,6 +86,9 @@ module.exports = (app) => {
           expenseCategoryId: parseInt(expenseCategoryId),
           amount: parseFloat(amount),
           dueDate: new Date(dueDate),
+          isPaid: isPaid === true,
+          markedForPayment: markedForPayment === true,
+          description
         }
       });
       
@@ -115,6 +118,26 @@ module.exports = (app) => {
     } catch (error) {
       console.error('Error deleting charge:', error);
       res.status(500).json({ message: 'Error deleting charge' });
+    }
+  });
+
+  // Get charges marked for payment
+  app.get('/charges/payment', authenticateToken, async (req, res) => {
+    try {
+      const charges = await prisma.charge.findMany({
+        where: { markedForPayment: true },
+        include: {
+          vendor: true,
+          expenseCategory: true
+        },
+        orderBy: {
+          vendorId: 'asc'
+        }
+      });
+      res.json(charges);
+    } catch (error) {
+      console.error('Error fetching charges marked for payment:', error);
+      res.status(500).json({ message: 'Error fetching charges marked for payment' });
     }
   });
 }; 

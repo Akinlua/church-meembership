@@ -136,8 +136,9 @@ model Charge {
   id              Int             @id @default(autoincrement())
   amount          Decimal         @db.Decimal(10, 2)
   dueDate         DateTime
-  // isPaid          Boolean         @default(false)
-  // notes           String?
+  isPaid          Boolean         @default(false)
+  markedForPayment Boolean        @default(false)
+  notes           String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   

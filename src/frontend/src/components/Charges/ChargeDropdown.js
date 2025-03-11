@@ -14,6 +14,8 @@ const ChargeDropdown = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const dropdownRef = useRef(null);
+  const [selectedCharges, setSelectedCharges] = useState([]);
+  const [showPaymentOption, setShowPaymentOption] = useState(false);
 
   useEffect(() => {
     fetchCharges();
@@ -39,6 +41,11 @@ const ChargeDropdown = () => {
     }
   }, [notification.show]);
 
+  // Update showPaymentOption based on selectedCharges
+  useEffect(() => {
+    setShowPaymentOption(selectedCharges.length > 0);
+  }, [selectedCharges]);
+
   const fetchCharges = async () => {
     try {
       setLoading(true);
@@ -46,6 +53,8 @@ const ChargeDropdown = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setCharges(response.data);
+      // Reset selected charges when fetching new data
+      setSelectedCharges([]);
     } catch (error) {
       console.error('Error fetching charges:', error);
     } finally {
@@ -214,6 +223,77 @@ const ChargeDropdown = () => {
     setIsEditing(false);
   };
 
+  // Handle checkbox change for a charge
+  const handleCheckboxChange = (chargeId) => {
+    setSelectedCharges(prevSelected => {
+      if (prevSelected.includes(chargeId)) {
+        return prevSelected.filter(id => id !== chargeId);
+      } else {
+        return [...prevSelected, chargeId];
+      }
+    });
+  };
+
+  // Handle marking selected charges for payment
+  const handleMarkForPayment = async () => {
+    if (selectedCharges.length === 0) return;
+    
+    if (!window.confirm(`Are you sure you want to mark ${selectedCharges.length} charge(s) for payment?`)) return;
+    
+    try {
+      // Process each selected charge
+      const promises = selectedCharges.map(async (chargeId) => {
+        const charge = charges.find(c => c.id === chargeId);
+        if (!charge) return null;
+        
+        const updatedCharge = {
+          ...charge,
+          isPaid: true,
+          vendorId: charge.vendorId.toString(),
+          expenseCategoryId: charge.expenseCategoryId.toString(),
+          amount: charge.amount.toString(),
+          dueDate: format(new Date(charge.dueDate), 'yyyy-MM-dd'),
+          markedForPayment: true
+        };
+        
+        return axios.put(
+          `${process.env.REACT_APP_API_URL}/charges/${chargeId}`,
+          updatedCharge,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+      });
+      
+      await Promise.all(promises);
+      
+      setNotification({
+        show: true,
+        message: `${selectedCharges.length} charge(s) marked for payment successfully!`,
+        type: 'success'
+      });
+      
+      // Refresh charges
+      await fetchCharges();
+    } catch (error) {
+      console.error('Error marking charges for payment:', error);
+      setNotification({
+        show: true,
+        message: 'Error marking charges for payment.',
+        type: 'error'
+      });
+    }
+  };
+
+  // Toggle selection of all charges
+  const toggleSelectAll = () => {
+    if (selectedCharges.length === charges.length) {
+      // If all are selected, unselect all
+      setSelectedCharges([]);
+    } else {
+      // Otherwise, select all
+      setSelectedCharges(charges.map(charge => charge.id));
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Charges/Bills Management</h1>
@@ -355,9 +435,38 @@ const ChargeDropdown = () => {
               </div>
             ) : (
               <div className="mt-6 overflow-x-auto bg-white rounded-lg shadow">
+                {/* Show payment button if charges are selected */}
+                {showPaymentOption && (
+                  <div className="p-4 bg-blue-50 border-b border-blue-100 flex justify-between items-center">
+                    <div>
+                      <span className="font-medium">{selectedCharges.length} charge(s) selected</span>
+                    </div>
+                    <button
+                      onClick={handleMarkForPayment}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Mark Selected for Payment
+                    </button>
+                  </div>
+                )}
+                
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
+                      <th scope="col" className="px-4 py-3">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            checked={selectedCharges.length > 0 && selectedCharges.length === charges.length}
+                            onChange={toggleSelectAll}
+                          />
+                          <span className="ml-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Pay</span>
+                        </div>
+                      </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Vendor
                       </th>
@@ -381,13 +490,22 @@ const ChargeDropdown = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {charges.length === 0 ? (
                       <tr>
-                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                           No charges found
                         </td>
                       </tr>
                     ) : (
                       charges.map((charge) => (
-                        <tr key={charge.id} className="hover:bg-gray-50 cursor-pointer">
+                        <tr key={charge.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              checked={selectedCharges.includes(charge.id)}
+                              onChange={() => handleCheckboxChange(charge.id)}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
                             <div className="text-sm font-medium text-gray-900">
                               {charge.vendor?.lastName || 'Unknown'}
