@@ -46,7 +46,7 @@ module.exports = (app) => {
 
   // Create charge
   app.post('/charges', authenticateToken, async (req, res) => {
-    const { vendorId, expenseCategoryId, amount, dueDate, isPaid, notes } = req.body;
+    const { vendorId, expenseCategoryId, amount, dueDate, description } = req.body;
     
     try {
       const charge = await prisma.charge.create({
@@ -55,8 +55,6 @@ module.exports = (app) => {
           expenseCategoryId: parseInt(expenseCategoryId),
           amount: parseFloat(amount),
           dueDate: new Date(dueDate),
-        //   isPaid: isPaid === true,
-        //   notes: notes || null
         }
       });
       
@@ -78,7 +76,7 @@ module.exports = (app) => {
 
   // Update charge
   app.put('/charges/:id', authenticateToken, async (req, res) => {
-    const { vendorId, expenseCategoryId, amount, dueDate, isPaid, notes } = req.body;
+    const { vendorId, expenseCategoryId, amount, dueDate, description } = req.body;
     
     try {
       const charge = await prisma.charge.update({
@@ -88,8 +86,6 @@ module.exports = (app) => {
           expenseCategoryId: parseInt(expenseCategoryId),
           amount: parseFloat(amount),
           dueDate: new Date(dueDate),
-        //   isPaid: isPaid === true,
-        //   notes: notes || null
         }
       });
       

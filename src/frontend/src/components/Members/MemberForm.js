@@ -262,7 +262,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 />
                 <span className="mr-2 text-sm font-medium">Zip</span>
                 <input
-                  type="text"
+                  type="number"
                   className="w-20 border border-gray-300 rounded px-2 py-1 text-sm h-8"
                   value={formData.zip_code}
                   onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}

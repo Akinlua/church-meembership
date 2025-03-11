@@ -12,7 +12,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
     vendorId: charge?.vendorId || '',
     expenseCategoryId: charge?.expenseCategoryId || '',
     amount: charge?.amount || '',
-    chargeDate: charge?.chargeDate ? new Date(charge.chargeDate) : new Date(),
+    dueDate: charge?.dueDate ? new Date(charge.dueDate) : new Date(),
     description: charge?.description || '',
     receiptImg: charge?.receiptImg || '',
   });
@@ -30,7 +30,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
             vendorId: charge.vendorId || '',
             expenseCategoryId: charge.expenseCategoryId || '',
             amount: charge.amount || '',
-            chargeDate: charge.chargeDate ? new Date(charge.chargeDate) : new Date(),
+            dueDate: charge.dueDate ? new Date(charge.dueDate) : new Date(),
             description: charge.description || '',
             receiptImg: charge.receiptImg || '',
           });
@@ -81,12 +81,12 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
       const url = `${process.env.REACT_APP_API_URL}/charges${charge ? `/${charge.id}` : ''}`;
       const method = charge ? 'put' : 'post';
       
-      await axios[method](url, formData, {
+      const response = await axios[method](url, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       
       if (onSubmit) {
-        onSubmit();
+        onSubmit(response.data);
       }
     } catch (error) {
       console.error('Error saving charge:', error);
@@ -182,15 +182,15 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
             </div>
             <div className="col-span-9">
               <DatePickerField
-                value={formData.chargeDate}
-                onChange={(date) => setFormData({ ...formData, chargeDate: date })}
+                value={formData.dueDate}
+                onChange={(date) => setFormData({ ...formData, dueDate: date })}
                 required
                 containerClassName="w-full"
                 inputClassName="w-full px-2 py-1 border border-gray-300 rounded"
               />
             </div>
 
-            <div className="col-span-3 flex items-center">
+            {/* <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">Description</label>
             </div>
             <div className="col-span-9">
@@ -201,7 +201,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                 className="w-full px-2 py-1 border border-gray-300 rounded"
                 rows="2"
               />
-            </div>
+            </div> */}
           </div>
           
           <div className="flex justify-end mt-6 space-x-3">

@@ -94,6 +94,11 @@ const ChargeDropdown = () => {
     setShowForm(true);
   };
   
+  const handleCancelSelection = () => {
+    setSelectedCharge(null);
+    setSearchTerm('');
+  };
+  
   const handleEditCharge = async () => {
     try {
       // Fetch the latest charge data before editing
@@ -162,12 +167,6 @@ const ChargeDropdown = () => {
       // Get updated charge details
       const refreshedCharge = await fetchChargeDetails(selectedCharge.id);
       setSelectedCharge(refreshedCharge);
-      
-    //   setNotification({
-    //     show: true,
-    //     message: `Charge marked as ${refreshedCharge.isPaid ? 'paid' : 'unpaid'}!`,
-    //     type: 'success'
-    //   });
     } catch (error) {
       console.error('Error updating paid status:', error);
       setNotification({
@@ -177,7 +176,7 @@ const ChargeDropdown = () => {
       });
     }
   };
-  
+
   const handleFormSubmit = async (chargeId) => {
     setShowForm(false);
     
@@ -236,6 +235,23 @@ const ChargeDropdown = () => {
             onClick={handleInputClick}
           />
           <button
+            onClick={() => setShowDropdown(prev => !prev)}
+            className="bg-gray-100 text-gray-700 px-3 hover:bg-gray-200 focus:outline-none border-t border-b border-r border-gray-300"
+            aria-label="Show all options"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+          {selectedCharge ? (
+            <button
+              onClick={handleCancelSelection}
+              className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none"
+            >
+              Cancel
+            </button>
+          ) : null}
+          <button
             onClick={handleAddCharge}
             className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
           >
@@ -265,9 +281,6 @@ const ChargeDropdown = () => {
                         </div>
                         <div className="flex items-center">
                           <span className="font-bold text-gray-700">${parseFloat(charge.amount || 0).toFixed(2)}</span>
-                          {/* <span className={`ml-2 px-2 py-1 text-xs rounded-full ${charge.isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {charge.isPaid ? 'Paid' : 'Unpaid'}
-                          </span> */}
                         </div>
                       </div>
                       {charge.dueDate && (
@@ -281,7 +294,7 @@ const ChargeDropdown = () => {
               </div>
             )}
 
-            {selectedCharge && (
+            {selectedCharge ? (
               <div className="mt-6">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                   <div className="bg-gray-50 px-4 py-3 border-b">
@@ -307,14 +320,6 @@ const ChargeDropdown = () => {
                           <p className="font-medium">{format(new Date(selectedCharge.dueDate), 'MMMM dd, yyyy')}</p>
                         </div>
                       )}
-                      {/* <div>
-                        <p className="text-sm text-gray-500">Status</p>
-                        <p className="font-medium">
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-bold ${selectedCharge.isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {selectedCharge.isPaid ? 'Paid' : 'Unpaid'}
-                          </span>
-                        </p>
-                      </div> */}
                     </div>
                     
                     {selectedCharge.notes && (
@@ -325,16 +330,6 @@ const ChargeDropdown = () => {
                     )}
 
                     <div className="flex space-x-3 mt-4">
-                      {/* <button 
-                        onClick={togglePaidStatus}
-                        className={`px-4 py-2 ${selectedCharge.isPaid ? 'bg-yellow-600' : 'bg-green-600'} text-white rounded hover:${selectedCharge.isPaid ? 'bg-yellow-700' : 'bg-green-700'} flex items-center`}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Mark as {selectedCharge.isPaid ? 'Unpaid' : 'Paid'}
-                      </button> */}
-                      
                       <button 
                         onClick={handleEditCharge}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
@@ -357,6 +352,97 @@ const ChargeDropdown = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+            ) : (
+              <div className="mt-6 overflow-x-auto bg-white rounded-lg shadow">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vendor
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Expense Category
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Account #
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Amount
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {charges.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                          No charges found
+                        </td>
+                      </tr>
+                    ) : (
+                      charges.map((charge) => (
+                        <tr key={charge.id} className="hover:bg-gray-50 cursor-pointer">
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                            <div className="text-sm font-medium text-gray-900">
+                              {charge.vendor?.lastName || 'Unknown'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                            <div className="text-sm text-gray-900">
+                              {charge.expenseCategory?.name || 'Unknown'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                            <div className="text-sm text-gray-900">
+                              {charge.vendor?.accountNumber || 'N/A'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                            <div className="text-sm font-medium text-gray-900">
+                              ${parseFloat(charge.amount || 0).toFixed(2)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                            <div className="text-sm text-gray-900">
+                              {charge.dueDate ? format(new Date(charge.dueDate), 'MM/dd/yyyy') : 'N/A'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex space-x-2">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedCharge(charge);
+                                  setIsEditing(true);
+                                  setShowForm(true);
+                                }}
+                                className="text-blue-600 hover:text-blue-900"
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedCharge(charge);
+                                  handleDeleteCharge();
+                                }}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             )}
           </>

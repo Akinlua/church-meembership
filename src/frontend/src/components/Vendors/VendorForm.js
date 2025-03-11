@@ -222,7 +222,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
           </div>
           <div className="col-span-4">
             <input
-              type="text"
+              type="number"
               value={formData.zip_code}
               onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
               className="w-full px-2 py-1 border border-gray-300 rounded"
