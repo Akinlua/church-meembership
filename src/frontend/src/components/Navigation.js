@@ -46,9 +46,9 @@ const Navigation = () => {
             <Link to="/donation-lookup" className="hover:text-gray-300">
               Donation
             </Link>
-            <Link to="/donation-types" className="hover:text-gray-300">
+            {/* <Link to="/donation-types" className="hover:text-gray-300">
               Donation Types
-            </Link>
+            </Link> */}
             <Link to="/donation-types-dropdown" className="hover:text-gray-300">
               Donation Types
             </Link>         
