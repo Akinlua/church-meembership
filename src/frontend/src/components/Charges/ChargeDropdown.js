@@ -129,10 +129,12 @@ const ChargeDropdown = () => {
     }
   };
   
-  const handleDeleteCharge = async () => {
+  const handleDeleteCharge = async (selectedCharge) => {
     if (!window.confirm('Are you sure you want to delete this charge?')) return;
     
     try {
+      console.log("selectedCharge")
+      console.log(selectedCharge)
       await axios.delete(`${process.env.REACT_APP_API_URL}/charges/${selectedCharge.id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
@@ -195,7 +197,7 @@ const ChargeDropdown = () => {
       
       if (chargeId) {
         // Get the full charge details
-        const charge = await fetchChargeDetails(chargeId);
+        const charge = await fetchChargeDetails(chargeId.id);
         
         if (charge) {
           // Select the charge
@@ -548,7 +550,7 @@ const ChargeDropdown = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setSelectedCharge(charge);
-                                  handleDeleteCharge();
+                                  handleDeleteCharge(charge);
                                 }}
                                 className="text-red-600 hover:text-red-900"
                               >

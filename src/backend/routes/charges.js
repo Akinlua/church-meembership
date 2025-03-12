@@ -80,31 +80,23 @@ module.exports = (app) => {
     
     try {
       const charge = await prisma.charge.update({
-        where: { id: parseInt(req.params.id) },
-        data: { 
-          vendorId: parseInt(vendorId),
-          expenseCategoryId: parseInt(expenseCategoryId),
+        where: {
+          id: parseInt(req.params.id),
+        },
+        data: {
+          vendor: { connect: { id: parseInt(vendorId) } },
+          expenseCategory: { connect: { id: parseInt(expenseCategoryId) } },
           amount: parseFloat(amount),
           dueDate: new Date(dueDate),
           isPaid: isPaid === true,
           markedForPayment: markedForPayment === true,
-          description
-        }
+        },
       });
       
-      // Return the updated charge with its relations
-      const chargeWithRelations = await prisma.charge.findUnique({
-        where: { id: charge.id },
-        include: {
-          vendor: true,
-          expenseCategory: true
-        }
-      });
-      
-      res.json(chargeWithRelations);
+      res.json(charge);
     } catch (error) {
       console.error('Error updating charge:', error);
-      res.status(500).json({ message: 'Error updating charge' });
+      res.status(500).json({ error: 'Failed to update charge' });
     }
   });
 
