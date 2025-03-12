@@ -383,7 +383,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   )}
                 </div>
 
-                <span className="mr-2 text-sm font-medium">Active member</span>
+                <span className="mr-2 text-sm font-medium">Active</span>
                 <div className="w-16 border border-gray-600 px-2 py-1 text-sm h-8 flex items-center">
                   <input
                     type="checkbox"
