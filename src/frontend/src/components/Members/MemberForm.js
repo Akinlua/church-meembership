@@ -424,6 +424,12 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   onChange={handleImageUpload}
                   className="hidden"
                 />
+                
+                {/* Member ID Field */}
+                
+                  <div className="mt-2">
+                    <label className="text-sm font-medium">Member ID: {member ? member.id : "" }</label>
+                  </div>
               </div>
 
               {/* Push buttons to the bottom */}
@@ -433,7 +439,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   onClick={onClose}
                   disabled={loading}
                   className="px-4 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  style={{ marginLeft: '34px', marginBottom: '12px'}}
+                  style={{ marginLeft: '34px', marginBottom: '12px' }}
                 >
                   Cancel
                 </button>
@@ -441,7 +447,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   type="submit"
                   disabled={loading}
                   className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                  style={{ marginBottom: '12px'}}
+                  style={{ marginBottom: '12px' }}
                 >
                   {loading ? <ButtonLoader /> : (member ? 'Update' : 'Add')}
                 </button>
