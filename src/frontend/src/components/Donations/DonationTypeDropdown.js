@@ -205,8 +205,8 @@ const DonationTypeDropdown = () => {
         <div className="flex">
           <input
             type="text"
-            placeholder="Search donation types..."
-            className="w-full p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-32 p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder=""
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onClick={handleInputClick}

@@ -202,8 +202,8 @@ const MemberDropdown = () => {
                 <div className="flex">
                   <input
                     type="text"
-                    className="w-full p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Search for a member by name or member number..."
+                    className="w-32 p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder=""
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onClick={handleInputClick}
@@ -248,7 +248,7 @@ const MemberDropdown = () => {
                             />
                           </div>
                           <div>
-                            {member.lastName}, {member.firstName} - {member.memberNumber}
+                          {member.memberNumber} {member.lastName}, {member.firstName}
                           </div>
                         </div>
                       ))

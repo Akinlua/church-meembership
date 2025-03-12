@@ -120,8 +120,9 @@ const ExpenseCategoryDropdown = () => {
         <div className="flex mb-4">
           <input
             type="text"
-            placeholder="Search categories..."
-            className="w-full p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+            // className="w-full p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-32 p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder=""
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

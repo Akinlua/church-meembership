@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import DatePickerField from '../common/DatePickerField';
+import MaskedDateInput from '../common/MaskedDateInput';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 
 const ChargeForm = ({ charge, onClose, onSubmit }) => {
@@ -181,27 +181,12 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
               <label className="block text-sm font-medium text-gray-700">Charge Date</label>
             </div>
             <div className="col-span-9">
-              <DatePickerField
+              <MaskedDateInput
                 value={formData.dueDate}
                 onChange={(date) => setFormData({ ...formData, dueDate: date })}
                 required
-                containerClassName="w-full"
-                inputClassName="w-full px-2 py-1 border border-gray-300 rounded"
               />
             </div>
-
-            {/* <div className="col-span-3 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Description</label>
-            </div>
-            <div className="col-span-9">
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
-                rows="2"
-              />
-            </div> */}
           </div>
           
           <div className="flex justify-end mt-6 space-x-3">
@@ -218,7 +203,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
               disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              {loading ? <ButtonLoader text={charge ? "Updating..." : "Saving..."} /> : (charge ? "Update" : "Add") + " Charge"}
+              {loading ? <ButtonLoader text={charge ? "Updating..." : "Saving..."} /> : (charge ? "Update" : "Add")}
             </button>
           </div>
         </form>

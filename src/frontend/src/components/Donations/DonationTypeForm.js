@@ -102,7 +102,7 @@ const DonationTypeForm = ({ onClose, onSubmit, initialData }) => {
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            {loading ? <ButtonLoader text={initialData ? "Updating..." : "Saving..."} /> : (initialData ? "Update" : "Add") + " Donation Type"}
+            {loading ? <ButtonLoader text={initialData ? "Updating..." : "Saving..."} /> : (initialData ? "Update" : "Add")}
           </button>
         </div>
       </form>

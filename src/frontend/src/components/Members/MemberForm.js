@@ -429,7 +429,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                     disabled={loading}
                     className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                   >
-                    {loading ? <ButtonLoader /> : (member ? 'Update' : 'Add')} Member
+                    {loading ? <ButtonLoader /> : (member ? 'Update' : 'Add')}
                   </button>
                 </div>
               </div>

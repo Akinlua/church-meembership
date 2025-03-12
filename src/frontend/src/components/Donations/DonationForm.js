@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DatePickerField from '../common/DatePickerField';
+import MaskedDateInput from '../common/MaskedDateInput';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 
 const DonationForm = ({ donation, onClose, onSubmit }) => {
@@ -159,13 +160,20 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
             <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">Donation Date</label>
             </div>
-            <div className="col-span-9">
+            {/* <div className="col-span-9">
               <DatePickerField
                 value={formData.donation_date}
                 onChange={(date) => setFormData({ ...formData, donation_date: date })}
                 required
                 containerClassName="w-full"
                 inputClassName="w-full px-2 py-1 border border-gray-300 rounded"
+              />
+            </div> */}
+            <div className="col-span-9">
+              <MaskedDateInput
+                value={formData.dueDate}
+                onChange={(date) => setFormData({ ...formData, dueDate: date })}
+                required
               />
             </div>
 
@@ -195,7 +203,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
               disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              {loading ? <ButtonLoader text={donation ? "Updating..." : "Saving..."} /> : (donation ? "Update" : "Add Donation")}
+              {loading ? <ButtonLoader text={donation ? "Updating..." : "Saving..."} /> : (donation ? "Update" : "Add")}
             </button>
           </div>
         </form>
