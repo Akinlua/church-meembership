@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import DatePickerField from '../common/DatePickerField';
+import MaskedDateInput from '../common/MaskedDateInput';
 
 const MembershipReport = () => {
   const [members, setMembers] = useState([]);
@@ -50,16 +50,22 @@ const MembershipReport = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 print:hidden">
-        <DatePickerField
-          label="Start Date"
-          value={dateRange.startDate}
-          onChange={(date) => setDateRange(prev => ({ ...prev, startDate: date }))}
-        />
-        <DatePickerField
-          label="End Date"
-          value={dateRange.endDate}
-          onChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
-        />
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-1">Start Date</label>
+          <MaskedDateInput
+            value={dateRange.startDate}
+            onChange={(date) => setDateRange(prev => ({ ...prev, startDate: date }))}
+            inputClassName="border border-gray-300 rounded px-2 py-1"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-1">End Date</label>
+          <MaskedDateInput
+            value={dateRange.endDate}
+            onChange={(date) => setDateRange(prev => ({ ...prev, endDate: date }))}
+            inputClassName="border border-gray-300 rounded px-2 py-1"
+          />
+        </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">

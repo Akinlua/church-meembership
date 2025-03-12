@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DatePickerField from '../common/DatePickerField';
+import MaskedDateInput from '../common/MaskedDateInput';
 import { PageLoader } from '../common/Loader';
 
 const DonationReport = () => {
@@ -129,23 +130,35 @@ const DonationReport = () => {
       <div className="p-6 bg-gray-50 border-b border-gray-200">
         <div className="flex flex-col md:flex-row md:items-end gap-4">
           <div className="w-full md:w-auto">
-            <DatePickerField
+            {/* <DatePickerField
               label="Start Date"
               value={dateRange.startDate}
               onChange={(date) => handleDateChange('startDate', date)}
               dateFormat="MM/dd/yyyy"
               className="w-full"
-            />
+            /> */}
+                    <span>Start Date</span>
+
+            <MaskedDateInput
+            value={dateRange.startDate}
+            onChange={(date) => handleDateChange('startDate', date)}                
+          />
           </div>
           
           <div className="w-full md:w-auto">
-            <DatePickerField
+            {/* <DatePickerField
               label="End Date"
               value={dateRange.endDate}
               onChange={(date) => handleDateChange('endDate', date)}
               dateFormat="MM/dd/yyyy"
               className="w-full"
-            />
+            /> */}
+        <span>End Date</span>
+
+              <MaskedDateInput
+            value={dateRange.endDate}
+            onChange={(date) => handleDateChange('endDate', date)}              
+          />
           </div>
           
           <button 
