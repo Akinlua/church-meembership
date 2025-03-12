@@ -255,7 +255,7 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
                   maxLength={5}
                   pattern="[0-9]{5}"
                   placeholder="12345"
-                />
+                /> 
               </div>
 
               <div className="col-span-3 flex items-center">
