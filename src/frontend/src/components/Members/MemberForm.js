@@ -403,7 +403,10 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
             <div className="col-span-4">
               <div className="flex flex-col items-center">
                 <div className="text-sm font-medium mb-2">Member's Picture</div>
-                <div className="border border-gray-300 w-48 h-48 flex items-center justify-center mb-2">
+                <div
+                  className="border border-gray-300 w-48 h-48 flex items-center justify-center mb-2 cursor-pointer"
+                  onClick={() => fileInputRef.current.click()}
+                >
                   {formData.profile_image ? (
                     <img 
                       src={formData.profile_image} 
@@ -414,13 +417,6 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                     <div className="text-center text-gray-400 text-sm">No image</div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current.click()}
-                  className="w-48 text-sm py-1 bg-gray-200 text-gray-700 border border-gray-300 rounded hover:bg-gray-300 mb-4"
-                >
-                  Upload Image
-                </button>
                 <input
                   type="file"
                   ref={fileInputRef}
