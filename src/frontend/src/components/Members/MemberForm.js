@@ -254,21 +254,21 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               <div className="mb-3 flex items-center h-8">
                 <input
                   type="text"
-                  className="w-1/2 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
+                  className="w-2/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 />
                 <span className="mr-2 text-sm font-medium">State</span>
                 <input
                   type="text"
-                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
+                  className="w-12 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.state}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 />
                 <span className="mr-2 text-sm font-medium">Zip</span>
                 <input
                   type="text"
-                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
+                  className="w-16 border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.zip_code}
                   onChange={(e) => {
                     const numericValue = e.target.value.replace(/\D/g, '').slice(0, 5);
