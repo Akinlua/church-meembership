@@ -1,186 +1,192 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { format } from 'date-fns';
 
-const MaskedDateInput = ({ value, onChange, required = false }) => {
-  const [activeSection, setActiveSection] = useState('month'); // 'month', 'day', or 'year'
-  const inputRef = useRef(null);
-  
-  // Add this effect to focus the input when activeSection changes
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [activeSection]);
-  
+const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '' }) => {
   // Format the date into parts
   const getDateParts = () => {
     if (value) {
-      return {
-        month: format(value, 'MM'),
-        day: format(value, 'dd'),
-        year: format(value, 'yyyy')
-      };
+      try {
+        return {
+          month: format(new Date(value), 'MM'),
+          day: format(new Date(value), 'dd'),
+          year: format(new Date(value), 'yyyy')
+        };
+      } catch (error) {
+        return { month: '', day: '', year: '' };
+      }
     }
     return { month: '', day: '', year: '' };
   };
 
-  const dateParts = getDateParts();
+  const [dateParts, setDateParts] = useState(getDateParts());
+  const [errors, setErrors] = useState({ month: false, day: false, year: false });
+  
+  const monthRef = useRef(null);
+  const dayRef = useRef(null);
+  const yearRef = useRef(null);
 
-  const handleInputChange = (e, section) => {
-    // Only accept digits
-    const val = e.target.value.replace(/\D/g, '');
+  // Update date parts when value changes
+  React.useEffect(() => {
+    setDateParts(getDateParts());
+  }, [value]);
+
+  const handleMonthChange = (e) => {
+    let val = e.target.value.replace(/\D/g, '').slice(0, 2);
     
-    // Simple approach: just update the section with whatever was typed
-    if (section === 'month' && val.length <= 2) {
-      // Update the month section directly
-      const newDateParts = { ...dateParts };
-      newDateParts.month = val;
-      
-      // Auto-advance when 2 digits are entered
-      if (val.length === 2) {
-        setActiveSection('day');
-      }
-      
-      // Only attempt to create a date if we have complete values
-      tryToCreateDate(newDateParts);
-    } 
-    else if (section === 'day' && val.length <= 2) {
-      // Update the day section directly
-      const newDateParts = { ...dateParts };
-      newDateParts.day = val;
-      
-      // Auto-advance when 2 digits are entered
-      if (val.length === 2) {
-        setActiveSection('year');
-      }
-      
-      // Only attempt to create a date if we have complete values
-      tryToCreateDate(newDateParts);
-    } 
-    else if (section === 'year' && val.length <= 4) {
-      // Update the year section directly
-      const newDateParts = { ...dateParts };
-      newDateParts.year = val;
-      
-      // Only attempt to create a date if we have complete values
+    const newDateParts = { ...dateParts, month: val };
+    setDateParts(newDateParts);
+    
+    const isValid = validateMonth(val);
+    setErrors(prev => ({ ...prev, month: !isValid }));
+    
+    if (val.length === 2 && isValid) {
+      dayRef.current.focus();
+    }
+    
+    if (isValid) {
       tryToCreateDate(newDateParts);
     }
   };
   
-  // Separate function to attempt creating a date
-  const tryToCreateDate = (parts) => {
-    // Update the internal parts state
-    let newDate = null;
+  const handleDayChange = (e) => {
+    let val = e.target.value.replace(/\D/g, '').slice(0, 2);
     
-    // Only try to create a date if we have all parts with proper lengths
-    if (parts.month && parts.day && parts.year && 
-        parts.month.length <= 2 && parts.day.length <= 2 && parts.year.length <= 4) {
-      
-      try {
-        const month = parseInt(parts.month, 10);
-        const day = parseInt(parts.day, 10);
-        const year = parseInt(parts.year, 10);
-        
-        // Check for valid ranges
-        if (month >= 1 && month <= 12 && day >= 1 && day <= 31 && year > 0) {
-          newDate = new Date(year, month - 1, day);
-          
-          // Only update if it's a valid date
-          if (!isNaN(newDate.getTime())) {
-            onChange(newDate);
-            return;
-          }
-        }
-      } catch (e) {
-        console.log("Invalid date", e);
-      }
+    const newDateParts = { ...dateParts, day: val };
+    setDateParts(newDateParts);
+    
+    const isValid = validateDay(val, dateParts.month, dateParts.year);
+    setErrors(prev => ({ ...prev, day: !isValid }));
+    
+    if (val.length === 2 && isValid) {
+      yearRef.current.focus();
     }
     
-    // If we don't have a complete date yet, still update the fields
-    if (value) {
-      const currentDate = new Date(value);
-      if (!isNaN(currentDate.getTime())) {
-        onChange(currentDate);
+    if (isValid) {
+      tryToCreateDate(newDateParts);
+    }
+  };
+  
+  const handleYearChange = (e) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+    
+    const newDateParts = { ...dateParts, year: val };
+    setDateParts(newDateParts);
+    
+    const isValid = validateYear(val);
+    setErrors(prev => ({ ...prev, year: !isValid }));
+    
+    if (isValid) {
+      tryToCreateDate(newDateParts);
+    }
+  };
+
+  const handleKeyDown = (e, field) => {
+    if (e.key === 'Backspace' && e.target.value.length === 0) {
+      if (field === 'day' && monthRef.current) {
+        monthRef.current.focus();
+      } else if (field === 'year' && dayRef.current) {
+        dayRef.current.focus();
+      }
+    }
+  };
+  
+  // Attempt to create a date from the parts
+  const tryToCreateDate = (parts) => {
+    // Only try to create a date if we have complete valid data
+    if (parts.month && parts.day && parts.year && parts.year.length === 4) {
+      if (validateMonth(parts.month) && validateDay(parts.day, parts.month, parts.year) && validateYear(parts.year)) {
+        try {
+          const month = parseInt(parts.month, 10);
+          const day = parseInt(parts.day, 10);
+          const year = parseInt(parts.year, 10);
+          
+          const newDate = new Date(year, month - 1, day);
+          if (!isNaN(newDate.getTime())) {
+            onChange(newDate);
+          }
+        } catch (e) {
+          console.log("Invalid date", e);
+        }
       }
     }
   };
 
+  const validateMonth = (month) => {
+    if (!month) return true;
+    const monthNum = parseInt(month, 10);
+    return monthNum >= 1 && monthNum <= 12;
+  };
+
+  const validateDay = (day, month, year) => {
+    if (!day) return true;
+    const dayNum = parseInt(day, 10);
+    if (dayNum < 1 || dayNum > 31) return false;
+    
+    // Check days in month if we have a month
+    if (month) {
+      const monthNum = parseInt(month, 10);
+      if (monthNum >= 1 && monthNum <= 12) {
+        const yearNum = year ? parseInt(year, 10) : new Date().getFullYear();
+        const lastDayOfMonth = new Date(yearNum, monthNum, 0).getDate();
+        return dayNum <= lastDayOfMonth;
+      }
+    }
+    
+    return true;
+  };
+
+  const validateYear = (year) => {
+    if (!year) return true;
+    if (year.length < 4) return true; // Allow partial year input
+    const yearNum = parseInt(year, 10);
+    return yearNum > 0;
+  };
+
+  const hasError = errors.month || errors.day || errors.year;
+
   return (
-    <div className="date-input-container">
-      <div className="date-picker-field">
-        {/* Month section */}
-        <div 
-          className={`date-section month ${activeSection === 'month' ? 'active' : ''}`}
-          onClick={() => setActiveSection('month')}
-        >
-          <input
-            type="text"
-            value={dateParts.month}
-            placeholder="mm"
-            maxLength="2"
-            onChange={(e) => handleInputChange(e, 'month')}
-            // onKeyDown={(e) => handleKeyDown(e, 'month')}
-            ref={activeSection === 'month' ? inputRef : null}
-            onFocus={() => setActiveSection('month')}
-          />
-        </div>
-        <span className="date-separator">/</span>
-        
-        {/* Day section */}
-        <div 
-          className={`date-section day ${activeSection === 'day' ? 'active' : ''}`}
-          onClick={() => setActiveSection('day')}
-        >
-          <input
-            type="text"
-            value={dateParts.day}
-            placeholder="dd"
-            maxLength="2"
-            onChange={(e) => handleInputChange(e, 'day')}
-            // onKeyDown={(e) => handleKeyDown(e, 'day')}
-            ref={activeSection === 'day' ? inputRef : null}
-            onFocus={() => setActiveSection('day')}
-          />
-        </div>
-        <span className="date-separator">/</span>
-        
-        {/* Year section */}
-        <div 
-          className={`date-section year ${activeSection === 'year' ? 'active' : ''}`}
-          onClick={() => setActiveSection('year')}
-        >
-          <input
-            type="text"
-            value={dateParts.year}
-            placeholder="yyyy"
-            maxLength="4"
-            onChange={(e) => handleInputChange(e, 'year')}
-            // onKeyDown={(e) => handleKeyDown(e, 'year')}
-            ref={activeSection === 'year' ? inputRef : null}
-            onFocus={() => setActiveSection('year')}
-          />
-        </div>
-        
-        {/* Calendar icon */}
-        <button
-          type="button"
-          className="calendar-button"
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
+    <div className={`relative flex items-center ${inputClassName}`}>
+      <div className={`flex items-center px-2 py-1 border ${hasError ? 'border-red-500' : 'border-gray-600'} rounded w-48`}>
+        <input
+          type="text"
+          value={dateParts.month}
+          placeholder="MM"
+          maxLength="2"
+          onChange={handleMonthChange}
+          onKeyDown={(e) => handleKeyDown(e, 'month')}
+          ref={monthRef}
+          className="text-center outline-none w-8"
+          required={required}
+        />
+        <span className="px-1">/</span>
+        <input
+          type="text"
+          value={dateParts.day}
+          placeholder="DD"
+          maxLength="2"
+          onChange={handleDayChange}
+          onKeyDown={(e) => handleKeyDown(e, 'day')}
+          ref={dayRef}
+          className="text-center outline-none w-8"
+          required={required}
+        />
+        <span className="px-1">/</span>
+        <input
+          type="text"
+          value={dateParts.year}
+          placeholder="YYYY"
+          maxLength="4"
+          onChange={handleYearChange}
+          onKeyDown={(e) => handleKeyDown(e, 'year')}
+          ref={yearRef}
+          className="text-center outline-none w-12"
+          required={required}
+        />
+        <div className="ml-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-        </button>
+        </div>
       </div>
     </div>
   );

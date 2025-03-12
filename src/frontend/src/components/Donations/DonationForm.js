@@ -170,11 +170,11 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
               />
             </div> */}
             <div className="col-span-9">
-              <MaskedDateInput
-                value={formData.dueDate}
-                onChange={(date) => setFormData({ ...formData, dueDate: date })}
+               <MaskedDateInput
+                value={formData.donation_date}
+                onChange={(date) => setFormData({ ...formData, donation_date: date })}
                 required
-                inputClassName="w-full px-2 py-1 border border-gray-600"
+                className="w-full px-2 py-1 pl-7 border border-gray-600"
               />
             </div>
 

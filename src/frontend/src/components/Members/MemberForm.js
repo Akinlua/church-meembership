@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import DatePickerField from '../common/DatePickerField';
 import { ButtonLoader, PageLoader } from '../common/Loader';
+import MaskedDateInput from '../common/MaskedDateInput';
+
 
 const MemberForm = ({ member, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
@@ -179,7 +181,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
         <PageLoader />
       ) : (
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-12 gap-x-3">
+          <div className="grid grid-cols-12 gap-x-4 gap-y-2">
             {/* Left column - Labels */}
             <div className="col-span-2">
               <div className="flex justify-end items-center h-8 mb-3">
@@ -201,11 +203,14 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <label className="text-sm font-medium">Birth Date</label>
               </div>
               <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Past Church</label>
+                <label className="text-sm font-medium">Membership Date</label>
               </div>
               <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Groups</label>
+                <label className="text-sm font-medium">Past Church</label>
               </div>
+              {/* <div className="flex justify-end items-center h-8 mb-3">
+                <label className="text-sm font-medium">Groups</label>
+              </div> */}
             </div>
             
             {/* Middle column - Form inputs */}
@@ -293,24 +298,17 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               </div>
               
               <div className="mb-3 flex items-center h-8">
-                <DatePickerField
+                <MaskedDateInput
                   value={formData.birthday}
                   onChange={(date) => setFormData({ ...formData, birthday: date })}
-                  inputClassName="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
-                  showLabel={false}
+                  required
+                  className="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"            
                 />
                 
-                <span className="mr-2 text-sm font-medium">Member Date</span>
-                <DatePickerField
-                  value={formData.membership_date}
-                  onChange={(date) => setFormData({ ...formData, membership_date: date })}
-                  inputClassName="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
-                  showLabel={false}
-                />
-                
+                {/* <span className="mr-2 text-sm font-medium">Member Date</span> */}
                 <span className="mr-2 text-sm font-medium">Sex</span>
                 <select
-                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
+                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.gender}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 >
@@ -322,23 +320,31 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               </div>
               
               <div className="mb-3 flex items-center h-8">
+                <MaskedDateInput
+                  value={formData.membership_date}
+                  onChange={(date) => setFormData({ ...formData, membership_date: date })}
+                  required
+                  className="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"            
+                />                
+                
+                <span className="mr-2 text-sm font-medium">Baptismal Date</span>
+                <MaskedDateInput
+                  value={formData.baptismal_date}
+                  onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
+                  required
+                  className="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"            
+                />
+              </div>
+              
+              <div className="mb-3 flex items-center h-8">
                 <input
                   type="text"
                   className="w-1/2 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.past_church || ''}
                   onChange={(e) => setFormData({ ...formData, past_church: e.target.value })}
                 />
-                <span className="mr-2 text-sm font-medium">Baptismal Date</span>
-                <DatePickerField
-                  value={formData.baptismal_date}
-                  onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
-                  inputClassName="flex-1 border border-gray-600 px-2 py-1 text-sm h-8"
-                  showLabel={false}
-                />
-              </div>
-              
-              <div className="mb-3 flex items-center h-8">
-                <div className="relative w-1/2 mr-3" ref={groupDropdownRef}>
+                <span className="mr-2 text-sm font-medium">Groups</span>
+                <div className="relative w-1/2" ref={groupDropdownRef}>
                   <button
                     type="button"
                     className="w-full border border-gray-600 px-2 py-1 text-sm h-8 text-left"
@@ -374,7 +380,9 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                     </div>
                   )}
                 </div>
-                
+              </div>
+              
+              <div className="mb-3 flex items-center h-8">
                 <span className="mr-2 text-sm font-medium">Active member</span>
                 <div className="w-16 border border-gray-600 px-2 py-1 text-sm h-8 flex items-center">
                   <input

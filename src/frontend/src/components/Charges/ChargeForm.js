@@ -178,7 +178,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
             </div>
 
             <div className="col-span-3 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Charge Date</label>
+              <label className="block text-sm font-medium text-gray-700">Due Date</label>
             </div>
             <div className="col-span-9">
               <MaskedDateInput
