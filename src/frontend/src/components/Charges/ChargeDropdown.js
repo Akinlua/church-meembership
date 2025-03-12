@@ -106,6 +106,7 @@ const ChargeDropdown = () => {
   const handleCancelSelection = () => {
     setSelectedCharge(null);
     setSearchTerm('');
+    setShowDropdown(false);
   };
   
   const handleEditCharge = async () => {
@@ -325,14 +326,12 @@ const ChargeDropdown = () => {
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
-          {selectedCharge ? (
-            <button
-              onClick={handleCancelSelection}
-              className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none"
-            >
-              Cancel
-            </button>
-          ) : null}
+          <button
+            onClick={handleCancelSelection}
+            className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none"
+          >
+            Cancel
+          </button>
           <button
             onClick={handleAddCharge}
             className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
@@ -345,7 +344,8 @@ const ChargeDropdown = () => {
           <PageLoader />
         ) : (
           <>
-            {showDropdown && (
+            {/* Comment out the dropdown logic */}
+            {/* {showDropdown && (
               <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                 {filteredCharges.length === 0 ? (
                   <div className="p-3 text-gray-500">No charges found</div>
@@ -374,7 +374,7 @@ const ChargeDropdown = () => {
                   ))
                 )}
               </div>
-            )}
+            )} */}
 
             {selectedCharge ? (
               <div className="mt-6">
@@ -436,134 +436,136 @@ const ChargeDropdown = () => {
                 </div>
               </div>
             ) : (
-              <div className="mt-6 overflow-x-auto bg-white rounded-lg shadow">
-                {/* Show payment button if charges are selected */}
-                {showPaymentOption && (
-                  <div className="p-4 bg-blue-50 border-b border-blue-100 flex justify-between items-center">
-                    <div>
-                      <span className="font-medium">{selectedCharges.length} charge(s) selected</span>
+              showDropdown && (
+                <div className="mt-6 overflow-x-auto bg-white rounded-lg shadow">
+                  {/* Show payment button if charges are selected */}
+                  {showPaymentOption && (
+                    <div className="p-4 bg-blue-50 border-b border-blue-100 flex justify-between items-center">
+                      <div>
+                        <span className="font-medium">{selectedCharges.length} charge(s) selected</span>
+                      </div>
+                      <button
+                        onClick={handleMarkForPayment}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Mark Selected for Payment
+                      </button>
                     </div>
-                    <button
-                      onClick={handleMarkForPayment}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Mark Selected for Payment
-                    </button>
-                  </div>
-                )}
-                
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-4 py-3">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                            checked={selectedCharges.length > 0 && selectedCharges.length === charges.length}
-                            onChange={toggleSelectAll}
-                          />
-                          <span className="ml-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Pay</span>
-                        </div>
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Vendor
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Expense Category
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Account #
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {charges.length === 0 ? (
+                  )}
+                  
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
                       <tr>
-                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                          No charges found
-                        </td>
-                      </tr>
-                    ) : (
-                      charges.map((charge) => (
-                        <tr key={charge.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-4 whitespace-nowrap">
+                        <th scope="col" className="px-4 py-3">
+                          <div className="flex items-center">
                             <input
                               type="checkbox"
                               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                              checked={selectedCharges.includes(charge.id)}
-                              onChange={() => handleCheckboxChange(charge.id)}
-                              onClick={(e) => e.stopPropagation()}
+                              checked={selectedCharges.length > 0 && selectedCharges.length === charges.length}
+                              onChange={toggleSelectAll}
                             />
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
-                            <div className="text-sm font-medium text-gray-900">
-                              {charge.vendor?.lastName || 'Unknown'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
-                            <div className="text-sm text-gray-900">
-                              {charge.expenseCategory?.name || 'Unknown'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
-                            <div className="text-sm text-gray-900">
-                              {charge.vendor?.accountNumber || 'N/A'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
-                            <div className="text-sm font-medium text-gray-900">
-                              ${parseFloat(charge.amount || 0).toFixed(2)}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
-                            <div className="text-sm text-gray-900">
-                              {charge.dueDate ? format(new Date(charge.dueDate), 'MM/dd/yyyy') : 'N/A'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedCharge(charge);
-                                  setIsEditing(true);
-                                  setShowForm(true);
-                                }}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedCharge(charge);
-                                  handleDeleteCharge(charge);
-                                }}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Delete
-                              </button>
-                            </div>
+                            <span className="ml-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Pay</span>
+                          </div>
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Vendor
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Expense Category
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Account #
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Amount
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Date
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {charges.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                            No charges found
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                      ) : (
+                        charges.map((charge) => (
+                          <tr key={charge.id} className="hover:bg-gray-50">
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                checked={selectedCharges.includes(charge.id)}
+                                onChange={() => handleCheckboxChange(charge.id)}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                              <div className="text-sm font-medium text-gray-900">
+                                {charge.vendor?.lastName || 'Unknown'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                              <div className="text-sm text-gray-900">
+                                {charge.expenseCategory?.name || 'Unknown'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                              <div className="text-sm text-gray-900">
+                                {charge.vendor?.accountNumber || 'N/A'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                              <div className="text-sm font-medium text-gray-900">
+                                ${parseFloat(charge.amount || 0).toFixed(2)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap" onClick={() => handleSelectCharge(charge)}>
+                              <div className="text-sm text-gray-900">
+                                {charge.dueDate ? format(new Date(charge.dueDate), 'MM/dd/yyyy') : 'N/A'}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <div className="flex space-x-2">
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedCharge(charge);
+                                    setIsEditing(true);
+                                    setShowForm(true);
+                                  }}
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  Edit
+                                </button>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedCharge(charge);
+                                    handleDeleteCharge(charge);
+                                  }}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )
             )}
           </>
         )}

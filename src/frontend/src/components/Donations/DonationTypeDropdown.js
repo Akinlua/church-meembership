@@ -192,14 +192,14 @@ const DonationTypeDropdown = () => {
         </div>
       )}
       
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <button 
           onClick={handleDownload}
           className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 mr-2"
         >
           Download Report (PDF)
         </button>
-      </div>
+      </div> */}
       
       <div className="relative mb-6" ref={dropdownRef}>
         <div className="flex">
