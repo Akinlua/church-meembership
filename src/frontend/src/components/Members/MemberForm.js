@@ -208,9 +208,9 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               <div className="flex justify-end items-center h-8 mb-3">
                 <label className="text-sm font-medium">Past Church</label>
               </div>
-              {/* <div className="flex justify-end items-center h-8 mb-3">
+              <div className="flex justify-end items-center h-8 mb-3">
                 <label className="text-sm font-medium">Groups</label>
-              </div> */}
+              </div>
             </div>
             
             {/* Middle column - Form inputs */}
@@ -345,7 +345,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               </div>
               
               <div className="mb-3 flex items-center h-8">
-                <span className="mr-2 text-sm font-medium">Groups</span>
+                {/* <span className="mr-2 text-sm font-medium">Groups</span> */}
                 <div className="relative flex-1 mr-4" ref={groupDropdownRef}>
                   <button
                     type="button"
