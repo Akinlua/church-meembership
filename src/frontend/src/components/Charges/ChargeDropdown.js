@@ -491,14 +491,14 @@ const ChargeDropdown = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {charges.length === 0 ? (
+                      {filteredCharges.length === 0 ? (
                         <tr>
                           <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                             No charges found
                           </td>
                         </tr>
                       ) : (
-                        charges.map((charge) => (
+                        filteredCharges.map((charge) => (
                           <tr key={charge.id} className="hover:bg-gray-50">
                             <td className="px-4 py-4 whitespace-nowrap">
                               <input
