@@ -118,7 +118,7 @@ const MembershipReport = () => {
                         <div className="h-10 w-10 flex-shrink-0">
                           <img 
                             className="h-10 w-10 rounded-full object-cover"
-                            src={member.profileImage || '/default-avatar.png'} 
+                            src={member.profileImage || '/default.jpg'} 
                             alt=""
                           />
                         </div>
@@ -174,7 +174,7 @@ const MembershipReport = () => {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="flex flex-col items-center">
               <img 
-                src={selectedMember.profileImage || '/default-avatar.png'}
+                src={selectedMember.profileImage || '/default.jpg'}
                 alt=""
                 className="h-32 w-32 rounded-full object-cover mb-4"
               />
