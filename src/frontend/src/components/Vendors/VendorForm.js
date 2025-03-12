@@ -221,13 +221,18 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
             <label className="block text-sm font-medium text-gray-700">Zip</label>
           </div>
           <div className="col-span-4">
-            <input
-              type="number"
-              value={formData.zip_code}
-              onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
-              maxLength="10"
-            />
+          <input
+            type="text"
+            className="w-20 border border-gray-300 rounded px-2 py-1 text-sm h-8"
+            value={formData.zip_code}
+            onChange={(e) => {
+              const numericValue = e.target.value.replace(/\D/g, '').slice(0, 5);
+              setFormData({ ...formData, zip_code: numericValue });
+            }}
+            maxLength={5}
+            pattern="[0-9]{5}"
+            placeholder="12345"
+          />
           </div>
 
           <div className="col-span-3 flex items-center">

@@ -262,10 +262,16 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 />
                 <span className="mr-2 text-sm font-medium">Zip</span>
                 <input
-                  type="number"
+                  type="text"
                   className="w-20 border border-gray-300 rounded px-2 py-1 text-sm h-8"
                   value={formData.zip_code}
-                  onChange={(e) => setFormData({ ...formData, zip_code: e.target.value })}
+                  onChange={(e) => {
+                    const numericValue = e.target.value.replace(/\D/g, '').slice(0, 5);
+                    setFormData({ ...formData, zip_code: numericValue });
+                  }}
+                  maxLength={5}
+                  pattern="[0-9]{5}"
+                  placeholder="12345"
                 />
               </div>
               
