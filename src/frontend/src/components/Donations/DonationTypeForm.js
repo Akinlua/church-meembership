@@ -71,7 +71,7 @@ const DonationTypeForm = ({ onClose, onSubmit, initialData }) => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
           
@@ -83,7 +83,7 @@ const DonationTypeForm = ({ onClose, onSubmit, initialData }) => {
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
               rows="2"
             />
           </div>

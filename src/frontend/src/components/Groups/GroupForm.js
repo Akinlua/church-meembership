@@ -105,7 +105,7 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
+                className="w-full px-2 py-1 border border-gray-600"
                 required
               />
             </div>
@@ -117,7 +117,7 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
+                className="w-full px-2 py-1 border border-gray-600"
                 rows="2"
               />
             </div>
@@ -126,7 +126,7 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
               <label className="block text-sm font-medium text-gray-700">Members</label>
             </div>
             <div className="col-span-9">
-              <div className="border border-gray-300 rounded max-h-[150px] overflow-y-auto bg-white">
+              <div className="border border-gray-600 max-h-[150px] overflow-y-auto bg-white">
                 {members.length === 0 ? (
                   <p className="p-2 text-gray-500 text-sm">No active members found</p>
                 ) : (

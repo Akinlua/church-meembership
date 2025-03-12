@@ -69,7 +69,7 @@ const ExpenseCategoryForm = ({ category, onClose, onSubmit }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
               required
             />
           </div>

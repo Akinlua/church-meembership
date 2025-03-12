@@ -123,7 +123,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                 name="vendorId"
                 value={formData.vendorId}
                 onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
+                className="w-full px-2 py-1 border border-gray-600"
                 required
               >
                 <option value="">Select Vendor</option>
@@ -143,7 +143,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                 name="expenseCategoryId"
                 value={formData.expenseCategoryId}
                 onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
+                className="w-full px-2 py-1 border border-gray-600"
                 required
               >
                 <option value="">Select Expense Category</option>
@@ -172,7 +172,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                   placeholder="0.00"
                   step="0.01"
                   required
-                  className="w-full px-2 py-1 pl-7 border border-gray-300 rounded"
+                  className="w-full px-2 py-1 pl-7 border border-gray-600"
                 />
               </div>
             </div>
@@ -185,6 +185,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                 value={formData.dueDate}
                 onChange={(date) => setFormData({ ...formData, dueDate: date })}
                 required
+                inputClassName="w-full px-2 py-1 border border-gray-600"
               />
             </div>
           </div>

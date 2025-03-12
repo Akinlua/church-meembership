@@ -107,7 +107,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
               <select
                 value={formData.member_id}
                 onChange={(e) => setFormData({ ...formData, member_id: e.target.value })}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
+                className="w-full px-2 py-1 border border-gray-600"
                 required
               >
                 <option value="">Select Member</option>
@@ -126,7 +126,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
               <select
                 value={formData.donation_type}
                 onChange={(e) => setFormData({ ...formData, donation_type: e.target.value })}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
+                className="w-full px-2 py-1 border border-gray-600"
                 required
               >
                 <option value="">Select Donation Type</option>
@@ -152,7 +152,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                   required
                   placeholder="0.00"
                   step="0.01"
-                  className="w-full px-2 py-1 pl-7 border border-gray-300 rounded"
+                  className="w-full px-2 py-1 pl-7 border border-gray-600"
                 />
               </div>
             </div>
@@ -174,6 +174,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                 value={formData.dueDate}
                 onChange={(date) => setFormData({ ...formData, dueDate: date })}
                 required
+                inputClassName="w-full px-2 py-1 border border-gray-600"
               />
             </div>
 
@@ -184,7 +185,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-2 py-1 border border-gray-300 rounded"
+                className="w-full px-2 py-1 border border-gray-600"
                 rows="2"
               />
             </div>

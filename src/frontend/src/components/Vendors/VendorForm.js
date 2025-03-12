@@ -162,7 +162,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               value={formData.last_name}
               onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
               required
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
 
@@ -174,7 +174,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               type="text"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
           
@@ -186,7 +186,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               type="text"
               value={formData.city}
               onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
           <div className="col-span-1 flex items-center">
@@ -197,7 +197,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               type="text"
               value={formData.state}
               onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
               maxLength="2"
             />
           </div>
@@ -211,7 +211,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               value={formData.phone}
               onChange={handlePhoneChange}
               placeholder="(123) 456-7890"
-              className={`w-full px-2 py-1 border ${phoneError ? 'border-red-300' : 'border-gray-300'} rounded`}
+              className={`w-full px-2 py-1 border ${phoneError ? 'border-red-300' : 'border-gray-600'}`}
             />
             {phoneError && (
               <p className="text-xs text-red-600">{phoneError}</p>
@@ -223,7 +223,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
           <div className="col-span-4">
           <input
             type="text"
-            className="w-20 border border-gray-300 rounded px-2 py-1 text-sm h-8"
+            className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
             value={formData.zip_code}
             onChange={(e) => {
               const numericValue = e.target.value.replace(/\D/g, '').slice(0, 5);
@@ -243,7 +243,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
 
@@ -255,7 +255,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               type="text"
               value={formData.account_number}
               onChange={(e) => setFormData({ ...formData, account_number: e.target.value })}
-              className="w-full px-2 py-1 border border-gray-300 rounded"
+              className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
         </div>

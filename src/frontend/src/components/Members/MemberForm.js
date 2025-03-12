@@ -214,14 +214,14 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <input
                   required
                   type="text"
-                  className="w-full border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.first_name}
                   onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                 />
                 <span className="mx-2 text-sm font-medium">M.I.</span>
                 <input
                   type="text"
-                  className="w-12 border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  className="w-12 border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.middle_name}
                   onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
                 />
@@ -231,7 +231,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <input
                   required
                   type="text"
-                  className="w-full border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                 />
@@ -240,7 +240,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               <div className="mb-3 h-8">
                 <input
                   type="text"
-                  className="w-full border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 />
@@ -249,21 +249,21 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               <div className="mb-3 flex items-center h-8">
                 <input
                   type="text"
-                  className="w-1/3 border border-gray-300 rounded px-2 py-1 text-sm h-8 mr-3"
+                  className="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 />
                 <span className="mr-2 text-sm font-medium">State</span>
                 <input
                   type="text"
-                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm h-8 mr-3"
+                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.state}
                   onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 />
                 <span className="mr-2 text-sm font-medium">Zip</span>
                 <input
                   type="text"
-                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.zip_code}
                   onChange={(e) => {
                     const numericValue = e.target.value.replace(/\D/g, '').slice(0, 5);
@@ -278,7 +278,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               <div className="mb-3 flex items-center h-8">
                 <input
                   type="text"
-                  className="w-1/3 border border-gray-300 rounded px-2 py-1 text-sm h-8 mr-3"
+                  className="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.cell_phone}
                   onChange={handlePhoneChange}
                   placeholder="(123) 456-7890"
@@ -286,7 +286,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <span className="mr-2 text-sm font-medium">Email</span>
                 <input
                   type="email"
-                  className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  className="flex-1 border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -296,7 +296,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <DatePickerField
                   value={formData.birthday}
                   onChange={(date) => setFormData({ ...formData, birthday: date })}
-                  inputClassName="w-1/3 border border-gray-300 rounded px-2 py-1 text-sm h-8 mr-3"
+                  inputClassName="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   showLabel={false}
                 />
                 
@@ -304,13 +304,13 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <DatePickerField
                   value={formData.membership_date}
                   onChange={(date) => setFormData({ ...formData, membership_date: date })}
-                  inputClassName="w-1/3 border border-gray-300 rounded px-2 py-1 text-sm h-8 mr-3"
+                  inputClassName="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   showLabel={false}
                 />
                 
                 <span className="mr-2 text-sm font-medium">Sex</span>
                 <select
-                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
                   value={formData.gender}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 >
@@ -324,7 +324,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
               <div className="mb-3 flex items-center h-8">
                 <input
                   type="text"
-                  className="w-1/2 border border-gray-300 rounded px-2 py-1 text-sm h-8 mr-3"
+                  className="w-1/2 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.past_church || ''}
                   onChange={(e) => setFormData({ ...formData, past_church: e.target.value })}
                 />
@@ -332,7 +332,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <DatePickerField
                   value={formData.baptismal_date}
                   onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
-                  inputClassName="flex-1 border border-gray-300 rounded px-2 py-1 text-sm h-8"
+                  inputClassName="flex-1 border border-gray-600 px-2 py-1 text-sm h-8"
                   showLabel={false}
                 />
               </div>
@@ -341,7 +341,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 <div className="relative w-1/2 mr-3" ref={groupDropdownRef}>
                   <button
                     type="button"
-                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm h-8 text-left"
+                    className="w-full border border-gray-600 px-2 py-1 text-sm h-8 text-left"
                     onClick={() => setShowGroupDropdown(!showGroupDropdown)}
                   >
                     <span className="block truncate">
@@ -350,7 +350,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   </button>
 
                   {showGroupDropdown && (
-                    <div className="absolute mt-1 z-10 w-full bg-white shadow border border-gray-300 rounded py-1 text-sm overflow-auto max-h-32">
+                    <div className="absolute mt-1 z-10 w-full bg-white shadow border border-gray-600 py-1 text-sm overflow-auto max-h-32">
                       {availableGroups.map((group) => (
                         <div
                           key={group.id}
@@ -376,7 +376,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 </div>
                 
                 <span className="mr-2 text-sm font-medium">Active member</span>
-                <div className="w-16 border border-gray-300 rounded px-2 py-1 text-sm h-8 flex items-center">
+                <div className="w-16 border border-gray-600 px-2 py-1 text-sm h-8 flex items-center">
                   <input
                     type="checkbox"
                     id="is_active"
