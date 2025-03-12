@@ -290,6 +290,10 @@ const MemberDropdown = () => {
                             selectedMember.zipCode
                           ].filter(Boolean).join(', ') || 'N/A'}
                         </p>
+                        <p className="mb-1">
+                          <span className="font-medium">Birth Date:</span>{' '}
+                          {selectedMember.membershipDate ? new Date(selectedMember.birthday).toLocaleDateString() : 'N/A'}
+                        </p>
                       </div>
                       
                       <div>
