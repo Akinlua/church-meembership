@@ -3,6 +3,7 @@ import axios from 'axios';
 import DatePickerField from '../common/DatePickerField';
 import MaskedDateInput from '../common/MaskedDateInput';
 import { PageLoader } from '../common/Loader';
+import Select from 'react-select';
 
 const DonationReport = () => {
   const [dateRange, setDateRange] = useState({
@@ -11,6 +12,8 @@ const DonationReport = () => {
   });
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
+  const [members, setMembers] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(null);
 
   const handleDateChange = (type, date) => {
     setDateRange(prev => ({
@@ -19,12 +22,27 @@ const DonationReport = () => {
     }));
   };
 
+  const fetchMembers = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setMembers(response.data.map(member => ({
+        value: member.id,
+        label: `${member.lastName}, ${member.firstName}`
+      })));
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    }
+  };
+
   const fetchReport = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
       if (dateRange.startDate) params.append('startDate', dateRange.startDate);
       if (dateRange.endDate) params.append('endDate', dateRange.endDate);
+      if (selectedMember) params.append('memberId', selectedMember.value);
 
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/reports/donations?${params}`,
@@ -47,7 +65,8 @@ const DonationReport = () => {
         `${process.env.REACT_APP_API_URL}/reports/donations/type-summary/pdf`,
         {
           startDate: dateRange.startDate,
-          endDate: dateRange.endDate
+          endDate: dateRange.endDate,
+          memberId: selectedMember ? selectedMember.value : null
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -69,8 +88,38 @@ const DonationReport = () => {
     }
   };
 
+  const generatePDF = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/reports/donations/pdf`,
+        {
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+          memberId: selectedMember ? selectedMember.value : null
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          responseType: 'blob'
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `donation-report-${new Date().toISOString().split('T')[0]}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchReport();
+    fetchMembers();
   }, []);
 
   const formatCurrency = (amount) => {
@@ -88,35 +137,6 @@ const DonationReport = () => {
       month: 'long',
       day: 'numeric'
     }).format(new Date(date));
-  };
-
-  const generatePDF = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/reports/donations/pdf`,
-        {
-          startDate: dateRange.startDate,
-          endDate: dateRange.endDate
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          responseType: 'blob'
-        }
-      );
-      
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `donation-report-${new Date().toISOString().split('T')[0]}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -159,6 +179,17 @@ const DonationReport = () => {
             value={dateRange.endDate}
             onChange={(date) => handleDateChange('endDate', date)}              
           />
+          </div>
+          
+          <div className="w-full md:w-auto">
+            <span>Member</span>
+            <Select
+              options={members}
+              value={selectedMember}
+              onChange={setSelectedMember}
+              placeholder="Select Member"
+              isSearchable
+            />
           </div>
           
           <button 

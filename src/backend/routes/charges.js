@@ -47,12 +47,12 @@ module.exports = (app) => {
   // Create charge
   app.post('/charges', authenticateToken, async (req, res) => {
     const { vendorId, expenseCategoryId, amount, dueDate, description } = req.body;
-    
+    console.log(req.body)
     try {
       const charge = await prisma.charge.create({
         data: { 
-          vendorId: parseInt(vendorId),
-          expenseCategoryId: parseInt(expenseCategoryId),
+          vendorId: parseInt(vendorId.value),
+          expenseCategoryId: parseInt(expenseCategoryId.value),
           amount: parseFloat(amount),
           dueDate: new Date(dueDate),
         }

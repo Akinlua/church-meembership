@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Select from 'react-select';
 import MaskedDateInput from '../common/MaskedDateInput';
 import { ButtonLoader, PageLoader } from '../common/Loader';
+import Modal from '../../common/Modal';
+
+const customStyles = {
+  control: (provided) => ({
+    ...provided,
+    borderColor: 'black',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: 'black',
+    },
+    width: '250px',
+  }),
+};
 
 const ChargeForm = ({ charge, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
@@ -16,6 +30,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
     description: charge?.description || '',
     receiptImg: charge?.receiptImg || '',
   });
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const loadFormData = async () => {
@@ -48,7 +63,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/vendors`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setVendors(response.data);
+      setVendors(response.data.map(vendor => ({ value: vendor.id, label: `${vendor.lastName}` })));
     } catch (error) {
       console.error('Error fetching vendors:', error);
     }
@@ -59,7 +74,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/expense-categories`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setExpenseCategories(response.data);
+      setExpenseCategories(response.data.map(category => ({ value: category.id, label: category.name })));
     } catch (error) {
       console.error('Error fetching expense categories:', error);
     }
@@ -76,24 +91,38 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
     try {
       const url = `${process.env.REACT_APP_API_URL}/charges${charge ? `/${charge.id}` : ''}`;
       const method = charge ? 'put' : 'post';
       
-      const response = await axios[method](url, formData, {
+      await axios[method](url, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      
-      if (onSubmit) {
-        onSubmit(response.data);
-      }
+
+      setShowModal(true);
     } catch (error) {
       console.error('Error saving charge:', error);
       alert('Error saving charge. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleContinueAdding = () => {
+    setFormData({
+      vendorId: '',
+      expenseCategoryId: '',
+      amount: '',
+      dueDate: new Date(),
+      description: '',
+      receiptImg: ''
+    });
+    setShowModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    onClose();
   };
 
   const formatCurrency = (value) => {
@@ -119,40 +148,32 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
               <label className="block text-sm font-medium text-gray-700">Vendor</label>
             </div>
             <div className="col-span-9">
-              <select
+              <Select
                 name="vendorId"
+                options={vendors}
                 value={formData.vendorId}
-                onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-600"
+                onChange={(selected) => setFormData({ ...formData, vendorId: selected })}
+                placeholder="Select Vendor"
+                isSearchable
+                styles={customStyles}
                 required
-              >
-                <option value="">Select Vendor</option>
-                {vendors.map(vendor => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.lastName}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">Expense Category</label>
             </div>
             <div className="col-span-9">
-              <select
+              <Select
                 name="expenseCategoryId"
+                options={expenseCategories}
                 value={formData.expenseCategoryId}
-                onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-600"
+                onChange={(selected) => setFormData({ ...formData, expenseCategoryId: selected })}
+                placeholder="Select Expense Category"
+                isSearchable
+                styles={customStyles}
                 required
-              >
-                <option value="">Select Expense Category</option>
-                {expenseCategories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             <div className="col-span-3 flex items-center">
@@ -172,7 +193,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                   placeholder="0.00"
                   step="0.01"
                   required
-                  className="w-full px-2 py-1 pl-7 border border-gray-600"
+                  className="w-34 px-2 py-1 pl-7 border border-gray-600"
                 />
               </div>
             </div>
@@ -180,7 +201,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
             <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">Due Date</label>
             </div>
-            <div className="col-span-9">
+            <div className="col-span-3">
               <MaskedDateInput
                 value={formData.dueDate}
                 onChange={(date) => setFormData({ ...formData, dueDate: date })}
@@ -204,10 +225,25 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
               disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              {loading ? <ButtonLoader text={charge ? "Updating..." : "Saving..."} /> : (charge ? "Update" : "Add")}
+              {loading ? <ButtonLoader text={charge ? "Updating..." : "Saving..."} /> : (charge ? "Update" : "Save")}
             </button>
           </div>
         </form>
+      )}
+
+      {showModal && (
+        <Modal onClose={handleCloseModal}>
+          <h2 className="text-lg font-bold">Success!</h2>
+          <p>Charge added successfully! Do you want to add another?</p>
+          <div className="flex justify-end mt-4">
+            <button onClick={handleContinueAdding} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Add
+            </button>
+            <button onClick={handleCloseModal} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 ml-2">
+              Exit
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

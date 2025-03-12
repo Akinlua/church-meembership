@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ButtonLoader, PageLoader } from '../common/Loader';
+import Modal from '../../common/Modal';
 
 const GroupForm = ({ group, onClose, onSubmit }) => {
   const [members, setMembers] = useState([]);
@@ -11,6 +12,7 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
   });
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const initialize = async () => {
@@ -67,21 +69,39 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const url = `${process.env.REACT_APP_API_URL}/groups${group ? `/${group.id}` : ''}`;
       const method = group ? 'put' : 'post';
-      
       await axios[method](url, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      
-      await onSubmit();
+
+      // Show modal only when adding a new group
+      if (!group) {
+        setShowModal(true);
+      } else {
+        onClose(); // Close the form if updating
+      }
     } catch (error) {
       console.error('Error saving group:', error);
-      alert('Error saving group. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleContinueAdding = () => {
+    setFormData({
+      name: '',
+      description: '',
+      member_ids: [],
+    });
+    setShowModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    onClose();
   };
 
   return (
@@ -122,7 +142,7 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
               />
             </div>
             
-            <div className="col-span-3 flex items-start pt-1">
+            {/* <div className="col-span-3 flex items-start pt-1">
               <label className="block text-sm font-medium text-gray-700">Members</label>
             </div>
             <div className="col-span-9">
@@ -155,7 +175,7 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
               <div className="mt-1 text-xs text-gray-500">
                 {formData.member_ids.length} member{formData.member_ids.length !== 1 ? 's' : ''} selected
               </div>
-            </div>
+            </div> */}
           </div>
           
           <div className="flex justify-end mt-6 space-x-3">
@@ -175,6 +195,21 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
             </button>
           </div>
         </form>
+      )}
+
+      {showModal && (
+        <Modal onClose={handleCloseModal}>
+          <h2 className="text-lg font-bold">Success!</h2>
+          <p>Group added successfully! Do you want to add another?</p>
+          <div className="flex justify-end mt-4">
+            <button onClick={handleContinueAdding} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Add
+            </button>
+            <button onClick={handleCloseModal} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 ml-2">
+              Exit
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );

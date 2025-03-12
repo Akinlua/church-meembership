@@ -16,7 +16,7 @@ module.exports = (app) => {
   // Donation Report Route
   app.get('/reports/donations', authenticateToken, async (req, res) => {
     try {
-      const { startDate, endDate } = req.query;
+      const { startDate, endDate, memberId } = req.query;
       
       let whereClause = {};
       
@@ -33,6 +33,10 @@ module.exports = (app) => {
         whereClause.donationDate = {
           lte: new Date(new Date(endDate).setHours(23, 59, 59))
         };
+      }
+
+      if (memberId) {
+        whereClause.memberId = parseInt(memberId); // Filter by member ID
       }
 
       const donations = await prisma.donation.findMany({
@@ -208,8 +212,9 @@ module.exports = (app) => {
 
   // Donation Type Summary PDF Route
   app.post('/reports/donations/type-summary/pdf', authenticateToken, async (req, res) => {
-    const { startDate, endDate } = req.body; // Receive start and end dates
     try {
+      const { startDate, endDate, memberId } = req.body;
+
       let whereClause = {};
       
       if (startDate && endDate) {
@@ -225,6 +230,10 @@ module.exports = (app) => {
         whereClause.donationDate = {
           lte: new Date(new Date(endDate).setHours(23, 59, 59))
         };
+      }
+
+      if (memberId) {
+        whereClause.memberId = parseInt(memberId); // Filter by member ID
       }
 
       const donations = await prisma.donation.findMany({
@@ -269,11 +278,6 @@ module.exports = (app) => {
           .fontSize(18)
           .font('Helvetica')
           .text('Donation Type Summary', { align: 'center' });
-
-      // Add date range and generation info
-      // doc.moveDown()
-      //     .fontSize(10)
-      //     .text(`Generated on: ${new Date().toLocaleDateString()}`, { align: 'right' });
 
       // Updated date range display
       if (startDate || endDate) {
@@ -369,7 +373,7 @@ module.exports = (app) => {
 
   router.post('/donations/pdf', authenticateToken, async (req, res) => {
     try {
-      const { startDate, endDate } = req.body;
+      const { startDate, endDate, memberId } = req.body;
       
       // Create date filter
       let whereClause = {};
@@ -381,6 +385,10 @@ module.exports = (app) => {
         if (endDate) {
           whereClause.donationDate.lte = new Date(new Date(endDate).setHours(23, 59, 59));
         }
+      }
+
+      if (memberId) {
+        whereClause.memberId = parseInt(memberId); // Filter by member ID
       }
 
       const donations = await prisma.donation.findMany({
@@ -421,11 +429,6 @@ module.exports = (app) => {
          .fontSize(18)
          .font('Helvetica')
          .text('Donation Totals', { align: 'center' });
-
-      // // Add date range and generation info
-      // doc.moveDown()
-      //    .fontSize(10)
-      //    .text(`Generated on: ${new Date().toLocaleDateString()}`, { align: 'right' });
 
       if (startDate || endDate) {
         // Updated date range display

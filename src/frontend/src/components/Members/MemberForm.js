@@ -3,6 +3,7 @@ import axios from 'axios';
 import DatePickerField from '../common/DatePickerField';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 import MaskedDateInput from '../common/MaskedDateInput';
+import Modal from '../../common/Modal';
 
 
 const MemberForm = ({ member, onClose, onSubmit }) => {
@@ -32,6 +33,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
   const [showGroupDropdown, setShowGroupDropdown] = useState(false);
   const fileInputRef = useRef();
   const groupDropdownRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -128,35 +130,54 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      setLoading(true);
-      
-      let response;
-      if (member) {
-        response = await axios.put(
-          `${process.env.REACT_APP_API_URL}/members/${member.id}`,
-          formData,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          }
-        );
-        if (onSubmit) onSubmit(member.id);
+      const url = `${process.env.REACT_APP_API_URL}/members${member ? `/${member.id}` : ''}`;
+      const method = member ? 'put' : 'post';
+      await axios[method](url, formData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      // Show modal only when adding a new member
+      if (!member) {
+        setShowModal(true);
       } else {
-        response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/members`,
-          formData,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          }
-        );
-        if (onSubmit) onSubmit(response.data.id);
+        onClose(); // Close the form if updating
       }
     } catch (error) {
       console.error('Error saving member:', error);
-      alert('Failed to save member');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleContinueAdding = () => {
+    setFormData({
+      first_name: '',
+      middle_name: '',
+      last_name: '',
+      is_active: true,
+      address: '',
+      city: '',
+      state: '',
+      zip_code: '',
+      birthday: null,
+      gender: '',
+      cell_phone: '',
+      email: '',
+      membership_date: null,
+      baptismal_date: null,
+      profile_image: '',
+      groups: [],
+      past_church: ''
+    });
+    setShowModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    onClose();
   };
 
   const formatMemberName = (member) => {
@@ -263,7 +284,10 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   type="text"
                   className="w-12 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
                   value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value.toUpperCase().slice(0, 2);
+                    setFormData({ ...formData, state: value });
+                  }}
                 />
                 <span className="mr-2 text-sm font-medium">Zip</span>
                 <input
@@ -428,7 +452,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                 {/* Member ID Field */}
                 
                   <div className="mt-2">
-                    <label className="text-sm font-medium">Member ID: {member ? member.id : "" }</label>
+                    <label className="text-sm font-medium">Member ID: {member ? member.memberNumber : "" }</label>
                   </div>
               </div>
 
@@ -455,6 +479,21 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
             </div>
           </div>
         </form>
+      )}
+
+      {showModal && (
+        <Modal onClose={handleCloseModal}>
+          <h2 className="text-lg font-bold">Success!</h2>
+          <p>Member added successfully! Do you want to add another?</p>
+          <div className="flex justify-end mt-4">
+            <button onClick={handleContinueAdding} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Add
+            </button>
+            <button onClick={handleCloseModal} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 ml-2">
+              Exit
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );
