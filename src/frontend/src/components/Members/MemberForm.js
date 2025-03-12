@@ -326,7 +326,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   inputClassName="w-30 mr-5"
                 />                
                 
-                <span className="text-sm font-medium mr-1">Baptismal Date</span>
+                <span className="text-sm font-medium mr-1">Baptismal</span>
                 <MaskedDateInput
                   value={formData.baptismal_date}
                   onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
@@ -400,7 +400,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
             </div>
             
             {/* Right column - Image */}
-            <div className="col-span-4">
+            <div className="col-span-4 flex flex-col justify-between">
               <div className="flex flex-col items-center">
                 <div className="text-sm font-medium mb-2">Member's Picture</div>
                 <div
@@ -424,24 +424,27 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   onChange={handleImageUpload}
                   className="hidden"
                 />
-                
-                <div className="flex space-x-2 mt-auto">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    disabled={loading}
-                    className="px-4 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    {loading ? <ButtonLoader /> : (member ? 'Update' : 'Add')}
-                  </button>
-                </div>
+              </div>
+
+              {/* Push buttons to the bottom */}
+              <div className="flex space-x-2 mt-auto" style={{ marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={loading}
+                  className="px-4 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  style={{ marginLeft: '34px', marginBottom: '12px'}}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                  style={{ marginBottom: '12px'}}
+                >
+                  {loading ? <ButtonLoader /> : (member ? 'Update' : 'Add')}
+                </button>
               </div>
             </div>
           </div>
