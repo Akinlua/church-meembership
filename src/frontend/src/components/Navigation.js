@@ -53,7 +53,7 @@ const Navigation = () => {
               Donation Types
             </Link>         
             <Link to="/expense-categories" className="hover:text-gray-300">
-              Expense Categories
+              Expense
             </Link>
             <Link to="/charges" className="hover:text-gray-300">
               Charges
