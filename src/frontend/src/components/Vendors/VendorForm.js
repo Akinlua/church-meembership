@@ -21,6 +21,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
   const fileInputRef = useRef();
   const [phoneError, setPhoneError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [isNewVendor, setIsNewVendor] = useState(!vendor);
 
   useEffect(() => {
     if (vendor) {
@@ -35,6 +36,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
         account_number: vendor.accountNumber || '',
         profile_image: vendor.profileImage || ''
       });
+      setIsNewVendor(false);
     }
     setFormLoading(false);
   }, [vendor]);
@@ -140,7 +142,9 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
         onSubmit(response.data.id);
       }
 
-      setShowModal(true);
+      if (isNewVendor) {
+        setShowModal(true);
+      }
     } catch (error) {
       console.error('Error saving vendor:', error);
       alert('Error saving vendor. Please try again.');

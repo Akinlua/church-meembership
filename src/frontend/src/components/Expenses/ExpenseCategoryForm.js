@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ButtonLoader } from '../common/Loader';
 import Modal from '../../common/Modal';
@@ -10,6 +10,16 @@ const ExpenseCategoryForm = ({ expenseCategory, onClose, onSubmit }) => {
     description: expenseCategory?.description || '',
   });
   const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (expenseCategory) {
+      console.log(expenseCategory)
+      setFormData({
+        name: expenseCategory.name,
+        description: expenseCategory.description,
+      });
+    }
+  }, [expenseCategory]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,7 +89,7 @@ const ExpenseCategoryForm = ({ expenseCategory, onClose, onSubmit }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-x-4 gap-y-2">
+        {/* <div className="grid grid-cols-12 gap-x-4 gap-y-2">
           <div className="col-span-3 flex items-center">
             <label className="block text-sm font-medium text-gray-700">Description</label>
           </div>
@@ -92,7 +102,7 @@ const ExpenseCategoryForm = ({ expenseCategory, onClose, onSubmit }) => {
               className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
-        </div>
+        </div> */}
 
         <div className="flex justify-end mt-6 space-x-3">
           <button

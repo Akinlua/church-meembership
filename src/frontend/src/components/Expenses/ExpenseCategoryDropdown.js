@@ -48,6 +48,8 @@ const ExpenseCategoryDropdown = () => {
   };
   
   const handleEditCategory = (category) => {
+    console.log("yes")
+    console.log(category)
     setSelectedCategory(category);
     setIsEditing(true);
     setShowForm(true);
@@ -212,7 +214,7 @@ const ExpenseCategoryDropdown = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-10 mx-auto p-8 border shadow-lg rounded-md bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <ExpenseCategoryForm
-              category={isEditing ? selectedCategory : null}
+              expenseCategory={isEditing ? selectedCategory : null}
               onClose={() => {
                 setShowForm(false);
                 setIsEditing(false);

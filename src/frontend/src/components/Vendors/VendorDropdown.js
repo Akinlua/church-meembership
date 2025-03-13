@@ -137,8 +137,8 @@ const VendorDropdown = () => {
       });
       
       // Close the form
-      setShowForm(false);
-      setIsEditing(false);
+      // setShowForm(false);
+      // setIsEditing(false);
     } catch (error) {
       console.error('Error fetching new vendor details:', error);
       setNotification({
@@ -174,14 +174,17 @@ const VendorDropdown = () => {
           message: `${updatedVendor.lastName} was successfully updated!`,
           type: 'success'
         });
+
+        setShowForm(false);
+        setIsEditing(false);
       } else {
         // Handle adding new vendor
         await handleVendorAdded(vendorId);
       }
       
       // Close the form and reset editing state
-      setShowForm(false);
-      setIsEditing(false);
+      // setShowForm(false);
+      // setIsEditing(false);
     } catch (error) {
       console.error('Error updating vendor details:', error);
       setNotification({

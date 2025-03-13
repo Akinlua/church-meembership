@@ -18,8 +18,16 @@ const DonationReport = () => {
   const handleDateChange = (type, date) => {
     setDateRange(prev => ({
       ...prev,
-      [type]: date
+      [type]: date || null // Set to null if date is cleared
     }));
+  };
+
+  const clearDates = () => {
+    setDateRange({
+      startDate: null,
+      endDate: null
+    });
+    fetchReport(); // Fetch report without date filters
   };
 
   const fetchMembers = async () => {
@@ -40,9 +48,17 @@ const DonationReport = () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (dateRange.startDate) params.append('startDate', dateRange.startDate);
-      if (dateRange.endDate) params.append('endDate', dateRange.endDate);
-      if (selectedMember) params.append('memberId', selectedMember.value);
+      
+      // Only append dates if they are not null
+      if (dateRange.startDate) {
+        params.append('startDate', dateRange.startDate);
+      }
+      if (dateRange.endDate) {
+        params.append('endDate', dateRange.endDate);
+      }
+      if (selectedMember) {
+        params.append('memberId', selectedMember.value);
+      }
 
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/reports/donations?${params}`,
@@ -118,6 +134,11 @@ const DonationReport = () => {
     }
   };
 
+  const handleMemberCancel = () => {
+    setSelectedMember(null);
+    fetchReport(); // Fetch report without member filter
+  };
+
   useEffect(() => {
     fetchMembers();
   }, []);
@@ -181,15 +202,32 @@ const DonationReport = () => {
           />
           </div>
           
+          <button 
+            onClick={clearDates}
+            className="px-2 py-1 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+          >
+            Clear
+          </button>
+
           <div className="w-full md:w-auto">
             <span>Member</span>
-            <Select
-              options={members}
-              value={selectedMember}
-              onChange={setSelectedMember}
-              placeholder="Select Member"
-              isSearchable
-            />
+            <div className="flex items-center">
+              <Select
+                options={members}
+                value={selectedMember}
+                onChange={setSelectedMember}
+                placeholder="Select Member"
+                isSearchable
+              />
+              {selectedMember && (
+                <button 
+                  onClick={handleMemberCancel}
+                  className="ml-2 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </div>
           
           <button 
