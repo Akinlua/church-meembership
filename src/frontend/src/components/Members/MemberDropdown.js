@@ -155,6 +155,36 @@ const MemberDropdown = () => {
     setShowDropdown(false);
   };
 
+  const handleFormSubmit = async (memberId) => {
+    try {
+      await fetchMembers();
+      if (isEditing) {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/members/${memberId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        const updatedMember = response.data;
+        setSelectedMember(updatedMember);
+        setSearchTerm(`${updatedMember.lastName} ${updatedMember.firstName}`);
+        setNotification({
+          show: true,
+          message: `${updatedMember.lastName} was successfully updated!`,
+          type: 'success'
+        });
+      } else {
+        await handleMemberAdded(memberId);
+      }
+      setShowForm(false);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating member details:', error);
+      setNotification({
+        show: true,
+        message: 'Error updating member details.',
+        type: 'error'
+      });
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {notification.show && (
@@ -376,11 +406,9 @@ const MemberDropdown = () => {
               onClose={() => {
                 setShowForm(false);
                 setIsEditing(false);
+                fetchMembers();
               }}
-              onSubmit={async (memberId) => {
-                // Pass the member ID to the handler for selection
-                await handleMemberAdded(memberId);
-              }}
+              onSubmit={handleFormSubmit}
             />
           </div>
         </div>

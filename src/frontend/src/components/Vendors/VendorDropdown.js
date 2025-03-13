@@ -153,36 +153,22 @@ const VendorDropdown = () => {
 
   const handleFormSubmit = async (vendorId) => {
     try {
-      // Refresh the vendors list
       await fetchVendors();
-      
-      // If editing, get the updated vendor details
       if (isEditing) {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/vendors/${vendorId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        
         const updatedVendor = response.data;
-        
-        // Update the selected vendor
         setSelectedVendor(updatedVendor);
         setSearchTerm(updatedVendor.lastName);
-        
-        // Show success notification
         setNotification({
           show: true,
           message: `${updatedVendor.lastName} was successfully updated!`,
           type: 'success'
         });
-
-        setShowForm(false);
-        setIsEditing(false);
       } else {
-        // Handle adding new vendor
         await handleVendorAdded(vendorId);
       }
-      
-      // Close the form and reset editing state
       // setShowForm(false);
       // setIsEditing(false);
     } catch (error) {
@@ -360,6 +346,7 @@ const VendorDropdown = () => {
               onClose={() => {
                 setShowForm(false);
                 setIsEditing(false);
+                fetchVendors();
               }}
               onSubmit={handleFormSubmit}
             />

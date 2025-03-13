@@ -218,6 +218,7 @@ const ExpenseCategoryDropdown = () => {
               onClose={() => {
                 setShowForm(false);
                 setIsEditing(false);
+                fetchCategories();
               }}
               onSubmit={handleFormSubmit}
             />

@@ -146,33 +146,22 @@ const VisitorDropdown = () => {
 
   const handleFormSubmit = async (visitorId) => {
     try {
-      // Refresh the visitors list
       await fetchVisitors();
-      
-      // If editing, get the updated visitor details
       if (isEditing) {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/visitors/${visitorId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        
         const updatedVisitor = response.data;
-        
-        // Update the selected visitor
         setSelectedVisitor(updatedVisitor);
         setSearchTerm(`${updatedVisitor.lastName} ${updatedVisitor.firstName}`);
-        
-        // Show success notification
         setNotification({
           show: true,
-          message: `${updatedVisitor.lastName} ${updatedVisitor.firstName} was successfully updated!`,
+          message: `${updatedVisitor.lastName} was successfully updated!`,
           type: 'success'
         });
       } else {
-        // Handle adding new visitor (existing code)
         await handleVisitorAdded(visitorId);
       }
-      
-      // Close the form and reset editing state
       setShowForm(false);
       setIsEditing(false);
     } catch (error) {
@@ -356,6 +345,7 @@ const VisitorDropdown = () => {
               onClose={() => {
                 setShowForm(false);
                 setIsEditing(false);
+                fetchVisitors();
               }}
               onSubmit={handleFormSubmit}
             />

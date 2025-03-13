@@ -135,22 +135,13 @@ const DonationDropdown = () => {
   };
   
   const handleFormSubmit = async (donationId) => {
-    setShowForm(false);
-    
     try {
-      // Refresh the donations list
       await fetchDonations();
-      
       if (donationId) {
-        // Get the full donation details
         const donation = await fetchDonationDetails(donationId);
-        
         if (donation) {
-          // Select the donation
           setSelectedDonation(donation);
           setSearchTerm(`${donation.member.lastName} ${donation.member.firstName} - $${parseFloat(donation.amount).toFixed(2)}`);
-          
-          // Show success notification
           setNotification({
             show: true,
             message: `Donation was successfully ${isEditing ? 'updated' : 'added'}!`,
@@ -158,6 +149,8 @@ const DonationDropdown = () => {
           });
         }
       }
+      setShowForm(false);
+      setIsEditing(false);
     } catch (error) {
       console.error('Error fetching donation details:', error);
       setNotification({
@@ -167,8 +160,6 @@ const DonationDropdown = () => {
       });
       await fetchDonations();
     }
-    
-    setIsEditing(false);
   };
 
   const handleCancel = () => {
@@ -323,6 +314,7 @@ const DonationDropdown = () => {
               onClose={() => {
                 setShowForm(false);
                 setIsEditing(false);
+                fetchDonations(); // Refresh donations when closing the form
               }}
               onSubmit={handleFormSubmit}
             />
