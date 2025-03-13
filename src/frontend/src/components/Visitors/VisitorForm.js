@@ -351,7 +351,7 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
                 disabled={loading}
                 className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
               >
-                {loading ? <ButtonLoader /> : (visitor ? 'Update' : 'Add')}
+                {loading ? <ButtonLoader /> : (visitor ? 'Update' : 'Save')}
               </button>
             </div>
           </div>

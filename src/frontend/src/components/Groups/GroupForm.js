@@ -191,7 +191,7 @@ const GroupForm = ({ group, onClose, onSubmit }) => {
               disabled={loading}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-              {loading ? <ButtonLoader text={group ? "Updating..." : "Saving..."} /> : (group ? "Update" : "Add")}
+              {loading ? <ButtonLoader text={group ? "Updating..." : "Saving..."} /> : (group ? "Update" : "Save")}
             </button>
           </div>
         </form>

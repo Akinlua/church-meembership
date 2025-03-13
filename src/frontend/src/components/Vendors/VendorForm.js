@@ -304,7 +304,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            {loading ? <ButtonLoader text={vendor ? "Updating..." : "Saving..."} /> : (vendor ? "Update" : "Add")}
+            {loading ? <ButtonLoader text={vendor ? "Updating..." : "Saving..."} /> : (vendor ? "Update" : "Svae")}
           </button>
         </div>
       </form>

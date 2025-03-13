@@ -473,7 +473,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                   style={{ marginBottom: '12px' }}
                 >
-                  {loading ? <ButtonLoader /> : (member ? 'Update' : 'Add')}
+                  {loading ? <ButtonLoader /> : (member ? 'Update' : 'Save')}
                 </button>
               </div>
             </div>
