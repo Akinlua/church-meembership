@@ -16,7 +16,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'church-members',
-    allowed_formats: ['*'],
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
     transformation: [{ width: 500, height: 500, crop: 'limit' }]
   }
 });
