@@ -1,5 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '' }) => {
   // Format the date into parts
@@ -20,15 +22,31 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
 
   const [dateParts, setDateParts] = useState(getDateParts());
   const [errors, setErrors] = useState({ month: false, day: false, year: false });
+  const [showDatePicker, setShowDatePicker] = useState(false);
   
   const monthRef = useRef(null);
   const dayRef = useRef(null);
   const yearRef = useRef(null);
+  const datePickerRef = useRef(null); // Ref for the date picker
 
   // Update date parts when value changes
   React.useEffect(() => {
     setDateParts(getDateParts());
   }, [value]);
+
+  // Hide date picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleMonthChange = (e) => {
     let val = e.target.value.replace(/\D/g, '').slice(0, 2);
@@ -144,6 +162,14 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
 
   const hasError = errors.month || errors.day || errors.year;
 
+  // Function to handle date selection from the date picker
+  const handleDateChange = (date) => {
+    if (date) {
+      onChange(date);
+      setShowDatePicker(false);
+    }
+  };
+
   return (
     <div className={`relative flex items-center ${inputClassName}`}>
       <div className={`flex items-center px-2 py-1 border ${hasError ? 'border-red-500' : 'border-gray-600'} rounded w-40`}>
@@ -182,7 +208,19 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
           className="text-center outline-none w-12"
           required={required}
         />
+        <button onClick={() => setShowDatePicker(!showDatePicker)} className="ml-2">
+          📅
+        </button>
       </div>
+      {showDatePicker && (
+        <div ref={datePickerRef} style={{ position: 'absolute', zIndex: 1000 }}>
+          <DatePicker
+            selected={new Date(value)}
+            onChange={handleDateChange}
+            inline
+          />
+        </div>
+      )}
     </div>
   );
 };
