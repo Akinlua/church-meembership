@@ -11,6 +11,16 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [passwordChangeRequired, setPasswordChangeRequired] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      verifyToken(token);
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const login = async (username, password) => {
     try {
@@ -18,14 +28,20 @@ export function AuthProvider({ children }) {
         username,
         password
       });
-      const { token, user } = response.data;
+      
+      const { token, user, passwordChangeRequired } = response.data;
       localStorage.setItem('token', token);
       setCurrentUser(user);
       setIsAuthenticated(true);
-      return true;
+      setPasswordChangeRequired(passwordChangeRequired || false);
+      
+      return { 
+        success: true, 
+        passwordChangeRequired: passwordChangeRequired || false 
+      };
     } catch (error) {
       console.error('Login error:', error);
-      return false;
+      return { success: false };
     }
   };
 
@@ -33,6 +49,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     setCurrentUser(null);
     setIsAuthenticated(false);
+    setPasswordChangeRequired(false);
   };
 
   const verifyToken = async (token) => {
@@ -43,9 +60,11 @@ export function AuthProvider({ children }) {
           headers: { Authorization: `Bearer ${token}` }
         }
       );
+      
       if (response.data.valid) {
         setCurrentUser(response.data.user);
         setIsAuthenticated(true);
+        setPasswordChangeRequired(response.data.passwordChangeRequired || false);
       } else {
         localStorage.removeItem('token');
       }
@@ -55,40 +74,74 @@ export function AuthProvider({ children }) {
     setLoading(false);
   };
 
-  const signup = async (username, password, confirmPassword) => {
+  const changePassword = async (newPassword) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/signup`, {
-        username,
-        password,
-        confirmPassword
-      });
-      const { token, user } = response.data;
-      localStorage.setItem('token', token);
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      return true;
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/auth/change-password`,
+        { newPassword },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
+      
+      if (response.status === 200) {
+        setPasswordChangeRequired(false);
+        return { success: true };
+      }
+      return { success: false };
     } catch (error) {
-      console.error('Signup error:', error);
-      throw error;
+      console.error('Error changing password:', error);
+      return { success: false };
     }
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Verify token and set user
-      verifyToken(token);
-    } else {
-      setLoading(false);
+  // Check if user has access to a specific feature
+  const hasAccess = (accessType) => {
+    if (!currentUser) return false;
+    
+    // Super admin can access everything
+    if (currentUser.role === 'admin') return true;
+    
+    // Otherwise check user level permissions
+    if (!currentUser.userLevel) return false;
+    
+    switch(accessType) {
+      case 'member':
+        return currentUser.userLevel.memberAccess;
+      case 'visitor':
+        return currentUser.userLevel.visitorAccess;
+      case 'vendor':
+        return currentUser.userLevel.vendorAccess;
+      case 'group':
+        return currentUser.userLevel.groupAccess;
+      case 'donation':
+        return currentUser.userLevel.donationAccess;
+      case 'admin':
+        return currentUser.userLevel.adminAccess;
+      case 'expense':
+        return currentUser.userLevel.expenseAccess;
+      case 'charges':
+        return currentUser.userLevel.chargesAccess;
+      case 'reports':
+        return currentUser.userLevel.reportsAccess;
+      case 'deposit':
+        return currentUser.userLevel.depositAccess;
+      case 'bank':
+        return currentUser.userLevel.bankAccess;
+      default:
+        return false;
     }
-  }, []);
+  };
 
   const value = {
     currentUser,
     isAuthenticated,
+    loading,
+    passwordChangeRequired,
     login,
     logout,
-    signup
+    changePassword,
+    hasAccess
   };
 
   return (

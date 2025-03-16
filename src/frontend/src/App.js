@@ -1,5 +1,7 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute, AdminRoute, PasswordChangeRoute } from './components/ProtectedRoute';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Members from './components/Members';
@@ -20,35 +22,73 @@ import DonationDropdown from './components/Donations/DonationDropdown';
 import ExpenseCategoryDropdown from './components/Expenses/ExpenseCategoryDropdown';
 import ChargeDropdown from './components/Charges/ChargeDropdown';
 import DonationTypeDropdown from './components/Donations/DonationTypeDropdown';
+import BankDropdown from './components/Banks/BankDropdown';
+import DepositDropdown from './components/Deposits/DepositDropdown';
+import Deposits from './components/Deposits';
+import ChangePassword from './components/ChangePassword';
+import UserManagement from './components/UserManagement';
+import CheckGenerator from './components/Reports/CheckGenerator';
+
+// Layout component that includes Navigation
+const Layout = ({ children }) => {
+  return (
+    <>
+      <Navigation />
+      <main>{children}</main>
+    </>
+  );
+};
 
 function App() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="App">
-      <div className="flex flex-col min-h-screen">
-        <Navigation />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          <Route path="/members" element={<PrivateRoute><Members /></PrivateRoute>} />
-          <Route path="/member-lookup" element={<PrivateRoute><MemberDropdown /></PrivateRoute>} />
-          <Route path="/groups" element={<PrivateRoute><Groups /></PrivateRoute>} />
-          <Route path="/group-lookup" element={<PrivateRoute><GroupDropdown /></PrivateRoute>} />
-          <Route path="/donations" element={<PrivateRoute><Donations /></PrivateRoute>} />
-          <Route path="/donation-lookup" element={<PrivateRoute><DonationDropdown /></PrivateRoute>} />
-          <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
-          <Route path="/visitors" element={<PrivateRoute><Visitors /></PrivateRoute>} />
-          <Route path="/visitor-lookup" element={<PrivateRoute><VisitorDropdown /></PrivateRoute>} />
-          <Route path="/vendor" element={<PrivateRoute><VendorDropdown /></PrivateRoute>} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/donation-types" element={<PrivateRoute><DonationTypeList /></PrivateRoute>} />
-          <Route path="/expense-categories" element={<PrivateRoute><ExpenseCategoryDropdown /></PrivateRoute>} />
-          <Route path="/charges" element={<PrivateRoute><ChargeDropdown /></PrivateRoute>} />
-          <Route path="/donation-types-dropdown" element={<PrivateRoute><DonationTypeDropdown /></PrivateRoute>} />
-        </Routes>
-      </div>
-    </div>
+    <AuthProvider>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* Password change route */}
+        <Route element={<PasswordChangeRoute />}>
+          <Route path="/change-password" element={<ChangePassword />} />
+        </Route>
+        
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
+          <Route path="/members" element={<PrivateRoute><Layout><Members /></Layout></PrivateRoute>} />
+          <Route path="/member-lookup" element={<PrivateRoute><Layout><MemberDropdown /></Layout></PrivateRoute>} />
+          <Route path="/groups" element={<PrivateRoute><Layout><Groups /></Layout></PrivateRoute>} />
+          <Route path="/group-lookup" element={<PrivateRoute><Layout><GroupDropdown /></Layout></PrivateRoute>} />
+          <Route path="/donations" element={<PrivateRoute><Layout><Donations /></Layout></PrivateRoute>} />
+          <Route path="/donation-lookup" element={<PrivateRoute><Layout><DonationDropdown /></Layout></PrivateRoute>} />
+          <Route path="/reports" element={<PrivateRoute><Layout><Reports /></Layout></PrivateRoute>} />
+          <Route path="/reports/check-generator" element={
+            <PrivateRoute>
+              <Layout><CheckGenerator /></Layout>
+            </PrivateRoute>
+          } />
+          <Route path="/visitors" element={<PrivateRoute><Layout><Visitors /></Layout></PrivateRoute>} />
+          <Route path="/visitor-lookup" element={<PrivateRoute><Layout><VisitorDropdown /></Layout></PrivateRoute>} />
+          <Route path="/vendor" element={<PrivateRoute><Layout><VendorDropdown /></Layout></PrivateRoute>} />
+          <Route path="/signup" element={<Layout><Signup /></Layout>} />
+          <Route path="/donation-types" element={<PrivateRoute><Layout><DonationTypeList /></Layout></PrivateRoute>} />
+          <Route path="/expense-categories" element={<PrivateRoute><Layout><ExpenseCategoryDropdown /></Layout></PrivateRoute>} />
+          <Route path="/charges" element={<PrivateRoute><Layout><ChargeDropdown /></Layout></PrivateRoute>} />
+          <Route path="/donation-types-dropdown" element={<PrivateRoute><Layout><DonationTypeDropdown /></Layout></PrivateRoute>} />
+          <Route path="/bank-dropdown" element={<PrivateRoute><Layout><BankDropdown /></Layout></PrivateRoute>} />
+          <Route path="/deposit-dropdown" element={<PrivateRoute><Layout><DepositDropdown /></Layout></PrivateRoute>} />
+        </Route>
+        
+        {/* Admin routes */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin/users" element={<Layout><UserManagement /></Layout>} />
+        </Route>
+        
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 

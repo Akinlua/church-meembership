@@ -3,6 +3,8 @@ const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const { authenticateToken } = require('../middleware/auth');
+const { checkAccess } = require('../middleware/accessControl');
 
 // Configure Cloudinary
 cloudinary.config({
@@ -77,6 +79,9 @@ const generateMemberNumber = async (prisma) => {
 
 module.exports = (app) => {
   const prisma = app.get('prisma');
+
+  // Apply member access middleware to all member routes
+  app.use('/members', authenticateToken, checkAccess('member'));
 
   app.post('/upload-image', upload.single('image'), async (req, res) => {
     try {

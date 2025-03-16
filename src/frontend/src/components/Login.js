@@ -14,9 +14,13 @@ const Login = () => {
     setError('');
     
     try {
-      const success = await login(username, password);
-      if (success) {
-        navigate('/');
+      const result = await login(username, password);
+      if (result.success) {
+        if (result.passwordChangeRequired) {
+          navigate('/change-password');
+        } else {
+          navigate('/');
+        }
       } else {
         setError('Invalid credentials');
       }

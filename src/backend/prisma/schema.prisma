@@ -8,13 +8,38 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  role      String   @default("user")
-  createdAt DateTime @default(now()) @map("created_at")
+  id                    Int       @id @default(autoincrement())
+  name                  String    @default("")
+  username              String    @unique
+  password              String
+  role                  String    @default("user")
+  passwordChangeRequired Boolean   @default(false) @map("password_change_required")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  userLevelId           Int?      @map("user_level_id")
+  userLevel             UserLevel? @relation(fields: [userLevelId], references: [id])
 
   @@map("users")
+}
+
+model UserLevel {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  users       User[]
+  memberAccess Boolean @default(false) @map("member_access")
+  visitorAccess Boolean @default(false) @map("visitor_access")
+  vendorAccess Boolean @default(false) @map("vendor_access")
+  groupAccess Boolean @default(false) @map("group_access")
+  donationAccess Boolean @default(false) @map("donation_access")
+  adminAccess Boolean @default(false) @map("admin_access")
+  expenseAccess Boolean @default(false) @map("expense_access")
+  chargesAccess Boolean @default(false) @map("charges_access")
+  reportsAccess Boolean @default(false) @map("reports_access")
+  depositAccess Boolean @default(false) @map("deposit_access")
+  bankAccess Boolean @default(false) @map("bank_access")
+
+  @@map("user_levels")
 }
 
 model Member {
@@ -147,4 +172,36 @@ model Charge {
   vendor          Vendor          @relation(fields: [vendorId], references: [id])
   expenseCategoryId Int
   expenseCategory ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+} 
+
+model Bank {
+  id             String     @id @default(cuid())
+  name           String
+  // branch         String?
+  address        String?
+  city           String?
+  state          String?
+  zipCode        String?
+  routingNumber  String?
+  accountNumber   String?
+  contact  String?
+  phone          String?
+  // email          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  deposits       Deposit[]
+}
+
+model Deposit {
+  id            String   @id @default(cuid())
+  bank          Bank     @relation(fields: [bankId], references: [id])
+  bankId        String
+  accountNumber String
+  date          DateTime @default(now())
+  cashAmount    Float    @default(0)
+  checkAmount   Float    @default(0)
+  totalAmount   Float
+  // notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 } 
