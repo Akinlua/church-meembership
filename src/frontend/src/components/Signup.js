@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
+    name: '',
     username: '',
     password: '',
     confirmPassword: ''
@@ -20,12 +21,13 @@ const Signup = () => {
       return setError('Passwords do not match');
     }
 
-    try {
-      const success = await signup(formData.username, formData.password, formData.confirmPassword);
+    try { 
+        const success = await signup(formData.name, formData.username, formData.password, formData.confirmPassword);
       if (success) {
         navigate('/');
       }
     } catch (error) {
+      console.error('Signup error:', error);
       setError(error.response?.data?.message || 'Failed to sign up');
     }
   };
@@ -44,6 +46,20 @@ const Signup = () => {
               {error}
             </div>
           )}
+
+        <div className="space-y-2">
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            />
+          </div>
 
           <div className="space-y-2">
             <label htmlFor="username" className="block text-sm font-medium text-gray-700">

@@ -47,6 +47,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Layout><Signup /></Layout>} />
         
         {/* Password change route */}
         <Route element={<PasswordChangeRoute />}>
@@ -71,7 +72,6 @@ function App() {
           <Route path="/visitors" element={<PrivateRoute><Layout><Visitors /></Layout></PrivateRoute>} />
           <Route path="/visitor-lookup" element={<PrivateRoute><Layout><VisitorDropdown /></Layout></PrivateRoute>} />
           <Route path="/vendor" element={<PrivateRoute><Layout><VendorDropdown /></Layout></PrivateRoute>} />
-          <Route path="/signup" element={<Layout><Signup /></Layout>} />
           <Route path="/donation-types" element={<PrivateRoute><Layout><DonationTypeList /></Layout></PrivateRoute>} />
           <Route path="/expense-categories" element={<PrivateRoute><Layout><ExpenseCategoryDropdown /></Layout></PrivateRoute>} />
           <Route path="/charges" element={<PrivateRoute><Layout><ChargeDropdown /></Layout></PrivateRoute>} />

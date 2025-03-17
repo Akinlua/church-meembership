@@ -95,6 +95,28 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Add signup function
+  const signup = async (name,  username, password, confirmPassword) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/signup`, {
+        name,
+        username,
+        password,
+        confirmPassword
+      });
+      
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      setCurrentUser(user);
+      setIsAuthenticated(true);
+      
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      throw error;
+    }
+  };
+
   // Check if user has access to a specific feature
   const hasAccess = (accessType) => {
     if (!currentUser) return false;
@@ -141,6 +163,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     changePassword,
+    signup,
     hasAccess
   };
 
