@@ -206,7 +206,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                 value={formData.dueDate}
                 onChange={(date) => setFormData({ ...formData, dueDate: date })}
                 required
-                inputClassName="w-full px-2 py-1 border border-gray-600"
+                inputClassName="w-full px-2 py-1 border-gray-600"
               />
             </div>
           </div>

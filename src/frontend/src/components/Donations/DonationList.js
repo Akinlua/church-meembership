@@ -1,7 +1,10 @@
 import React from 'react';
 import { TableLoader } from '../common/Loader';
+import { useAuth } from '../../contexts/AuthContext';
 
 const DonationList = ({ donations, onEdit, onDelete, loading, selectedDonation, setSelectedDonation }) => {
+  const { hasDeleteAccess } = useAuth();
+
   if (loading) {
     return <TableLoader />;
   }
@@ -82,17 +85,19 @@ const DonationList = ({ donations, onEdit, onDelete, loading, selectedDonation, 
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent row selection
-                        if (window.confirm('Are you sure you want to delete this donation?')) {
-                          onDelete(donation.id);
-                        }
-                      }}
-                      className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-full transition-colors duration-200"
-                    >
-                      Delete
-                    </button>
+                    {hasDeleteAccess('donation') && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent row selection
+                          if (window.confirm('Are you sure you want to delete this donation?')) {
+                            onDelete(donation.id);
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-full transition-colors duration-200"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </>
                 )}
               </td>

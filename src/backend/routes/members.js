@@ -4,7 +4,7 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { authenticateToken } = require('../middleware/auth');
-const { checkAccess } = require('../middleware/accessControl');
+const { checkAccess, checkDeleteAccess } = require('../middleware/accessControl');
 
 // Configure Cloudinary
 cloudinary.config({
@@ -264,8 +264,8 @@ module.exports = (app) => {
     }
   });
 
-  // Add delete endpoint for members
-  app.delete('/members/:id', async (req, res) => {
+  // Delete a member
+  app.delete('/members/:id', authenticateToken, checkAccess('member'), checkDeleteAccess('member'), async (req, res) => {
     try {
       await prisma.member.delete({
         where: { id: parseInt(req.params.id) }

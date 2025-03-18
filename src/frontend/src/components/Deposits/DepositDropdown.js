@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import DepositForm from './DepositForm';
+import { useAuth } from '../../contexts/AuthContext';
 
 const DepositDropdown = () => {
   const [deposits, setDeposits] = useState([]);
@@ -12,6 +13,7 @@ const DepositDropdown = () => {
   const [showForm, setShowForm] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const dropdownRef = useRef(null);
+  const { hasAccess, hasDeleteAccess, hasAddAccess } = useAuth();
 
   useEffect(() => {
     fetchDeposits();
@@ -175,12 +177,14 @@ const DepositDropdown = () => {
           >
             Cancel
           </button>
-          <button
-            onClick={handleAddDeposit}
-            className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
-          >
-            Add
-          </button>
+          {hasAddAccess('deposit') && (
+            <button
+              onClick={handleAddDeposit}
+              className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
+            >
+              Add
+            </button>
+          )}
         </div>
         
         {loading ? (
@@ -190,7 +194,8 @@ const DepositDropdown = () => {
         ) : (
           <>
             {selectedDeposit && (
-              <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              // <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-200">
+              <div className="mt-6 bg-white rounded-lg shadow-md p-6 border border-gray-200 max-w-2xl">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h2 className="text-xl font-semibold mb-4">Deposit Details</h2>
@@ -219,15 +224,17 @@ const DepositDropdown = () => {
                         Edit
                       </button>
                       
-                      <button 
-                        onClick={() => handleDeleteDeposit(selectedDeposit)}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete
-                      </button>
+                      {hasDeleteAccess('deposit') && (
+                        <button 
+                          onClick={() => handleDeleteDeposit(selectedDeposit)}
+                          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -290,16 +297,18 @@ const DepositDropdown = () => {
                               >
                                 Edit
                               </button>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedDeposit(deposit);
-                                  handleDeleteDeposit(deposit);
-                                }}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Delete
-                              </button>
+                              {hasDeleteAccess('deposit') && (
+                                <button                                   
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedDeposit(deposit);
+                                    handleDeleteDeposit(deposit);
+                                  }}
+                                  className="text-red-600 hover:text-red-900"
+                                  >
+                                  Delete
+                                </button>
+                              )}
                             </div>
                           </td>
                         </tr>

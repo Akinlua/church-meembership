@@ -3,21 +3,23 @@ import { format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '' }) => {
+const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '', useCurrentDateAsDefault = true }) => {
   // Format the date into parts
   const getDateParts = () => {
-    if (value) {
-      try {
-        return {
-          month: format(new Date(value), 'MM'),
-          day: format(new Date(value), 'dd'),
-          year: format(new Date(value), 'yyyy')
-        };
-      } catch (error) {
-        return { month: '', day: '', year: '' };
-      }
+    // Use current date as default when no value is provided and useCurrentDateAsDefault is true
+    const dateToFormat = value ? new Date(value) : (useCurrentDateAsDefault ? new Date() : null);
+    
+    try {
+      if (!dateToFormat) return { month: '', day: '', year: '' };
+      
+      return {
+        month: format(dateToFormat, 'MM'),
+        day: format(dateToFormat, 'dd'),
+        year: format(dateToFormat, 'yyyy')
+      };
+    } catch (error) {
+      return { month: '', day: '', year: '' };
     }
-    return { month: '', day: '', year: '' };
   };
 
   const [dateParts, setDateParts] = useState(getDateParts());
@@ -215,7 +217,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
       {showDatePicker && (
         <div ref={datePickerRef} style={{ position: 'absolute', zIndex: 1000 }}>
           <DatePicker
-            selected={new Date(value)}
+            selected={value ? new Date(value) : (useCurrentDateAsDefault ? new Date() : null)}
             onChange={handleDateChange}
             inline
           />

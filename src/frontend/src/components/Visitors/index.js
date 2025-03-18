@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import VisitorForm from './VisitorForm';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Visitors = () => {
   const [visitors, setVisitors] = useState([]);
@@ -9,6 +10,7 @@ const Visitors = () => {
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const { hasDeleteAccess } = useAuth();
 
   useEffect(() => {
     fetchVisitors();
@@ -165,12 +167,14 @@ const Visitors = () => {
                         >
                           Edit
                         </button>
-                        <button
-                          onClick={() => handleDeleteVisitor(visitor.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
+                        {hasDeleteAccess('visitor') && (
+                          <button
+                            onClick={() => handleDeleteVisitor(visitor.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))

@@ -1,30 +1,110 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
+import axios from 'axios';
+import Select from 'react-select';
 import CheckTemplate from './CheckTemplate';
 import MaskedDateInput from '../common/MaskedDateInput';
 import SignaturePad from '../common/SignaturePad';
 
 const CheckGenerator = () => {
   const [checkData, setCheckData] = useState({
-    checkNumber: '1736',
+    checkNumber: '',
     date: new Date(),
     payTo: '',
+    payToAddress: '',
     amount: '',
     memo: '',
-    bankName: 'Fifth Third Bank',
+    bankName: '',
     bankAddress: '',
-    companyName: 'Eastside Outpatient Services, PLLC',
-    companyAddress: '445 E Sherman Blvd, Muskegon, MI 49441',
-    signature: null
+    companyName: '',
+    companyAddress: '',
+    signature: null,
+    routingNumber: '',
+    accountNumber: ''
   });
   
+  const [vendors, setVendors] = useState([]);
+  const [banks, setBanks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
   const checkRef = useRef(null);
+  
+  // Fetch vendors and banks on component mount
+  useEffect(() => {
+    fetchVendors();
+    fetchBanks();
+  }, []);
+  
+  const fetchVendors = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/vendors`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      // Transform vendors for react-select
+      const vendorOptions = response.data.map(vendor => ({
+        value: vendor.id,
+        label: vendor.lastName,
+        vendor: vendor
+      }));
+      
+      setVendors(vendorOptions);
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchBanks = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/banks`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      // Transform banks for react-select
+      const bankOptions = response.data.map(bank => ({
+        value: bank.id,
+        label: bank.name,
+        bank: bank
+      }));
+      
+      setBanks(bankOptions);
+    } catch (error) {
+      console.error('Error fetching banks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchBankDetails = async (bankId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/banks/${bankId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      const bank = response.data;
+      
+      setCheckData(prevData => ({
+        ...prevData,
+        bankName: bank.name,
+        bankAddress: `${bank.address || ''}, ${bank.city || ''}, ${bank.state || ''} ${bank.zipCode || ''}`,
+        routingNumber: bank.routingNumber || '',
+        accountNumber: bank.accountNumber || ''
+      }));
+      
+    } catch (error) {
+      console.error('Error fetching bank details:', error);
+    }
+  };
   
   const handlePrint = useReactToPrint({
     contentRef: checkRef,
     documentTitle: `Check-${checkData.checkNumber}`,
     onAfterPrint: () => console.log('Printing completed'),
-});
+  });
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,6 +112,38 @@ const CheckGenerator = () => {
       ...checkData,
       [name]: value
     });
+  };
+  
+  const handleVendorChange = (selectedOption) => {
+    if (selectedOption) {
+      const vendor = selectedOption.vendor;
+      
+      // Format vendor address
+      const vendorAddress = [
+        vendor.address,
+        vendor.city,
+        vendor.state,
+        vendor.zipCode
+      ].filter(Boolean).join(', ');
+      
+      setCheckData({
+        ...checkData,
+        payTo: selectedOption.label,
+        payToAddress: vendorAddress
+      });
+    }
+  };
+  
+  const handleBankChange = (selectedOption) => {
+    if (selectedOption) {
+      setCheckData({
+        ...checkData,
+        bankName: selectedOption.label
+      });
+      
+      // Fetch bank details to get routing and account numbers
+      fetchBankDetails(selectedOption.value);
+    }
   };
   
   const handleDateChange = (date) => {
@@ -58,7 +170,25 @@ const CheckGenerator = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // You could save the check data to your database here
-    alert('Check data would be saved to database. This functionality is not yet implemented.');
+    // alert('Check data would be saved to database. This functionality is not yet implemented.');
+  };
+  
+  // Custom styles for react-select
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderColor: '#d1d5db',
+      borderRadius: '0.375rem',
+      minHeight: '38px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#9ca3af'
+      }
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999
+    })
   };
   
   return (
@@ -100,13 +230,19 @@ const CheckGenerator = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Pay To
               </label>
-              <input
-                type="text"
-                name="payTo"
-                value={checkData.payTo}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              <Select
+                options={vendors}
+                onChange={handleVendorChange}
+                placeholder="Select a vendor..."
+                isSearchable
+                styles={customStyles}
+                className="w-full"
               />
+              {checkData.payToAddress && (
+                <div className="mt-1 text-sm text-gray-500">
+                  {checkData.payToAddress}
+                </div>
+              )}
             </div>
             
             <div>
@@ -131,6 +267,76 @@ const CheckGenerator = () => {
                 type="text"
                 name="memo"
                 value={checkData.memo}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bank
+              </label>
+              <Select
+                options={banks}
+                onChange={handleBankChange}
+                placeholder="Select a bank..."
+                isSearchable
+                styles={customStyles}
+                className="w-full"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Routing Number
+                </label>
+                <input
+                  type="text"
+                  name="routingNumber"
+                  value={checkData.routingNumber}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                  readOnly
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Account Number
+                </label>
+                <input
+                  type="text"
+                  name="accountNumber"
+                  value={checkData.accountNumber}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                  readOnly
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Church Name
+              </label>
+              <input
+                type="text"
+                name="companyName"
+                value={checkData.companyName}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Church Address
+              </label>
+              <input
+                type="text"
+                name="companyAddress"
+                value={checkData.companyAddress}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
@@ -165,12 +371,12 @@ const CheckGenerator = () => {
               >
                 Print Check
               </button>
-              <button
+              {/* <button
                 type="submit"
                 className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
               >
                 Save Check
-              </button>
+              </button> */}
             </div>
           </form>
         </div>

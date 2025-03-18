@@ -1,6 +1,7 @@
 const { authenticateToken } = require('../middleware/auth');
 const PDFDocument = require('pdfkit');
 const { PassThrough } = require('stream');
+const { checkAccess, checkDeleteAccess } = require('../middleware/accessControl');
 
 module.exports = (app) => {
   const prisma = app.get('prisma');
@@ -68,8 +69,8 @@ module.exports = (app) => {
     }
   });
 
-  // Add delete endpoint for donations
-  app.delete('/donations/:id', async (req, res) => {
+  // Delete a donation
+  app.delete('/donations/:id', authenticateToken, checkAccess('donation'), checkDeleteAccess('donation'), async (req, res) => {
     try {
       await prisma.donation.delete({
         where: { id: parseInt(req.params.id) }
@@ -134,7 +135,7 @@ module.exports = (app) => {
   });
 
   // Delete a donation type
-  app.delete('/donation-types/:id', authenticateToken, async (req, res) => {
+  app.delete('/donation-types/:id', authenticateToken, checkAccess('donation'), checkDeleteAccess('donation'), async (req, res) => {
     const { id } = req.params;
     try {
       await prisma.donationType.delete({

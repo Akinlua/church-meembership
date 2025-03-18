@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import ChargeForm from './ChargeForm';
 import { format } from 'date-fns';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ChargeDropdown = () => {
   const [charges, setCharges] = useState([]);
@@ -16,6 +17,7 @@ const ChargeDropdown = () => {
   const dropdownRef = useRef(null);
   const [selectedCharges, setSelectedCharges] = useState([]);
   const [showPaymentOption, setShowPaymentOption] = useState(false);
+  const { hasDeleteAccess, hasAddAccess } = useAuth();
 
   useEffect(() => {
     fetchCharges();
@@ -331,13 +333,15 @@ const ChargeDropdown = () => {
             className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none"
           >
             Cancel
-          </button>
-          <button
-            onClick={handleAddCharge}
-            className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
-          >
-            Add
-          </button>
+          </button> 
+          {hasAddAccess('charge') && (
+            <button
+              onClick={handleAddCharge}
+              className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
+            >
+              Add
+            </button>
+          )}
         </div>
         
         {loading ? (
@@ -422,15 +426,18 @@ const ChargeDropdown = () => {
                         Edit Charge
                       </button>
                       
-                      <button 
-                        onClick={handleDeleteCharge}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete Charge
-                      </button>
+                      
+                      {hasDeleteAccess('charges') && (
+                          <button 
+                            onClick={handleDeleteCharge}
+                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete Charge
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -547,16 +554,18 @@ const ChargeDropdown = () => {
                                 >
                                   Edit
                                 </button>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedCharge(charge);
-                                    handleDeleteCharge(charge);
-                                  }}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Delete
-                                </button>
+                                {hasDeleteAccess('charges') && (
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedCharge(charge);
+                                      handleDeleteCharge(charge);
+                                    }}
+                                    className="text-red-600 hover:text-red-900"
+                                  >
+                                    Delete
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>

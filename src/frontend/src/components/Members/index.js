@@ -10,7 +10,7 @@ const Members = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { currentUser } = useAuth();
+  const { currentUser, hasDeleteAccess } = useAuth();
 
   useEffect(() => {
     fetchMembers();
@@ -82,6 +82,7 @@ const Members = () => {
             onDelete={handleDeleteMember}
             selectedMember={selectedMember}
             setSelectedMember={setSelectedMember}
+            showDeleteButton={hasDeleteAccess('member')}
           />
         )}
       </div>

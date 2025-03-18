@@ -1,11 +1,11 @@
 import React from 'react';
 
-const TotalDonationReport = ({ reportData }) => {
-  if (!reportData || !reportData.donations) {
+const ExpensesReport = ({ reportData }) => {
+  if (!reportData || !reportData.expenses) {
     return <div className="p-6 text-center text-gray-500">No data available</div>;
   }
 
-  const { donations, totalAmount } = reportData;
+  const { expenses, total } = reportData;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -19,7 +19,7 @@ const TotalDonationReport = ({ reportData }) => {
     <div className="p-6">
       <div className="mb-6 bg-blue-50 p-4 rounded-lg">
         <h3 className="text-xl font-bold text-blue-800">
-          Total Donations: {formatCurrency(totalAmount || 0)}
+          Total Expenses: {formatCurrency(total || 0)}
         </h3>
       </div>
 
@@ -28,13 +28,13 @@ const TotalDonationReport = ({ reportData }) => {
           <thead className="bg-gray-50">
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
+                Due Date
               </th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Member
+                Vendor
               </th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Type
+                Category
               </th>
               <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Amount
@@ -42,19 +42,19 @@ const TotalDonationReport = ({ reportData }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {(donations || []).map(donation => (
-              <tr key={donation.id} className="hover:bg-gray-50">
+            {(expenses || []).map(expense => (
+              <tr key={expense.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {donation.donationDate ? new Date(donation.donationDate).toLocaleDateString() : 'N/A'}
+                  {expense.dueDate ? new Date(expense.dueDate).toLocaleDateString() : 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {donation.member ? `${donation.member.lastName}, ${donation.member.firstName}` : 'N/A'}
+                  {expense.vendor ? `${expense.vendor.lastName}` : 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {donation.donationType || 'N/A'}
+                  {expense.expenseCategory?.name || 'N/A'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                  {formatCurrency(donation.amount)}
+                  {formatCurrency(expense.amount)}
                 </td>
               </tr>
             ))}
@@ -65,7 +65,7 @@ const TotalDonationReport = ({ reportData }) => {
                 Total:
               </td>
               <td className="px-6 py-4 text-right text-sm font-medium text-gray-900">
-                {formatCurrency(totalAmount || 0)}
+                {formatCurrency(total || 0)}
               </td>
             </tr>
           </tfoot>
@@ -75,4 +75,4 @@ const TotalDonationReport = ({ reportData }) => {
   );
 };
 
-export default TotalDonationReport;
+export default ExpensesReport; 

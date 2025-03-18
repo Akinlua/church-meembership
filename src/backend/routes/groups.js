@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
+const { checkAccess, checkDeleteAccess } = require('../middleware/accessControl');
 
 module.exports = (app) => {
   const prisma = app.get('prisma');
@@ -115,7 +116,7 @@ module.exports = (app) => {
   });
 
   // Delete group
-  router.delete('/:id', authenticateToken, async (req, res) => {
+  router.delete('/:id', authenticateToken, checkAccess('group'), checkDeleteAccess('group'), async (req, res) => {
     try {
       const groupId = parseInt(req.params.id);
 

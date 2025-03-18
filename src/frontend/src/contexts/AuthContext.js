@@ -155,6 +155,78 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Check if user has delete access for a specific feature
+  const hasDeleteAccess = (accessType) => {
+    if (!currentUser) return false;
+    
+    // Super admin can delete everything
+    if (currentUser.role === 'admin') return true;
+    
+    // Otherwise check user level permissions
+    if (!currentUser.userLevel) return false;
+    
+    switch(accessType) {
+      case 'member':
+        return currentUser.userLevel.memberAccess && !currentUser.userLevel.cannotDeleteMember;
+      case 'visitor':
+        return currentUser.userLevel.visitorAccess && !currentUser.userLevel.cannotDeleteVisitor;
+      case 'vendor':
+        return currentUser.userLevel.vendorAccess && !currentUser.userLevel.cannotDeleteVendor;
+      case 'group':
+        return currentUser.userLevel.groupAccess && !currentUser.userLevel.cannotDeleteGroup;
+      case 'donation':
+        return currentUser.userLevel.donationAccess && !currentUser.userLevel.cannotDeleteDonation;
+      case 'expense':
+        return currentUser.userLevel.expenseAccess && !currentUser.userLevel.cannotDeleteExpense;
+      case 'charges':
+        return currentUser.userLevel.chargesAccess && !currentUser.userLevel.cannotDeleteCharges;
+      case 'reports':
+        return currentUser.userLevel.reportsAccess && !currentUser.userLevel.cannotDeleteReports;
+      case 'deposit':
+        return currentUser.userLevel.depositAccess && !currentUser.userLevel.cannotDeleteDeposit;
+      case 'bank':
+        return currentUser.userLevel.bankAccess && !currentUser.userLevel.cannotDeleteBank;
+      default:
+        return false;
+    }
+  };
+
+  // Add this function to the AuthContext
+  const hasAddAccess = (accessType) => {
+    if (!currentUser) return false;
+    
+    // Super admin can add everything
+    if (currentUser.role === 'admin') return true;
+    
+    // Otherwise check user level permissions
+    if (!currentUser.userLevel) return false;
+    
+    switch(accessType) {
+      case 'member':
+        return currentUser.userLevel.memberAccess && currentUser.userLevel.canAddMember;
+      case 'visitor':
+        return currentUser.userLevel.visitorAccess && currentUser.userLevel.canAddVisitor;
+      case 'vendor':
+        return currentUser.userLevel.vendorAccess && currentUser.userLevel.canAddVendor;
+      case 'group':
+        return currentUser.userLevel.groupAccess && currentUser.userLevel.canAddGroup;
+      case 'donation':
+        return currentUser.userLevel.donationAccess && currentUser.userLevel.canAddDonation;
+      case 'expense':
+        return currentUser.userLevel.expenseAccess && currentUser.userLevel.canAddExpense;
+      case 'charges':
+        return currentUser.userLevel.chargesAccess && currentUser.userLevel.canAddCharges;
+      case 'reports':
+        return currentUser.userLevel.reportsAccess && currentUser.userLevel.canAddReports;
+      case 'deposit':
+        return currentUser.userLevel.depositAccess && currentUser.userLevel.canAddDeposit;
+      case 'bank':
+        return currentUser.userLevel.bankAccess && currentUser.userLevel.canAddBank;
+      default:
+        return false;
+    }
+  };
+
   const value = {
     currentUser,
     isAuthenticated,
@@ -164,7 +236,9 @@ export function AuthProvider({ children }) {
     logout,
     changePassword,
     signup,
-    hasAccess
+    hasAccess,
+    hasDeleteAccess,
+    hasAddAccess
   };
 
   return (

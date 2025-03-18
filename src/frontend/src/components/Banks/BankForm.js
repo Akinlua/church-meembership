@@ -117,153 +117,156 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="px-2 py-4 max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold mb-4 text-center">
+    <div className="p-4 max-w-3xl mx-auto bg-white shadow-sm">
+      <h2 className="text-lg font-semibold mb-3 text-center">
         {bank ? 'Edit Bank' : 'Add Bank Form'}
       </h2>
 
       {formLoading ? (
-        <div className="min-h-[200px] flex items-center justify-center">
+        <div className="min-h-[150px] flex items-center justify-center">
           <PageLoader />
         </div>
       ) : (
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-12 gap-x-4 gap-y-2">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-6 gap-x-3 gap-y-2">
+            {/* Bank Name */}
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Bank</label>
+              <label className="text-sm font-medium text-gray-700">Bank</label>
             </div>
-            <div className="col-span-11">
+            <div className="col-span-5">
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-1/2 px-2 py-1 border border-gray-600"
+                className="w-full px-2 py-1 border border-black"
               />
             </div>
 
+            {/* Address */}
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Address</label>
+              <label className="text-sm font-medium text-gray-700">Address</label>
             </div>
-            <div className="col-span-11">
+            <div className="col-span-5">
               <input
                 type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="w-1/2 px-2 py-1 border border-gray-600"
+                className="w-full px-2 py-1 border border-black"
               />
             </div>
 
+            {/* City, State, Zip on same row */}
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">City</label>
+              <label className="text-sm font-medium text-gray-700">City</label>
             </div>
-            <div className="col-span-5">
+            <div className="col-span-2">
               <input
                 type="text"
                 name="city"
                 value={formData.city}
                 onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-600"
+                className="w-full px-2 py-1 border border-black"
               />
             </div>
-
+            
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">State</label>
+              <label className="text-sm font-medium text-gray-700 ml-2">State</label>
             </div>
-            <div className="col-span-2">
+            <div className="col-span-1">
               <input
                 type="text"
                 name="state"
                 value={formData.state}
                 onChange={handleChange}
-                className="w-1/2 px-2 py-1 border border-gray-600"
+                className="w-full px-2 py-1 border border-black"
               />
             </div>
-
+            
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Zip</label>
-            </div>
-            <div className="col-span-2">
+              <label className="text-sm font-medium text-gray-700 ml-2">Zip</label>
               <input
                 type="text"
                 name="zipCode"
                 value={formData.zipCode}
                 onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-600"
+                className="w-full ml-1 px-2 py-1 border border-black"
+              />
+            </div>
+
+            {/* Contact Info */}
+            <div className="col-span-1 flex items-center">
+              <label className="text-sm font-medium text-gray-700">Contact</label>
+            </div>
+            <div className="col-span-2">
+              <input
+                type="text"
+                name="contact"
+                value={formData.contact}
+                onChange={handleChange}
+                className="w-full px-2 py-1 border border-black"
               />
             </div>
 
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Phone</label>
+              <label className="text-sm font-medium text-gray-700 ml-2">Phone</label>
             </div>
-            <div className="col-span-3">
+            <div className="col-span-2">
               <input
                 type="text"
                 name="phone"
                 value={formData.phone}
                 onChange={handlePhoneChange}
                 placeholder="(123) 456-7890"
-                className={`w-full px-2 py-1 border ${phoneError ? 'border-red-300' : 'border-gray-600'}`}
+                className={`w-full px-2 py-1 border ${phoneError ? 'border-red-300' : 'border-black'}`}
               />
               {phoneError && (
-                <p className="text-xs text-red-600">{phoneError}</p>
+                <p className="text-xs text-red-600 mt-1">{phoneError}</p>
               )}
             </div>
 
+            {/* Account Info */}
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Contact</label>
+              <label className="text-sm font-medium text-gray-700">Account #</label>
             </div>
-            <div className="col-span-7">
-              <input
-                type="text"
-                name="contact"
-                value={formData.contact}
-                onChange={handleChange}
-                className="w-1/2 px-2 py-1 border border-gray-600"
-              />
-            </div>
-
-            <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Account #</label>
-            </div>
-            <div className="col-span-3">
+            <div className="col-span-2">
               <input
                 type="text"
                 name="account_number"
                 value={formData.account_number}
                 onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-600"
+                className="w-full px-2 py-1 border border-black"
               />
             </div>
 
             <div className="col-span-1 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Routing #</label>
+              <label className="text-sm font-medium text-gray-700 ml-2">Routing #</label>
             </div>
-            <div className="col-span-3">
+            <div className="col-span-2">
               <input
                 type="text"
                 name="routing_number"
                 value={formData.routing_number}
                 onChange={handleChange}
-                className="w-full px-2 py-1 border border-gray-600"
+                className="w-full px-2 py-1 border border-black"
               />
             </div>
           </div>
 
-          <div className="flex justify-end mt-6 space-x-3">
+          <div className="flex justify-end mt-4 space-x-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              className="px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-sm"
             >
               {loading ? <ButtonLoader text={bank ? "Updating..." : "Saving..."} /> : (bank ? "Update" : "Save")}
             </button>
@@ -277,10 +280,10 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
           <h2 className="text-lg font-bold">Success!</h2>
           <p>Bank added successfully! Do you want to add another?</p>
           <div className="flex justify-end mt-4">
-            <button onClick={handleContinueAdding} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            <button onClick={handleContinueAdding} className="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-sm">
               Add
             </button>
-            <button onClick={handleCloseModal} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 ml-2">
+            <button onClick={handleCloseModal} className="px-3 py-1.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm ml-2">
               Exit
             </button>
           </div>

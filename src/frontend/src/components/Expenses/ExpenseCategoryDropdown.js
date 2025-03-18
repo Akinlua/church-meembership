@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import ExpenseCategoryForm from './ExpenseCategoryForm';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ExpenseCategoryDropdown = () => {
   const [categories, setCategories] = useState([]);
@@ -12,6 +13,7 @@ const ExpenseCategoryDropdown = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const [showDropdown, setShowDropdown] = useState(false);
+  const { hasAccess, hasDeleteAccess, hasAddAccess } = useAuth();
 
   useEffect(() => {
     fetchCategories();
@@ -144,12 +146,14 @@ const ExpenseCategoryDropdown = () => {
           >
             Cancel
           </button>
-          <button
-            onClick={handleAddCategory}
-            className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
-          >
-            Add
-          </button>
+          {hasAddAccess('expense') && (
+            <button
+              onClick={handleAddCategory}
+              className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
+            >
+              Add
+            </button>
+          )}
         </div>
         
         {loading ? (
@@ -193,12 +197,14 @@ const ExpenseCategoryDropdown = () => {
                           >
                             Edit
                           </button>
-                          <button
-                            onClick={() => handleDeleteCategory(category)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Delete
-                          </button>
+                          {hasDeleteAccess('expense') && (
+                            <button
+                              onClick={() => handleDeleteCategory(category)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Delete
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))

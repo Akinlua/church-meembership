@@ -67,19 +67,36 @@ module.exports = (app) => {
   });
 
   // Membership Report Route
-  app.get('/reports/members', authenticateToken, async (req, res) => {
+  app.get('/reports/membership', authenticateToken, async (req, res) => {
     try {
-      const { startDate, endDate } = req.query;
+      const { startDate, endDate, memberStatus } = req.query;
       
       let whereClause = {};
       
+      // Date filtering
       if (startDate && endDate) {
-        whereClause.membership_date = {
+        whereClause.membershipDate = {
           gte: new Date(startDate),
-          lte: new Date(endDate)
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.membershipDate = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.membershipDate = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
         };
       }
-
+      
+      // Member status filtering
+      if (memberStatus === 'active') {
+        whereClause.isActive = true;
+      } else if (memberStatus === 'inactive') {
+        whereClause.isActive = false;
+      }
+      // If memberStatus is 'all' or undefined, don't filter by status
+      
       const members = await prisma.member.findMany({
         where: whereClause,
         include: {
@@ -97,16 +114,16 @@ module.exports = (app) => {
           lastName: 'asc'
         }
       });
-
+      
       // Transform the data to include group names
       const formattedMembers = members.map(member => ({
         ...member,
         groups: member.groups.map(membership => membership.group.name)
       }));
-
+      
       res.json({
         members: formattedMembers,
-        total: members.length
+        total: formattedMembers.length
       });
     } catch (error) {
       console.error('Error generating membership report:', error);
@@ -157,7 +174,7 @@ module.exports = (app) => {
   });
 
   // Total Donation Report Route
-  app.get('/reports/donations/total', authenticateToken, async (req, res) => {
+  app.get('/reports/totalDonations', authenticateToken, async (req, res) => {
     try {
       const donations = await prisma.donation.findMany({
         include: {
@@ -183,7 +200,7 @@ module.exports = (app) => {
   });
 
   // Donation Type Summary Report Route
-  app.get('/reports/donations/type-summary', authenticateToken, async (req, res) => {
+  app.get('/reports/donationTypeSummary', authenticateToken, async (req, res) => {
     try {
       const donations = await prisma.donation.findMany({
         include: {
@@ -211,7 +228,7 @@ module.exports = (app) => {
   });
 
   // Donation Type Summary PDF Route
-  app.post('/reports/donations/type-summary/pdf', authenticateToken, async (req, res) => {
+  app.post('/reports/donationTypeSummary/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate, memberId } = req.body;
 
@@ -530,6 +547,975 @@ module.exports = (app) => {
       if (!res.headersSent) {
         res.status(500).json({ message: 'Error generating PDF report', error: error.message });
       }
+    }
+  });
+
+  // Vendors Report Route
+  app.get('/reports/vendors', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate, vendorId } = req.query;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.createdAt = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.createdAt = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.createdAt = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      // Add vendor ID filter if provided
+      if (vendorId) {
+        whereClause.id = parseInt(vendorId);
+      }
+
+      const vendors = await prisma.vendor.findMany({
+        where: whereClause,
+        orderBy: {
+          lastName: 'asc'
+        }
+      });
+
+      // Get total charges for each vendor
+      const vendorsWithCharges = await Promise.all(
+        vendors.map(async (vendor) => {
+          const charges = await prisma.charge.findMany({
+            where: {
+              vendorId: vendor.id
+            }
+          });
+          
+          const totalCharges = charges.reduce((sum, charge) => sum + parseFloat(charge.amount), 0);
+          
+          return {
+            ...vendor,
+            totalCharges
+          };
+        })
+      );
+
+      res.json({
+        vendors: vendorsWithCharges,
+        total: vendorsWithCharges.length
+      });
+    } catch (error) {
+      console.error('Error generating vendors report:', error);
+      res.status(500).json({ message: 'Error generating vendors report' });
+    }
+  });
+
+  // Vendors PDF Report
+  app.post('/reports/vendors/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate, vendorId } = req.body;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.createdAt = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.createdAt = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.createdAt = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      // Add vendor ID filter if provided
+      if (vendorId) {
+        whereClause.id = parseInt(vendorId);
+      }
+
+      const vendors = await prisma.vendor.findMany({
+        where: whereClause,
+        orderBy: {
+          lastName: 'asc'
+        }
+      });
+
+      // Get total charges for each vendor
+      const vendorsWithCharges = await Promise.all(
+        vendors.map(async (vendor) => {
+          const charges = await prisma.charge.findMany({
+            where: {
+              vendorId: vendor.id
+            }
+          });
+          
+          const totalCharges = charges.reduce((sum, charge) => sum + parseFloat(charge.amount), 0);
+          
+          return {
+            ...vendor,
+            totalCharges
+          };
+        })
+      );
+
+      // Create PDF document
+      const doc = new PDFDocument();
+      
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=vendors-report.pdf');
+      
+      // Pipe PDF to response
+      doc.pipe(res);
+      
+      // Add title
+      doc.fontSize(20).text('Vendors Report', { align: 'center' });
+      doc.moveDown();
+      
+      // Add date range if provided
+      if (startDate || endDate) {
+        doc.fontSize(12).text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+        doc.moveDown();
+      }
+      
+      // Add vendor filter if provided
+      if (vendorId) {
+        const vendor = vendorsWithCharges.find(v => v.id === parseInt(vendorId));
+        if (vendor) {
+          doc.fontSize(12).text(`Filtered by Vendor: ${vendor.lastName}`, { align: 'center' });
+          doc.moveDown();
+        }
+      }
+      
+      // Add total count with more space before the table
+      doc.fontSize(14).text(`Total Vendors: ${vendorsWithCharges.length}`, { align: 'left' });
+      doc.moveDown(2); // Add extra space here
+      
+      // Create table with adjusted position
+      const tableTop = 180; // Increased from 150 to provide more space
+      const tableHeaders = ['Vendor Name', 'Contact', 'Total Charges'];
+      
+      // Draw header
+      let y = tableTop;
+      doc.font('Helvetica-Bold').fontSize(12);
+      doc.text(tableHeaders[0], 50, y);
+      doc.text(tableHeaders[1], 200, y);
+      doc.text(tableHeaders[2], 400, y, { align: 'right' });
+      
+      // Draw horizontal line
+      y += 20;
+      doc.moveTo(50, y).lineTo(550, y).stroke();
+      
+      // Draw rows
+      doc.font('Helvetica').fontSize(10);
+      
+      vendorsWithCharges.forEach(vendor => {
+        y += 20;
+        
+        // Add a new page if we're near the bottom
+        if (y > 700) {
+          doc.addPage();
+          y = 50;
+          
+          // Redraw header
+          doc.font('Helvetica-Bold').fontSize(12);
+          doc.text(tableHeaders[0], 50, y);
+          doc.text(tableHeaders[1], 200, y);
+          doc.text(tableHeaders[2], 400, y, { align: 'right' });
+          
+          // Draw horizontal line
+          y += 20;
+          doc.moveTo(50, y).lineTo(550, y).stroke();
+          
+          doc.font('Helvetica').fontSize(10);
+        }
+        
+        doc.text(vendor.lastName, 50, y);
+        doc.text(vendor.email || 'N/A', 200, y);
+        doc.text(formatCurrency(vendor.totalCharges || 0), 400, y, { align: 'right' });
+      });
+      
+      // Finalize PDF
+      doc.end();
+    } catch (error) {
+      console.error('Error generating vendors PDF report:', error);
+      res.status(500).json({ message: 'Error generating vendors PDF report' });
+    }
+  });
+
+  // Expenses Report Route
+  app.get('/reports/expenses', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.dueDate = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      const expenses = await prisma.charge.findMany({
+        where: whereClause,
+        include: {
+          vendor: true,
+          expenseCategory: true
+        },
+        orderBy: {
+          dueDate: 'desc'
+        }
+      });
+
+      const total = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+
+      res.json({
+        expenses,
+        total
+      });
+    } catch (error) {
+      console.error('Error generating expenses report:', error);
+      res.status(500).json({ message: 'Error generating expenses report' });
+    }
+  });
+
+  // Expenses PDF Report
+  app.post('/reports/expenses/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.dueDate = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      const expenses = await prisma.charge.findMany({
+        where: whereClause,
+        include: {
+          vendor: true,
+          expenseCategory: true
+        },
+        orderBy: {
+          dueDate: 'desc'
+        }
+      });
+
+      const total = expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4'
+      });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=expenses-report.pdf');
+
+      doc.pipe(res);
+
+      doc.fontSize(20).text('Expenses Report', { align: 'center' });
+      doc.moveDown();
+
+      if (startDate || endDate) {
+        doc.fontSize(12)
+           .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+        doc.moveDown();
+      }
+
+      // Table headers
+      doc.fontSize(10).font('Helvetica-Bold');
+      doc.text('Due Date', 50, 150);
+      doc.text('Vendor', 150, 150);
+      doc.text('Category', 250, 150);
+      doc.text('Amount', 350, 150);
+      doc.moveDown();
+
+      let y = 180;
+      doc.font('Helvetica');
+
+      expenses.forEach(expense => {
+        if (y > 700) {
+          doc.addPage();
+          y = 50;
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.text('Due Date', 50, y);
+          doc.text('Vendor', 150, y);
+          doc.text('Category', 250, y);
+          doc.text('Amount', 350, y);
+          y += 30;
+          doc.font('Helvetica');
+        }
+
+        doc.text(new Date(expense.dueDate).toLocaleDateString(), 50, y);
+        doc.text(`${expense.vendor.lastName}`, 150, y);
+        doc.text(expense.expenseCategory?.name || 'N/A', 250, y);
+        doc.text(formatCurrency(expense.amount), 350, y);
+        y += 20;
+      });
+
+      // Total
+      doc.moveDown();
+      doc.font('Helvetica-Bold');
+      doc.text(`Total: ${formatCurrency(total)}`, 350);
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating expenses PDF report:', error);
+      res.status(500).json({ message: 'Error generating expenses PDF report' });
+    }
+  });
+
+  // Charges Report Route
+  app.get('/reports/charges', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.dueDate = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      const charges = await prisma.charge.findMany({
+        where: whereClause,
+        include: {
+          vendor: true,
+          expenseCategory: true
+        },
+        orderBy: {
+          dueDate: 'desc'
+        }
+      });
+
+      const total = charges.reduce((sum, charge) => sum + parseFloat(charge.amount), 0);
+
+      // Group charges by category
+      const categorySummary = charges.reduce((acc, charge) => {
+        const categoryName = charge.expenseCategory?.name || 'Uncategorized';
+        if (!acc[categoryName]) {
+          acc[categoryName] = 0;
+        }
+        acc[categoryName] += parseFloat(charge.amount);
+        return acc;
+      }, {});
+
+      res.json({
+        charges,
+        total,
+        categorySummary
+      });
+    } catch (error) {
+      console.error('Error generating charges report:', error);
+      res.status(500).json({ message: 'Error generating charges report' });
+    }
+  });
+
+  // Charges PDF Report
+  app.post('/reports/charges/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.dueDate = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.dueDate = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      const charges = await prisma.charge.findMany({
+        where: whereClause,
+        include: {
+          vendor: true,
+          expenseCategory: true
+        },
+        orderBy: {
+          dueDate: 'desc'
+        }
+      });
+
+      const total = charges.reduce((sum, charge) => sum + parseFloat(charge.amount), 0);
+
+      // Group charges by category
+      const categorySummary = charges.reduce((acc, charge) => {
+        const categoryName = charge.expenseCategory?.name || 'Uncategorized';
+        if (!acc[categoryName]) {
+          acc[categoryName] = 0;
+        }
+        acc[categoryName] += parseFloat(charge.amount);
+        return acc;
+      }, {});
+
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4'
+      });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=charges-report.pdf');
+
+      doc.pipe(res);
+
+      doc.fontSize(20).text('Charges Report', { align: 'center' });
+      doc.moveDown();
+
+      if (startDate || endDate) {
+        doc.fontSize(12)
+           .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+        doc.moveDown();
+      }
+
+      // Table headers
+      doc.fontSize(12).font('Helvetica-Bold');
+      doc.text('Due Date', 50, 150);
+      doc.text('Vendor', 150, 150);
+      doc.text('Category', 250, 150);
+      doc.text('Amount', 350, 150);
+      doc.moveDown();
+
+      let y = 180;
+      doc.font('Helvetica');
+
+      charges.forEach(charge => {
+        if (y > 700) {
+          doc.addPage();
+          y = 50;
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.text('Due Date', 50, y);
+          doc.text('Vendor', 150, y);
+          doc.text('Category', 250, y);
+          doc.text('Amount', 350, y);
+          y += 30;
+          doc.font('Helvetica');
+        }
+
+        doc.text(new Date(charge.dueDate).toLocaleDateString(), 50, y);
+        doc.text(`${charge.vendor.lastName}`, 150, y);
+        doc.text(charge.expenseCategory?.name || 'N/A', 250, y);
+        doc.text(formatCurrency(charge.amount), 350, y);
+        y += 20;
+      });
+
+      // Total
+      doc.moveDown();
+      doc.font('Helvetica-Bold');
+      doc.text(`Total: ${formatCurrency(total)}`, 350);
+
+      // Category Summary
+      doc.addPage();
+      doc.fontSize(16).text('Category Summary', { align: 'center' });
+      doc.moveDown();
+
+      doc.fontSize(12).font('Helvetica-Bold');
+      doc.text('Category', 100, 100);
+      doc.text('Amount', 300, 100);
+      doc.moveDown();
+
+      y = 130;
+      doc.font('Helvetica');
+
+      Object.entries(categorySummary).forEach(([category, amount]) => {
+        doc.text(category, 100, y);
+        doc.text(formatCurrency(amount), 300, y);
+        y += 20;
+      });
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating charges PDF report:', error);
+      res.status(500).json({ message: 'Error generating charges PDF report' });
+    }
+  });
+
+  // Deposits Report Route
+  app.get('/reports/deposits', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.query;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.date = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.date = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.date = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      const deposits = await prisma.deposit.findMany({
+        where: whereClause,
+        include: {
+          bank: true
+        },
+        orderBy: {
+          date: 'desc'
+        }
+      });
+
+      const total = deposits.reduce((sum, deposit) => sum + parseFloat(deposit.totalAmount || 0), 0);
+
+      res.json({
+        deposits,
+        total
+      });
+    } catch (error) {
+      console.error('Error generating deposits report:', error);
+      res.status(500).json({ message: 'Error generating deposits report' });
+    }
+  });
+
+  // Deposits PDF Report
+  app.post('/reports/deposits/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+      
+      let whereClause = {};
+      
+      if (startDate && endDate) {
+        whereClause.date = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.date = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.date = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+
+      const deposits = await prisma.deposit.findMany({
+        where: whereClause,
+        include: {
+          bank: true
+        },
+        orderBy: {
+          date: 'desc'
+        }
+      });
+
+      const total = deposits.reduce((sum, deposit) => sum + parseFloat(deposit.totalAmount || 0), 0);
+
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4'
+      });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=deposits-report.pdf');
+
+      doc.pipe(res);
+
+      doc.fontSize(20).text('Deposits Report', { align: 'center' });
+      doc.moveDown();
+
+      if (startDate || endDate) {
+        doc.fontSize(12)
+           .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+        doc.moveDown();
+      }
+
+      // Table headers
+      doc.fontSize(11).font('Helvetica-Bold');
+      doc.text('Date', 50, 150);
+      doc.text('Bank', 150, 150);
+      doc.text('Account #', 250, 150);
+      doc.text('Cash', 350, 150);
+      doc.text('Check', 430, 150);
+      doc.text('Total', 510, 150);
+      doc.moveDown();
+
+      let y = 180;
+      doc.font('Helvetica');
+
+      const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 2
+        }).format(parseFloat(amount || 0));
+      };
+
+      deposits.forEach(deposit => {
+        if (y > 700) {
+          doc.addPage();
+          y = 50;
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.text('Date', 50, y);
+          doc.text('Bank', 150, y);
+          doc.text('Account #', 250, y);
+          doc.text('Cash', 350, y);
+          doc.text('Check', 430, y);
+          doc.text('Total', 510, y);
+          y += 30;
+          doc.font('Helvetica');
+        }
+
+        doc.text(new Date(deposit.date).toLocaleDateString(), 50, y);
+        doc.text(deposit.bank?.name || 'N/A', 150, y);
+        doc.text(deposit.accountNumber || 'N/A', 250, y);
+        doc.text(formatCurrency(deposit.cashAmount), 350, y);
+        doc.text(formatCurrency(deposit.checkAmount), 430, y);
+        doc.text(formatCurrency(deposit.totalAmount), 510, y);
+        y += 20;
+      });
+
+      // Total
+      doc.moveDown();
+      doc.font('Helvetica-Bold');
+      doc.text(`Total: ${formatCurrency(total)}`, 400);
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating deposits PDF report:', error);
+      res.status(500).json({ message: 'Error generating deposits PDF report' });
+    }
+  });
+
+  // Membership PDF Report
+  app.post('/reports/membership/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate, memberStatus } = req.body;
+      
+      let whereClause = {};
+      
+      // Date filtering
+      if (startDate && endDate) {
+        whereClause.membershipDate = {
+          gte: new Date(startDate),
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      } else if (startDate) {
+        whereClause.membershipDate = {
+          gte: new Date(startDate)
+        };
+      } else if (endDate) {
+        whereClause.membershipDate = {
+          lte: new Date(new Date(endDate).setHours(23, 59, 59))
+        };
+      }
+      
+      // Member status filtering
+      if (memberStatus === 'active') {
+        whereClause.isActive = true;
+      } else if (memberStatus === 'inactive') {
+        whereClause.isActive = false;
+      }
+      // If memberStatus is 'all' or undefined, don't filter by status
+
+      const members = await prisma.member.findMany({
+        where: whereClause,
+        include: {
+          groups: {
+            include: {
+              group: {
+                select: {
+                  name: true
+                }
+              }
+            }
+          }
+        },
+        orderBy: {
+          lastName: 'asc'
+        }
+      });
+
+      // Transform the data to include group names
+      const formattedMembers = members.map(member => ({
+        ...member,
+        groups: member.groups.map(membership => membership.group.name)
+      }));
+
+      // Create PDF document with landscape orientation for more space
+      const doc = new PDFDocument({
+        margin: 30,
+        size: 'A4',
+        layout: 'landscape'
+      });
+      
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=membership-report.pdf');
+      
+      // Pipe PDF to response
+      doc.pipe(res);
+      
+      // Add title
+      doc.fontSize(20).text('Membership Report', { align: 'center' });
+      doc.moveDown();
+      
+      // Add date range if provided
+      if (startDate || endDate) {
+        doc.fontSize(12).text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+        doc.moveDown();
+      }
+      
+      // Add member status filter info
+      if (memberStatus === 'active') {
+        doc.fontSize(12).text('Active Members Only', { align: 'center' });
+      } else if (memberStatus === 'inactive') {
+        doc.fontSize(12).text('Inactive Members Only', { align: 'center' });
+      } else {
+        doc.fontSize(12).text('All Members', { align: 'center' });
+      }
+      doc.moveDown();
+      
+      // Add total count
+      doc.fontSize(14).text(`Total Members: ${formattedMembers.length}`, { align: 'left' });
+      doc.moveDown(2);
+      
+      // Define column widths with more space for address
+      const columnWidths = {
+        name: 120,
+        phone: 100,
+        address: 200,  // Increased width for address
+        email: 140,
+        date: 80,
+        groups: 140
+      };
+      
+      // Create table headers
+      const tableTop = doc.y;
+      doc.fontSize(10).font('Helvetica-Bold');
+      
+      let xPos = 30;
+      doc.text('Name', xPos, tableTop);
+      xPos += columnWidths.name;
+      
+      doc.text('Phone', xPos, tableTop);
+      xPos += columnWidths.phone;
+      
+      doc.text('Address', xPos, tableTop);
+      xPos += columnWidths.address;
+      
+      doc.text('Email', xPos, tableTop);
+      xPos += columnWidths.email;
+      
+      doc.text('Member Date', xPos, tableTop);
+      xPos += columnWidths.date;
+      
+      doc.text('Groups', xPos, tableTop);
+      
+      // Draw a line
+      doc.moveDown();
+      doc.moveTo(30, doc.y).lineTo(doc.page.width - 30, doc.y).stroke();
+      doc.moveDown(0.5);
+      
+      // Table rows
+      let y = doc.y;
+      doc.font('Helvetica').fontSize(9);
+      
+      formattedMembers.forEach((member) => {
+        // Check if we need a new page
+        if (y > doc.page.height - 50) {
+          doc.addPage({ layout: 'landscape' });
+          y = 50;
+          
+          // Redraw headers on new page
+          doc.fontSize(10).font('Helvetica-Bold');
+          
+          xPos = 30;
+          doc.text('Name', xPos, y);
+          xPos += columnWidths.name;
+          
+          doc.text('Phone', xPos, y);
+          xPos += columnWidths.phone;
+          
+          doc.text('Address', xPos, y);
+          xPos += columnWidths.address;
+          
+          doc.text('Email', xPos, y);
+          xPos += columnWidths.email;
+          
+          doc.text('Member Date', xPos, y);
+          xPos += columnWidths.date;
+          
+          doc.text('Groups', xPos, y);
+          
+          // Draw a line
+          y += 15;
+          doc.moveTo(30, y).lineTo(doc.page.width - 30, y).stroke();
+          y += 15;
+          doc.font('Helvetica').fontSize(9);
+        }
+        
+        const name = `${member.lastName}, ${member.firstName}`;
+        const address = [member.address, member.city, member.state, member.zipCode]
+          .filter(Boolean)
+          .join(', ');
+        const groups = member.groups.join(', ') || 'None';
+        const memberDate = member.membershipDate ? new Date(member.membershipDate).toLocaleDateString() : 'N/A';
+        
+        xPos = 30;
+        doc.text(name, xPos, y, { width: columnWidths.name - 5 });
+        xPos += columnWidths.name;
+        
+        doc.text(member.cellPhone || 'N/A', xPos, y);
+        xPos += columnWidths.phone;
+        
+        doc.text(address || 'N/A', xPos, y, { width: columnWidths.address - 5 });
+        xPos += columnWidths.address;
+        
+        doc.text(member.email || 'N/A', xPos, y, { width: columnWidths.email - 5 });
+        xPos += columnWidths.email;
+        
+        doc.text(memberDate, xPos, y);
+        xPos += columnWidths.date;
+        
+        doc.text(groups, xPos, y, { width: columnWidths.groups - 5 });
+        
+        y += 20;
+      });
+      
+      // Finalize PDF
+      doc.end();
+      
+    } catch (error) {
+      console.error('Error generating membership PDF report:', error);
+      res.status(500).json({ message: 'Error generating membership PDF report' });
+    }
+  });
+
+  // Groups PDF Report
+  app.post('/reports/groups/pdf', authenticateToken, async (req, res) => {
+    try {
+      const groups = await prisma.group.findMany({
+        include: {
+          _count: {
+            select: { members: true }
+          }
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      });
+
+      // Create PDF document
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4'
+      });
+      
+      // Set response headers
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=groups-report.pdf');
+      
+      // Pipe PDF to response
+      doc.pipe(res);
+      
+      // Add title
+      doc.fontSize(20).text('Groups Report', { align: 'center' });
+      doc.moveDown();
+      
+      // Add total count
+      doc.fontSize(14).text(`Total Groups: ${groups.length}`, { align: 'center' });
+      doc.moveDown(2);
+      
+      // Create table headers
+      const tableTop = doc.y;
+      doc.fontSize(12).font('Helvetica-Bold');
+      doc.text('Group Name', 50, tableTop);
+      doc.text('Description', 200, tableTop);
+      doc.text('Member Count', 450, tableTop, { align: 'right' });
+      
+      // Draw a line
+      doc.moveDown();
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+      doc.moveDown(0.5);
+      
+      // Table rows
+      let y = doc.y;
+      doc.font('Helvetica');
+      
+      groups.forEach((group) => {
+        // Check if we need a new page
+        if (y > 700) {
+          doc.addPage();
+          y = 50;
+          
+          // Redraw headers on new page
+          doc.fontSize(12).font('Helvetica-Bold');
+          doc.text('Group Name', 50, y);
+          doc.text('Description', 200, y);
+          doc.text('Member Count', 450, y, { align: 'right' });
+          
+          // Draw a line
+          y += 20;
+          doc.moveTo(50, y).lineTo(550, y).stroke();
+          y += 20;
+          doc.font('Helvetica');
+        }
+        
+        doc.fontSize(10);
+        doc.text(group.name, 50, y, { width: 140 });
+        doc.text(group.description || 'No description', 200, y, { width: 240 });
+        doc.text(group._count.members.toString(), 450, y, { align: 'right' });
+        
+        y += 20;
+      });
+      
+      // Finalize PDF
+      doc.end();
+      
+    } catch (error) {
+      console.error('Error generating groups PDF report:', error);
+      res.status(500).json({ message: 'Error generating groups PDF report' });
     }
   });
 

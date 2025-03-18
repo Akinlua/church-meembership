@@ -270,6 +270,12 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                 onChange={(date) => setFormData({ ...formData, date })}
                 required
                 className="w-full px-2 py-1 border border-gray-600"
+                onKeyDown={(e) => {
+                  // Prevent Enter key from submitting the form
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                  }
+                }}
               />
             </div>
 
@@ -287,6 +293,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                   onChange={(e) => handleAmountChange('cash_amount', e.target.value)}
                   className="w-25 pl-7 px-2 py-1 border border-gray-600"
                   placeholder="0.00"
+                  required
                   onBlur={() => setFormData({
                     ...formData,
                     cash_amount: formatCurrency(formData.cash_amount)
@@ -309,6 +316,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                   onChange={(e) => handleAmountChange('check_amount', e.target.value)}
                   className="w-25 pl-7 px-2 py-1 border border-gray-600"
                   placeholder="0.00"
+                  required
                   onBlur={() => setFormData({
                     ...formData,
                     check_amount: formatCurrency(formData.check_amount)

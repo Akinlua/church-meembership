@@ -12,6 +12,12 @@
   background-color: #f8fafc;
 }
 
+.check-main {
+  position: relative;
+  min-height: 250px;
+  background-color: #fff;
+}
+
 .signature-image-container {
   display: flex;
   justify-content: flex-end;
@@ -22,6 +28,20 @@
 .signature-image {
   max-width: 100%;
   object-fit: contain;
+}
+
+.micr-line {
+  font-family: "MICR", Courier, monospace;
+  letter-spacing: 1px;
+}
+
+.micr-text {
+  font-size: 16px;
+}
+
+.payee-line {
+  min-height: 24px;
+  padding: 0 4px;
 }
 
 @media print {
@@ -49,7 +69,7 @@
     page-break-inside: avoid;
   }
   
-  .check-top, .check-stub {
+  .check-stub, .check-top {
     background-color: #f0f4f8 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;

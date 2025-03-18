@@ -7,13 +7,16 @@ const CheckTemplate = ({ checkData }) => {
     checkNumber,
     date,
     payTo,
+    payToAddress,
     amount,
     memo,
     bankName,
     bankAddress,
     companyName,
     companyAddress,
-    signature
+    signature,
+    routingNumber,
+    accountNumber
   } = checkData;
 
   // Format the amount in words
@@ -21,47 +24,66 @@ const CheckTemplate = ({ checkData }) => {
   
   // Format the amount with 2 decimal places
   const formattedAmount = parseFloat(amount || 0).toFixed(2);
+  
+  // Format date for display
+  const formattedDate = date ? format(new Date(date), 'MM/dd/yyyy') : '';
+  
+  // Format check number to always be 6 digits with leading zeros
+  const formattedCheckNumber = checkNumber ? 
+    checkNumber.toString().padStart(6, '0') : 
+    '001736';
 
   return (
     <div className="check-template">
       <div className="check-wrapper" id="check-to-print">
-        {/* Top section of check */}
-        <div className="check-top p-4 border-b border-gray-300 bg-blue-50">
-          <div className="flex justify-between">
-            <div className="company-info">
-              <div className="font-bold text-lg">{companyName}</div>
-              <div className="text-sm">{companyAddress}</div>
+        {/* Main check section (now at the top) */}
+        <div className="check-main p-4 border-b border-gray-300">
+          {/* Check header */}
+          <div className="flex justify-between mb-4">
+            <div className="company-info w-1/3">
+              <div className="font-bold text-lg">{companyName || 'Eastside Outpatient Services, PLLC'}</div>
+              <div className="text-sm">{companyAddress || '123 E. Sample St., Anytown, MI 48001'}</div>
             </div>
-            <div className="check-number-date">
-              <div className="font-bold text-lg">{checkNumber}</div>
-              <div className="text-sm">{date ? format(new Date(date), 'MM/dd/yyyy') : ''}</div>
+            <div className="bank-info-top text-center w-1/3">
+              <div className="font-bold text-lg">{bankName || 'Fifth Third Bank'}</div>
+            </div>
+            <div className="check-number-date w-1/3 text-right">
+              <div className="font-bold text-lg">{formattedCheckNumber}</div>
+              <div className="text-sm">{formattedDate || '01/29/2016'}</div>
             </div>
           </div>
-        </div>
 
-        {/* Middle section of check */}
-        <div className="check-middle p-4">
-          <div className="pay-to-section mb-2">
-            <div className="text-sm text-gray-600">PAY TO THE</div>
-            <div className="text-sm text-gray-600">ORDER OF</div>
-          </div>
-          
-          <div className="payee-name font-bold text-lg mb-2">{payTo}</div>
-          
-          <div className="amount-in-words mb-2">
-            {amountInWords}
-          </div>
-          
-          <div className="flex justify-end">
-            <div className="amount-box border border-gray-400 px-2 py-1">
-              <span className="font-bold">${formattedAmount}</span>
+          {/* Pay to section */}
+          <div className="pay-to-section mb-2 flex">
+            <div className="text-xs text-gray-600 mr-1">
+              <div>PAY TO THE</div>
+              <div>ORDER OF</div>
+            </div>
+            <div className="payee-line flex-grow border-b border-gray-400">
+              <span className="payee-name font-bold">{payTo || 'Morgan Stanley'}</span>
+            </div>
+            <div className="amount-box border border-gray-400 px-2 py-1 ml-2">
+              <span className="font-bold">${formattedAmount || '13,239.72'}</span>
             </div>
           </div>
           
-          <div className="payee-address mb-4">
-            {payTo}
+          {/* Amount in words */}
+          <div className="amount-in-words mb-4 border-b border-gray-400 pb-1">
+            {amountInWords || 'Thirteen Thousand Two Hundred Thirty Nine And 72/100'}
           </div>
           
+          {/* Bank info and memo */}
+          <div className="flex justify-between mb-6">
+            <div className="bank-info text-sm">
+              <div>{bankAddress || '123 Bank Street, Anytown, MI 48001'}</div>
+            </div>
+            <div className="memo-line text-sm">
+              <div className="text-gray-600">MEMO</div>
+              <div>{memo || 'IRA'}</div>
+            </div>
+          </div>
+          
+          {/* Signature line */}
           <div className="signature-line border-b border-gray-400 mt-8 mb-2">
             {signature ? (
               <div className="signature-image-container">
@@ -72,7 +94,7 @@ const CheckTemplate = ({ checkData }) => {
                   style={{ 
                     maxHeight: '60px', 
                     position: 'relative',
-                    top: '-30px'  // Adjust this to position the signature on the line
+                    top: '-30px'
                   }} 
                 />
               </div>
@@ -80,30 +102,71 @@ const CheckTemplate = ({ checkData }) => {
               <div className="text-right text-sm text-gray-600">AUTHORIZED SIGNATURE</div>
             )}
           </div>
+          
+          {/* MICR line at bottom of check */}
+          <div className="micr-line mt-6 font-mono text-center">
+            <span className="micr-text">⑆{formattedCheckNumber} ⑆{routingNumber || '071710005'} ⑆{accountNumber || '7167331'}⑈</span>
+          </div>
         </div>
 
-        {/* Bottom section of check (stub) */}
-        <div className="check-stub p-4 bg-blue-50">
+        {/* Top stub section (now in the middle) */}
+        <div className="check-stub p-4 bg-blue-50 border-b border-gray-300">
           <div className="flex justify-between mb-2">
-            <div className="font-bold">{companyName}</div>
-            <div className="font-bold">{checkNumber}</div>
+            <div className="font-bold">{companyName || 'Eastside Outpatient Services, PLLC'}</div>
+            <div className="font-bold">{formattedCheckNumber}</div>
           </div>
           
           <div className="flex justify-between mb-2">
-            <div>{payTo}</div>
-            <div>{date ? format(new Date(date), 'MM/dd/yyyy') : ''}</div>
+            <div>
+              <div>{payTo || 'Morgan Stanley'}</div>
+              {payToAddress && <div className="text-xs text-gray-600">{payToAddress}</div>}
+            </div>
+            <div>{formattedDate || '01/29/2016'}</div>
           </div>
           
           <div className="flex justify-between mb-2">
-            <div>{memo || 'Memo'}</div>
-            <div className="font-bold">${formattedAmount}</div>
+            <div>{'IRA'}</div>
+            <div>{'All IRA 2015'}</div>
+            <div className="font-bold">${formattedAmount || '13,239.72'}</div>
           </div>
           
           <div className="border-t border-gray-300 mt-4 pt-2">
             <div className="flex justify-between">
-              <div>{bankName}</div>
-              <div className="font-bold">${formattedAmount}</div>
+              <div>{bankName || 'Fifth Third Bank'}</div>
+              <div className="font-bold">${formattedAmount || '13,239.72'}</div>
             </div>
+          </div>
+        </div>
+
+        {/* Bottom stub section */}
+        <div className="check-stub p-4 bg-blue-50">
+          <div className="flex justify-between mb-2">
+            <div className="font-bold">{companyName || 'Eastside Outpatient Services, PLLC'}</div>
+            <div className="font-bold">{formattedCheckNumber}</div>
+          </div>
+          
+          <div className="flex justify-between mb-2">
+            <div>
+              <div>{payTo || 'Morgan Stanley'}</div>
+              {payToAddress && <div className="text-xs text-gray-600">{payToAddress}</div>}
+            </div>
+            <div>{formattedDate || '01/29/2016'}</div>
+          </div>
+          
+          <div className="flex justify-between mb-2">
+            <div>{'IRA'}</div>
+            <div>{'All IRA 2015'}</div>
+            <div className="font-bold">${formattedAmount || '13,239.72'}</div>
+          </div>
+          
+          <div className="border-t border-gray-300 mt-4 pt-2">
+            <div className="flex justify-between">
+              <div>{bankName || 'Fifth Third Bank'}</div>
+              <div className="font-bold">${formattedAmount || '13,239.72'}</div>
+            </div>
+          </div>
+          <div className="text-xs text-right mt-2 text-gray-500">
+            VersaCheck Form 1000 Prestige (#3010)
           </div>
         </div>
       </div>
