@@ -228,4 +228,20 @@ model Deposit {
   // notes         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model ProgramOwner {
+  id        Int      @id @default(autoincrement())
+  church    String
+  address   String
+  city      String
+  state     String
+  zip       String
+  phone     String
+  webAddress String?
+  pastor    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("program_owner")
 } 

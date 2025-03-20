@@ -26,13 +26,15 @@ const CheckGenerator = () => {
   const [vendors, setVendors] = useState([]);
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [programOwner, setProgramOwner] = useState(null);
   
   const checkRef = useRef(null);
   
-  // Fetch vendors and banks on component mount
+  // Fetch vendors, banks, and program owner on component mount
   useEffect(() => {
     fetchVendors();
     fetchBanks();
+    fetchProgramOwner();
   }, []);
   
   const fetchVendors = async () => {
@@ -74,6 +76,40 @@ const CheckGenerator = () => {
       setBanks(bankOptions);
     } catch (error) {
       console.error('Error fetching banks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchProgramOwner = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/program-owner`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      const ownerData = response.data;
+      
+      if (ownerData) {
+        setProgramOwner(ownerData);
+        
+        // Format full address
+        const fullAddress = [
+          ownerData.address,
+          ownerData.city,
+          ownerData.state,
+          ownerData.zip
+        ].filter(Boolean).join(', ');
+        
+        // Update checkData with program owner information
+        setCheckData(prevData => ({
+          ...prevData,
+          companyName: ownerData.church,
+          companyAddress: fullAddress
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching program owner:', error);
     } finally {
       setLoading(false);
     }
@@ -325,8 +361,14 @@ const CheckGenerator = () => {
                 name="companyName"
                 value={checkData.companyName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                readOnly={programOwner !== null}
               />
+              {!programOwner && (
+                <p className="text-sm text-yellow-600 mt-1">
+                  No program owner information found. Please add program owner details in Dashboard.
+                </p>
+              )}
             </div>
             
             <div>
@@ -338,7 +380,8 @@ const CheckGenerator = () => {
                 name="companyAddress"
                 value={checkData.companyAddress}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                readOnly={programOwner !== null}
               />
             </div>
             

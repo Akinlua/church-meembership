@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
 
 // Apply authentication middleware to protected routes
 app.use('/uploads', express.static('public/uploads'));
-app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/vendors', '/expense-categories', '/charges', '/admin'], authenticateToken);
+app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/vendors', '/expense-categories', '/charges', '/admin', '/program-owner'], authenticateToken);
 
 // Make authenticateToken available to routes
 app.set('authenticateToken', authenticateToken);
@@ -50,6 +50,7 @@ require('./routes/vendors')(app);
 require('./routes/expenseCategories')(app);
 require('./routes/charges')(app);
 require('./routes/admin')(app);
+require('./routes/programOwner')(app);
 
 const bankRoutes = require('./routes/banks');
 const depositRoutes = require('./routes/deposits');
