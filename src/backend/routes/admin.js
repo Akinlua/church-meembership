@@ -253,4 +253,126 @@ module.exports = (app) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+
+  // Update a user level
+  app.put('/admin/user-levels/:id', adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { 
+      name, 
+      description,
+      memberAccess,
+      visitorAccess,
+      vendorAccess,
+      groupAccess,
+      donationAccess,
+      adminAccess,
+      expenseAccess,
+      chargesAccess,
+      reportsAccess,
+      depositAccess,
+      bankAccess,
+      cannotDeleteMember,
+      cannotDeleteVisitor,
+      cannotDeleteVendor,
+      cannotDeleteGroup,
+      cannotDeleteDonation,
+      cannotDeleteExpense,
+      cannotDeleteCharges,
+      cannotDeleteReports,
+      cannotDeleteDeposit,
+      cannotDeleteBank,
+      canAddMember,
+      canAddVisitor,
+      canAddVendor,
+      canAddGroup,
+      canAddDonation,
+      canAddExpense,
+      canAddCharges,
+      canAddReports,
+      canAddDeposit,
+      canAddBank
+    } = req.body;
+
+    try {
+      // Check if name exists for another level
+      const existingLevel = await prisma.userLevel.findUnique({
+        where: { name }
+      });
+
+      if (existingLevel && existingLevel.id !== parseInt(id)) {
+        return res.status(400).json({ message: 'User level with this name already exists' });
+      }
+
+      // Update level
+      const userLevel = await prisma.userLevel.update({
+        where: { id: parseInt(id) },
+        data: {
+          name,
+          description,
+          memberAccess: memberAccess || false,
+          visitorAccess: visitorAccess || false,
+          vendorAccess: vendorAccess || false,
+          groupAccess: groupAccess || false,
+          donationAccess: donationAccess || false,
+          adminAccess: adminAccess || false,
+          expenseAccess: expenseAccess || false,
+          chargesAccess: chargesAccess || false,
+          reportsAccess: reportsAccess || false,
+          depositAccess: depositAccess || false,
+          bankAccess: bankAccess || false,
+          cannotDeleteMember: cannotDeleteMember || false,
+          cannotDeleteVisitor: cannotDeleteVisitor || false,
+          cannotDeleteVendor: cannotDeleteVendor || false,
+          cannotDeleteGroup: cannotDeleteGroup || false,
+          cannotDeleteDonation: cannotDeleteDonation || false,
+          cannotDeleteExpense: cannotDeleteExpense || false,
+          cannotDeleteCharges: cannotDeleteCharges || false,
+          cannotDeleteReports: cannotDeleteReports || false,
+          cannotDeleteDeposit: cannotDeleteDeposit || false,
+          cannotDeleteBank: cannotDeleteBank || false,
+          canAddMember: canAddMember || false,
+          canAddVisitor: canAddVisitor || false,
+          canAddVendor: canAddVendor || false,
+          canAddGroup: canAddGroup || false,
+          canAddDonation: canAddDonation || false,
+          canAddExpense: canAddExpense || false,
+          canAddCharges: canAddCharges || false,
+          canAddReports: canAddReports || false,
+          canAddDeposit: canAddDeposit || false,
+          canAddBank: canAddBank || false
+        }
+      });
+
+      res.json(userLevel);
+    } catch (error) {
+      console.error('Error updating user level:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  // Delete a user level
+  app.delete('/admin/user-levels/:id', adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      // Check if user level is assigned to any users
+      const usersWithLevel = await prisma.user.count({
+        where: { userLevelId: parseInt(id) }
+      });
+
+      if (usersWithLevel > 0) {
+        return res.status(400).json({ 
+          message: `Cannot delete this user level: It is assigned to ${usersWithLevel} user(s)` 
+        });
+      }
+
+      await prisma.userLevel.delete({
+        where: { id: parseInt(id) }
+      });
+      res.json({ message: 'User level deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting user level:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
 }; 

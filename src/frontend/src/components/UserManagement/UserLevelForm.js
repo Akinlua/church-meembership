@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ButtonLoader } from '../common/Loader';
 
-const UserLevelForm = ({ onClose, onSubmit }) => {
+const UserLevelForm = ({ level, onClose, onSubmit }) => {
   const [levelName, setLevelName] = useState('');
   const [description, setDescription] = useState('');
   const [permissions, setPermissions] = useState({
@@ -41,6 +41,21 @@ const UserLevelForm = ({ onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (level) {
+      setLevelName(level.name || '');
+      setDescription(level.description || '');
+      // Set all permissions from the level object
+      const newPermissions = { ...permissions };
+      Object.keys(newPermissions).forEach(key => {
+        if (key in level) {
+          newPermissions[key] = level[key];
+        }
+      });
+      setPermissions(newPermissions);
+    }
+  }, [level]);
+
   const handlePermissionChange = (e) => {
     const { name, checked } = e.target;
     
@@ -64,8 +79,14 @@ const UserLevelForm = ({ onClose, onSubmit }) => {
     setError('');
 
     try {
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/admin/user-levels`,
+      const url = level 
+        ? `${process.env.REACT_APP_API_URL}/admin/user-levels/${level.id}`
+        : `${process.env.REACT_APP_API_URL}/admin/user-levels`;
+      
+      const method = level ? 'put' : 'post';
+      
+      await axios[method](
+        url,
         { 
           name: levelName, 
           description,
@@ -78,7 +99,7 @@ const UserLevelForm = ({ onClose, onSubmit }) => {
       
       onSubmit();
     } catch (error) {
-      console.error('Error creating user level:', error);
+      console.error(`Error ${level ? 'updating' : 'creating'} user level:`, error);
       setError(error.response?.data?.message || 'An error occurred');
       setLoading(false);
     }
@@ -530,7 +551,7 @@ const UserLevelForm = ({ onClose, onSubmit }) => {
             disabled={loading}
             className="px-2 py-0.5 text-xs border border-transparent rounded-md font-medium text-white bg-blue-600"
           >
-            {loading ? <ButtonLoader /> : 'Create Level'}
+            {loading ? <ButtonLoader /> : level ? 'Update Level' : 'Create Level'}
           </button>
         </div>
       </form>
