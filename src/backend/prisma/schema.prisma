@@ -15,9 +15,9 @@ model User {
   role                  String    @default("user")
   passwordChangeRequired Boolean   @default(false) @map("password_change_required")
   createdAt             DateTime  @default(now()) @map("created_at")
-  // Removing userLevel relation and adding direct permissions
-  // userLevelId           Int?      @map("user_level_id")
-  // userLevel             UserLevel? @relation(fields: [userLevelId], references: [id])
+  // Member relation
+  memberId              Int?      @map("member_id")
+  member                Member?   @relation(fields: [memberId], references: [id])
   
   // Direct permission access fields
   memberAccess Boolean @default(false) @map("member_access")
@@ -130,6 +130,7 @@ model Member {
   createdAt      DateTime   @default(now()) @map("created_at")
   donations      Donation[]
   groups         GroupMember[]
+  users          User[]
 
   @@map("members")
 }

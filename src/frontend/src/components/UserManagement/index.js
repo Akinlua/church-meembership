@@ -10,7 +10,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showUserForm, setShowUserForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const { currentUser } = useAuth();
+  const { currentUser, hasAddAccess, hasDeleteAccess } = useAuth();
 
   useEffect(() => {
     fetchUsers();
@@ -40,15 +40,19 @@ const UserManagement = () => {
     setShowUserForm(true);
   };
 
-  const handleDeleteUser = async (id) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+  const handleDeleteUser = async (user) => {
+    if (window.confirm(`Are you sure you want to delete user ${user.name}?`)) {
       try {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/admin/users/${id}`, {
+        setLoading(true);
+        await axios.delete(`${process.env.REACT_APP_API_URL}/admin/users/${user.id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         await fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
+        alert('Failed to delete user');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -60,12 +64,14 @@ const UserManagement = () => {
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">System Administrator</h1>
             <div className="space-x-2">
-              <button
-                onClick={handleAddUser}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Add User
-              </button>
+              {hasAddAccess('admin') && (
+                <button
+                  onClick={handleAddUser}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Add User
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -89,6 +95,8 @@ const UserManagement = () => {
               users={users}
               onEdit={handleEditUser}
               onDelete={handleDeleteUser}
+              showEditButton={hasAddAccess('admin')}
+              showDeleteButton={hasDeleteAccess('admin')}
             />
           )}
         </div>

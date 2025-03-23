@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { ButtonLoader } from '../common/Loader';
 
@@ -46,8 +46,18 @@ const UserForm = ({ user, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('basic'); // 'basic' or 'permissions'
+  const [members, setMembers] = useState([]);
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
+    if (!user) {
+      fetchMembers();
+    }
+
     if (user) {
       // Set basic user data
       setFormData({
@@ -65,7 +75,50 @@ const UserForm = ({ user, onClose, onSubmit }) => {
       });
       setPermissions(newPermissions);
     }
+
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowMemberDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [user]);
+
+  const fetchMembers = async () => {
+    try {
+      setMembersLoading(true);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    } finally {
+      setMembersLoading(false);
+    }
+  };
+
+  const filteredMembers = members.filter(member => {
+    const fullName = `${member.lastName} ${member.firstName}`.toLowerCase();
+    const memberNumber = member.memberNumber ? member.memberNumber.toString() : '';
+    const query = searchTerm.toLowerCase();
+    
+    return fullName.includes(query) || memberNumber.includes(query);
+  });
+
+  const handleSelectMember = (member) => {
+    setSelectedMember(member);
+    setShowMemberDropdown(false);
+    setSearchTerm(`${member.lastName} ${member.firstName}`);
+    setFormData({
+      ...formData,
+      name: `${member.firstName} ${member.lastName}`,
+      username: member.email ? member.email.split('@')[0] : ''
+    });
+  };
 
   const handlePermissionChange = (e) => {
     const { name, checked } = e.target;
@@ -99,7 +152,8 @@ const UserForm = ({ user, onClose, onSubmit }) => {
       // Combine form data with permissions
       const userData = {
         ...formData,
-        ...permissions
+        ...permissions,
+        memberId: selectedMember?.id // Add member ID if a member was selected
       };
       
       await axios[method](url, userData, {
@@ -204,6 +258,63 @@ const UserForm = ({ user, onClose, onSubmit }) => {
       <form onSubmit={handleSubmit} className="space-y-3">
         {activeTab === 'basic' && (
           <div className="grid grid-cols-12 gap-x-3 gap-y-2">
+            {!user && (
+              <>
+                <div className="col-span-3 flex items-center">
+                  <label className="block text-sm font-medium text-gray-700">Select Member</label>
+                </div>
+                <div className="col-span-9 relative" ref={dropdownRef}>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Search for a member..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setShowMemberDropdown(true);
+                      }}
+                      onClick={() => setShowMemberDropdown(true)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowMemberDropdown(prev => !prev)}
+                      className="ml-2 p-1.5 border border-gray-300 rounded-md bg-gray-50"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  {showMemberDropdown && (
+                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-200 max-h-60 overflow-auto">
+                      {membersLoading ? (
+                        <div className="text-center py-2 text-gray-500">Loading members...</div>
+                      ) : filteredMembers.length === 0 ? (
+                        <div className="text-center py-2 text-gray-500">No members found</div>
+                      ) : (
+                        <ul className="py-1">
+                          {filteredMembers.map(member => (
+                            <li
+                              key={member.id}
+                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={() => handleSelectMember(member)}
+                            >
+                              <div className="font-medium">{member.lastName} {member.firstName}</div>
+                              <div className="text-sm text-gray-500">
+                                {member.memberNumber} | {member.email || 'No email'}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+            
             <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">Name</label>
             </div>
@@ -257,52 +368,36 @@ const UserForm = ({ user, onClose, onSubmit }) => {
           <div className="border rounded-md p-4">
             <h3 className="text-sm font-medium mb-2">Access Permissions</h3>
             
-            <div className="grid grid-cols-1 gap-1">
+            <div className="space-y-1">
               {renderPermissionFields('member')}
               {renderPermissionFields('visitor')}
               {renderPermissionFields('vendor')}
               {renderPermissionFields('group')}
               {renderPermissionFields('donation')}
+              {renderPermissionFields('admin')}
               {renderPermissionFields('expense')}
               {renderPermissionFields('charges')}
               {renderPermissionFields('reports')}
               {renderPermissionFields('deposit')}
               {renderPermissionFields('bank')}
-              
-              {/* Admin access is special, only needs the access toggle */}
-              <div className="flex items-center py-1 border-b border-gray-100">
-                <div className="w-full">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="adminAccess"
-                      name="adminAccess"
-                      checked={permissions.adminAccess}
-                      onChange={handlePermissionChange}
-                      className="h-4 w-4"
-                    />
-                    <label htmlFor="adminAccess" className="ml-2 text-sm font-medium text-blue-600">Admin Access</label>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         )}
         
-        <div className="flex justify-end space-x-2 mt-4">
+        <div className="flex justify-end gap-3 mt-6">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-3 py-1.5 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
           >
-            {loading ? <ButtonLoader /> : (user ? 'Update User' : 'Create User')}
+            {loading ? <ButtonLoader /> : user ? 'Update User' : 'Add User'}
           </button>
         </div>
       </form>

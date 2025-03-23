@@ -30,6 +30,16 @@ module.exports = (app) => {
           createdAt: true,
           passwordChangeRequired: true,
           role: true,
+          memberId: true,
+          member: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              memberNumber: true,
+              email: true
+            }
+          },
           memberAccess: true,
           visitorAccess: true,
           vendorAccess: true,
@@ -76,6 +86,7 @@ module.exports = (app) => {
       name, 
       username, 
       password,
+      memberId,
       memberAccess,
       visitorAccess,
       vendorAccess,
@@ -119,6 +130,17 @@ module.exports = (app) => {
         return res.status(400).json({ message: 'Username already exists' });
       }
 
+      // If memberId is provided, validate it exists
+      if (memberId) {
+        const memberExists = await prisma.member.findUnique({
+          where: { id: parseInt(memberId) }
+        });
+        
+        if (!memberExists) {
+          return res.status(400).json({ message: 'Selected member does not exist' });
+        }
+      }
+
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
       
@@ -129,6 +151,7 @@ module.exports = (app) => {
           username,
           password: hashedPassword,
           passwordChangeRequired: true, // Require password change on first login
+          memberId: memberId ? parseInt(memberId) : null,
           memberAccess: memberAccess || false,
           visitorAccess: visitorAccess || false,
           vendorAccess: vendorAccess || false,
@@ -168,6 +191,7 @@ module.exports = (app) => {
         name: user.name,
         username: user.username,
         role: user.role,
+        memberId: user.memberId,
         memberAccess: user.memberAccess,
         visitorAccess: user.visitorAccess,
         vendorAccess: user.vendorAccess,
@@ -193,6 +217,7 @@ module.exports = (app) => {
       name, 
       username, 
       password,
+      memberId,
       memberAccess,
       visitorAccess,
       vendorAccess,
@@ -238,10 +263,22 @@ module.exports = (app) => {
         }
       }
 
+      // If memberId is provided, validate it exists
+      if (memberId) {
+        const memberExists = await prisma.member.findUnique({
+          where: { id: parseInt(memberId) }
+        });
+        
+        if (!memberExists) {
+          return res.status(400).json({ message: 'Selected member does not exist' });
+        }
+      }
+
       // Prepare update data with permissions
       const updateData = {
         name,
         username,
+        memberId: memberId ? parseInt(memberId) : undefined,
         memberAccess: memberAccess !== undefined ? memberAccess : undefined,
         visitorAccess: visitorAccess !== undefined ? visitorAccess : undefined,
         vendorAccess: vendorAccess !== undefined ? vendorAccess : undefined,
@@ -299,6 +336,7 @@ module.exports = (app) => {
         name: user.name,
         username: user.username,
         role: user.role,
+        memberId: user.memberId,
         memberAccess: user.memberAccess,
         visitorAccess: user.visitorAccess,
         vendorAccess: user.vendorAccess,
