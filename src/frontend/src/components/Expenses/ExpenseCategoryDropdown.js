@@ -191,12 +191,14 @@ const ExpenseCategoryDropdown = () => {
                           <div className="text-sm font-medium text-gray-900">{category.name}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          {hasAddAccess('expense') && (
                           <button
                             onClick={() => handleEditCategory(category)}
                             className="text-blue-600 hover:text-blue-900 mr-4"
                           >
                             Edit
                           </button>
+                          )}
                           {hasDeleteAccess('expense') && (
                             <button
                               onClick={() => handleDeleteCategory(category)}

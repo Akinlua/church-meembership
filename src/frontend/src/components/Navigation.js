@@ -18,33 +18,30 @@ const Navigation = () => {
     // Super admin can access everything
     if (currentUser.role === 'admin') return true;
     
-    // Otherwise check user level permissions
-    if (!currentUser.userLevel) return false;
-    
-    // Check specific access type
+    // Otherwise check direct user permissions
     switch(accessType) {
       case 'member':
-        return currentUser.userLevel.memberAccess;
+        return currentUser.memberAccess;
       case 'visitor':
-        return currentUser.userLevel.visitorAccess;
+        return currentUser.visitorAccess;
       case 'vendor':
-        return currentUser.userLevel.vendorAccess;
+        return currentUser.vendorAccess;
       case 'group':
-        return currentUser.userLevel.groupAccess;
+        return currentUser.groupAccess;
       case 'donation':
-        return currentUser.userLevel.donationAccess;
+        return currentUser.donationAccess;
       case 'admin':
-        return currentUser.userLevel.adminAccess;
+        return currentUser.adminAccess;
       case 'expense':
-        return currentUser.userLevel.expenseAccess;
+        return currentUser.expenseAccess;
       case 'charges':
-        return currentUser.userLevel.chargesAccess;
+        return currentUser.chargesAccess;
       case 'reports':
-        return currentUser.userLevel.reportsAccess;
+        return currentUser.reportsAccess;
       case 'deposit':
-        return currentUser.userLevel.depositAccess;
+        return currentUser.depositAccess;
       case 'bank':
-        return currentUser.userLevel.bankAccess;
+        return currentUser.bankAccess;
       default:
         return false;
     }

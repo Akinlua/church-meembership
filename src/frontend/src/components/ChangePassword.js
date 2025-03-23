@@ -35,7 +35,7 @@ const ChangePassword = () => {
         }
       );
       
-      navigate('/');
+      navigate('/login');
     } catch (error) {
       console.error('Error changing password:', error);
       setError(error.response?.data?.message || 'Failed to change password');

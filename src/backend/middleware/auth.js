@@ -14,10 +14,9 @@ const authenticateToken = async (req, res, next) => {
     // Get the prisma client from the app
     const prisma = req.app.get('prisma');
     
-    // Fetch the user with their userLevel to get the latest permissions
+    // Fetch the user to get the latest permissions
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      include: { userLevel: true }
+      where: { id: decoded.id }
     });
     
     if (!user) {
@@ -33,9 +32,9 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Check if user is admin (either by role or userLevel)
+// Check if user is admin (directly on user object)
 const isAdmin = (req, res, next) => {
-  if (req.user.role === 'admin' || (req.user.userLevel && req.user.userLevel.adminAccess)) {
+  if (req.user.role === 'admin' || req.user.adminAccess) {
     return next();
   }
   return res.status(403).json({ message: 'Access denied: Admin privileges required' });

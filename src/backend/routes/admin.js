@@ -11,8 +11,8 @@ module.exports = (app) => {
       return next();
     }
     
-    // Check if user has admin access through their user level
-    if (req.user.userLevel && req.user.userLevel.adminAccess) {
+    // Check if user has admin access directly
+    if (req.user.adminAccess) {
       return next();
     }
     
@@ -29,8 +29,38 @@ module.exports = (app) => {
           username: true,
           createdAt: true,
           passwordChangeRequired: true,
-          userLevel: true,
-          userLevelId: true
+          role: true,
+          memberAccess: true,
+          visitorAccess: true,
+          vendorAccess: true,
+          groupAccess: true,
+          donationAccess: true,
+          adminAccess: true,
+          expenseAccess: true,
+          chargesAccess: true,
+          reportsAccess: true,
+          depositAccess: true,
+          bankAccess: true,
+          cannotDeleteMember: true,
+          cannotDeleteVisitor: true,
+          cannotDeleteVendor: true,
+          cannotDeleteGroup: true,
+          cannotDeleteDonation: true,
+          cannotDeleteExpense: true,
+          cannotDeleteCharges: true,
+          cannotDeleteReports: true,
+          cannotDeleteDeposit: true,
+          cannotDeleteBank: true,
+          canAddMember: true,
+          canAddVisitor: true,
+          canAddVendor: true,
+          canAddGroup: true,
+          canAddDonation: true,
+          canAddExpense: true,
+          canAddCharges: true,
+          canAddReports: true,
+          canAddDeposit: true,
+          canAddBank: true
         }
       });
       res.json(users);
@@ -42,7 +72,42 @@ module.exports = (app) => {
 
   // Create a new user
   app.post('/admin/users', adminMiddleware, async (req, res) => {
-    const { name, username, password, userLevelId } = req.body;
+    const { 
+      name, 
+      username, 
+      password,
+      memberAccess,
+      visitorAccess,
+      vendorAccess,
+      groupAccess,
+      donationAccess,
+      adminAccess,
+      expenseAccess,
+      chargesAccess,
+      reportsAccess,
+      depositAccess,
+      bankAccess,
+      cannotDeleteMember,
+      cannotDeleteVisitor,
+      cannotDeleteVendor,
+      cannotDeleteGroup,
+      cannotDeleteDonation,
+      cannotDeleteExpense,
+      cannotDeleteCharges,
+      cannotDeleteReports,
+      cannotDeleteDeposit,
+      cannotDeleteBank,
+      canAddMember,
+      canAddVisitor,
+      canAddVendor,
+      canAddGroup,
+      canAddDonation,
+      canAddExpense,
+      canAddCharges,
+      canAddReports,
+      canAddDeposit,
+      canAddBank
+    } = req.body;
 
     try {
       // Check if username already exists
@@ -57,17 +122,44 @@ module.exports = (app) => {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
       
-      // Create user
+      // Create user with direct permissions
       const user = await prisma.user.create({
         data: {
           name,
           username,
           password: hashedPassword,
           passwordChangeRequired: true, // Require password change on first login
-          userLevelId: userLevelId ? parseInt(userLevelId) : null
-        },
-        include: {
-          userLevel: true
+          memberAccess: memberAccess || false,
+          visitorAccess: visitorAccess || false,
+          vendorAccess: vendorAccess || false,
+          groupAccess: groupAccess || false,
+          donationAccess: donationAccess || false,
+          adminAccess: adminAccess || false,
+          expenseAccess: expenseAccess || false,
+          chargesAccess: chargesAccess || false,
+          reportsAccess: reportsAccess || false,
+          depositAccess: depositAccess || false,
+          bankAccess: bankAccess || false,
+          cannotDeleteMember: cannotDeleteMember !== undefined ? cannotDeleteMember : true,
+          cannotDeleteVisitor: cannotDeleteVisitor !== undefined ? cannotDeleteVisitor : true,
+          cannotDeleteVendor: cannotDeleteVendor !== undefined ? cannotDeleteVendor : true,
+          cannotDeleteGroup: cannotDeleteGroup !== undefined ? cannotDeleteGroup : true,
+          cannotDeleteDonation: cannotDeleteDonation !== undefined ? cannotDeleteDonation : true,
+          cannotDeleteExpense: cannotDeleteExpense !== undefined ? cannotDeleteExpense : true,
+          cannotDeleteCharges: cannotDeleteCharges !== undefined ? cannotDeleteCharges : true,
+          cannotDeleteReports: cannotDeleteReports !== undefined ? cannotDeleteReports : true,
+          cannotDeleteDeposit: cannotDeleteDeposit !== undefined ? cannotDeleteDeposit : true,
+          cannotDeleteBank: cannotDeleteBank !== undefined ? cannotDeleteBank : true,
+          canAddMember: canAddMember || false,
+          canAddVisitor: canAddVisitor || false,
+          canAddVendor: canAddVendor || false,
+          canAddGroup: canAddGroup || false,
+          canAddDonation: canAddDonation || false,
+          canAddExpense: canAddExpense || false,
+          canAddCharges: canAddCharges || false,
+          canAddReports: canAddReports || false,
+          canAddDeposit: canAddDeposit || false,
+          canAddBank: canAddBank || false
         }
       });
 
@@ -75,7 +167,18 @@ module.exports = (app) => {
         id: user.id,
         name: user.name,
         username: user.username,
-        userLevel: user.userLevel
+        role: user.role,
+        memberAccess: user.memberAccess,
+        visitorAccess: user.visitorAccess,
+        vendorAccess: user.vendorAccess,
+        groupAccess: user.groupAccess,
+        donationAccess: user.donationAccess,
+        adminAccess: user.adminAccess,
+        expenseAccess: user.expenseAccess,
+        chargesAccess: user.chargesAccess,
+        reportsAccess: user.reportsAccess,
+        depositAccess: user.depositAccess,
+        bankAccess: user.bankAccess
       });
     } catch (error) {
       console.error('Error creating user:', error);
@@ -86,7 +189,42 @@ module.exports = (app) => {
   // Update a user
   app.put('/admin/users/:id', adminMiddleware, async (req, res) => {
     const { id } = req.params;
-    const { name, username, password, userLevelId } = req.body;
+    const { 
+      name, 
+      username, 
+      password,
+      memberAccess,
+      visitorAccess,
+      vendorAccess,
+      groupAccess,
+      donationAccess,
+      adminAccess,
+      expenseAccess,
+      chargesAccess,
+      reportsAccess,
+      depositAccess,
+      bankAccess,
+      cannotDeleteMember,
+      cannotDeleteVisitor,
+      cannotDeleteVendor,
+      cannotDeleteGroup,
+      cannotDeleteDonation,
+      cannotDeleteExpense,
+      cannotDeleteCharges,
+      cannotDeleteReports,
+      cannotDeleteDeposit,
+      cannotDeleteBank,
+      canAddMember,
+      canAddVisitor,
+      canAddVendor,
+      canAddGroup,
+      canAddDonation,
+      canAddExpense,
+      canAddCharges,
+      canAddReports,
+      canAddDeposit,
+      canAddBank
+    } = req.body;
 
     try {
       // Check if username is taken by another user
@@ -100,12 +238,49 @@ module.exports = (app) => {
         }
       }
 
-      // Prepare update data
+      // Prepare update data with permissions
       const updateData = {
         name,
         username,
-        userLevelId: userLevelId ? parseInt(userLevelId) : null
+        memberAccess: memberAccess !== undefined ? memberAccess : undefined,
+        visitorAccess: visitorAccess !== undefined ? visitorAccess : undefined,
+        vendorAccess: vendorAccess !== undefined ? vendorAccess : undefined,
+        groupAccess: groupAccess !== undefined ? groupAccess : undefined,
+        donationAccess: donationAccess !== undefined ? donationAccess : undefined,
+        adminAccess: adminAccess !== undefined ? adminAccess : undefined,
+        expenseAccess: expenseAccess !== undefined ? expenseAccess : undefined,
+        chargesAccess: chargesAccess !== undefined ? chargesAccess : undefined,
+        reportsAccess: reportsAccess !== undefined ? reportsAccess : undefined,
+        depositAccess: depositAccess !== undefined ? depositAccess : undefined,
+        bankAccess: bankAccess !== undefined ? bankAccess : undefined,
+        cannotDeleteMember: cannotDeleteMember !== undefined ? cannotDeleteMember : undefined,
+        cannotDeleteVisitor: cannotDeleteVisitor !== undefined ? cannotDeleteVisitor : undefined,
+        cannotDeleteVendor: cannotDeleteVendor !== undefined ? cannotDeleteVendor : undefined,
+        cannotDeleteGroup: cannotDeleteGroup !== undefined ? cannotDeleteGroup : undefined,
+        cannotDeleteDonation: cannotDeleteDonation !== undefined ? cannotDeleteDonation : undefined,
+        cannotDeleteExpense: cannotDeleteExpense !== undefined ? cannotDeleteExpense : undefined,
+        cannotDeleteCharges: cannotDeleteCharges !== undefined ? cannotDeleteCharges : undefined,
+        cannotDeleteReports: cannotDeleteReports !== undefined ? cannotDeleteReports : undefined,
+        cannotDeleteDeposit: cannotDeleteDeposit !== undefined ? cannotDeleteDeposit : undefined,
+        cannotDeleteBank: cannotDeleteBank !== undefined ? cannotDeleteBank : undefined,
+        canAddMember: canAddMember !== undefined ? canAddMember : undefined,
+        canAddVisitor: canAddVisitor !== undefined ? canAddVisitor : undefined,
+        canAddVendor: canAddVendor !== undefined ? canAddVendor : undefined,
+        canAddGroup: canAddGroup !== undefined ? canAddGroup : undefined,
+        canAddDonation: canAddDonation !== undefined ? canAddDonation : undefined,
+        canAddExpense: canAddExpense !== undefined ? canAddExpense : undefined,
+        canAddCharges: canAddCharges !== undefined ? canAddCharges : undefined,
+        canAddReports: canAddReports !== undefined ? canAddReports : undefined,
+        canAddDeposit: canAddDeposit !== undefined ? canAddDeposit : undefined,
+        canAddBank: canAddBank !== undefined ? canAddBank : undefined
       };
+
+      // Remove undefined fields
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
 
       // If password is provided, hash it
       if (password) {
@@ -116,17 +291,25 @@ module.exports = (app) => {
       // Update user
       const user = await prisma.user.update({
         where: { id: parseInt(id) },
-        data: updateData,
-        include: {
-          userLevel: true
-        }
+        data: updateData
       });
 
       res.json({
         id: user.id,
         name: user.name,
         username: user.username,
-        userLevel: user.userLevel
+        role: user.role,
+        memberAccess: user.memberAccess,
+        visitorAccess: user.visitorAccess,
+        vendorAccess: user.vendorAccess,
+        groupAccess: user.groupAccess,
+        donationAccess: user.donationAccess,
+        adminAccess: user.adminAccess,
+        expenseAccess: user.expenseAccess,
+        chargesAccess: user.chargesAccess,
+        reportsAccess: user.reportsAccess,
+        depositAccess: user.depositAccess,
+        bankAccess: user.bankAccess
       });
     } catch (error) {
       console.error('Error updating user:', error);
@@ -149,7 +332,10 @@ module.exports = (app) => {
     }
   });
 
-  // Get all user levels
+  // Keep the user-levels endpoints for backward compatibility
+  // These can be removed once the migration is complete
+  
+  // Get all user levels (deprecated)
   app.get('/admin/user-levels', adminMiddleware, async (req, res) => {
     try {
       const userLevels = await prisma.userLevel.findMany();
@@ -160,7 +346,7 @@ module.exports = (app) => {
     }
   });
 
-  // Create a new user level
+  // Create a new user level (deprecated)
   app.post('/admin/user-levels', adminMiddleware, async (req, res) => {
     const { 
       name, 
@@ -254,8 +440,9 @@ module.exports = (app) => {
     }
   });
 
-  // Update a user level
+  // Update a user level (deprecated)
   app.put('/admin/user-levels/:id', adminMiddleware, async (req, res) => {
+    // Keep implementation for backward compatibility
     const { id } = req.params;
     const { 
       name, 
@@ -350,22 +537,11 @@ module.exports = (app) => {
     }
   });
 
-  // Delete a user level
+  // Delete a user level (deprecated)
   app.delete('/admin/user-levels/:id', adminMiddleware, async (req, res) => {
     const { id } = req.params;
 
     try {
-      // Check if user level is assigned to any users
-      const usersWithLevel = await prisma.user.count({
-        where: { userLevelId: parseInt(id) }
-      });
-
-      if (usersWithLevel > 0) {
-        return res.status(400).json({ 
-          message: `Cannot delete this user level: It is assigned to ${usersWithLevel} user(s)` 
-        });
-      }
-
       await prisma.userLevel.delete({
         where: { id: parseInt(id) }
       });

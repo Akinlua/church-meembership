@@ -1,6 +1,17 @@
 import React from 'react';
 
-const UserList = ({ users, userLevels, onEdit, onDelete }) => {
+const UserList = ({ users, onEdit, onDelete }) => {
+  // Helper function to get access count
+  const getAccessCount = (user) => {
+    const accessFields = [
+      'memberAccess', 'visitorAccess', 'vendorAccess', 'groupAccess', 
+      'donationAccess', 'adminAccess', 'expenseAccess', 'chargesAccess', 
+      'reportsAccess', 'depositAccess', 'bankAccess'
+    ];
+    
+    return accessFields.filter(field => user[field]).length;
+  };
+  
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-gray-200">
@@ -13,7 +24,7 @@ const UserList = ({ users, userLevels, onEdit, onDelete }) => {
               Username
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              User Level
+              Permissions
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Created At
@@ -40,7 +51,29 @@ const UserList = ({ users, userLevels, onEdit, onDelete }) => {
                   {user.username}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {user.userLevel ? user.userLevel.name : 'None'}
+                  {user.role === 'admin' ? (
+                    <span className="text-blue-600 font-medium">Administrator</span>
+                  ) : user.adminAccess ? (
+                    <span className="text-blue-600 font-medium">Admin Access</span>
+                  ) : (
+                    <div className="flex flex-wrap gap-1">
+                      {getAccessCount(user) > 0 ? (
+                        <>
+                          <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded-full">
+                            {getAccessCount(user)} Access{getAccessCount(user) > 1 ? 'es' : ''}
+                          </span>
+                          {user.memberAccess && (
+                            <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full">Member</span>
+                          )}
+                          {user.visitorAccess && (
+                            <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-800 rounded-full">Visitor</span>
+                          )}
+                        </>
+                      ) : (
+                        'No access'
+                      )}
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(user.createdAt).toLocaleDateString()}

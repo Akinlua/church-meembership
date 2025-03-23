@@ -214,6 +214,7 @@ const DepositDropdown = () => {
                       </div>
                     )}
                     <div className="flex space-x-3 mt-6">
+                      {hasAddAccess('deposit') && (
                       <button 
                         onClick={() => setShowForm(true)}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
@@ -223,6 +224,7 @@ const DepositDropdown = () => {
                         </svg>
                         Edit
                       </button>
+                      )}
                       
                       {hasDeleteAccess('deposit') && (
                         <button 
@@ -287,6 +289,7 @@ const DepositDropdown = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex space-x-2">
+                              {hasAddAccess('deposit') && (
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -297,6 +300,7 @@ const DepositDropdown = () => {
                               >
                                 Edit
                               </button>
+                              )}
                               {hasDeleteAccess('deposit') && (
                                 <button                                   
                                   onClick={(e) => {

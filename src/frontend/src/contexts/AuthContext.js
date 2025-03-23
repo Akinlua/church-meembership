@@ -124,32 +124,30 @@ export function AuthProvider({ children }) {
     // Super admin can access everything
     if (currentUser.role === 'admin') return true;
     
-    // Otherwise check user level permissions
-    if (!currentUser.userLevel) return false;
-    
+    // Otherwise check direct user permissions
     switch(accessType) {
       case 'member':
-        return currentUser.userLevel.memberAccess;
+        return currentUser.memberAccess;
       case 'visitor':
-        return currentUser.userLevel.visitorAccess;
+        return currentUser.visitorAccess;
       case 'vendor':
-        return currentUser.userLevel.vendorAccess;
+        return currentUser.vendorAccess;
       case 'group':
-        return currentUser.userLevel.groupAccess;
+        return currentUser.groupAccess;
       case 'donation':
-        return currentUser.userLevel.donationAccess;
+        return currentUser.donationAccess;
       case 'admin':
-        return currentUser.userLevel.adminAccess;
+        return currentUser.adminAccess;
       case 'expense':
-        return currentUser.userLevel.expenseAccess;
+        return currentUser.expenseAccess;
       case 'charges':
-        return currentUser.userLevel.chargesAccess;
+        return currentUser.chargesAccess;
       case 'reports':
-        return currentUser.userLevel.reportsAccess;
+        return currentUser.reportsAccess;
       case 'deposit':
-        return currentUser.userLevel.depositAccess;
+        return currentUser.depositAccess;
       case 'bank':
-        return currentUser.userLevel.bankAccess;
+        return currentUser.bankAccess;
       default:
         return false;
     }
@@ -162,30 +160,28 @@ export function AuthProvider({ children }) {
     // Super admin can delete everything
     if (currentUser.role === 'admin') return true;
     
-    // Otherwise check user level permissions
-    if (!currentUser.userLevel) return false;
-    
+    // Otherwise check direct user permissions
     switch(accessType) {
       case 'member':
-        return currentUser.userLevel.memberAccess && !currentUser.userLevel.cannotDeleteMember;
+        return currentUser.memberAccess && !currentUser.cannotDeleteMember;
       case 'visitor':
-        return currentUser.userLevel.visitorAccess && !currentUser.userLevel.cannotDeleteVisitor;
+        return currentUser.visitorAccess && !currentUser.cannotDeleteVisitor;
       case 'vendor':
-        return currentUser.userLevel.vendorAccess && !currentUser.userLevel.cannotDeleteVendor;
+        return currentUser.vendorAccess && !currentUser.cannotDeleteVendor;
       case 'group':
-        return currentUser.userLevel.groupAccess && !currentUser.userLevel.cannotDeleteGroup;
+        return currentUser.groupAccess && !currentUser.cannotDeleteGroup;
       case 'donation':
-        return currentUser.userLevel.donationAccess && !currentUser.userLevel.cannotDeleteDonation;
+        return currentUser.donationAccess && !currentUser.cannotDeleteDonation;
       case 'expense':
-        return currentUser.userLevel.expenseAccess && !currentUser.userLevel.cannotDeleteExpense;
+        return currentUser.expenseAccess && !currentUser.cannotDeleteExpense;
       case 'charges':
-        return currentUser.userLevel.chargesAccess && !currentUser.userLevel.cannotDeleteCharges;
+        return currentUser.chargesAccess && !currentUser.cannotDeleteCharges;
       case 'reports':
-        return currentUser.userLevel.reportsAccess && !currentUser.userLevel.cannotDeleteReports;
+        return currentUser.reportsAccess && !currentUser.cannotDeleteReports;
       case 'deposit':
-        return currentUser.userLevel.depositAccess && !currentUser.userLevel.cannotDeleteDeposit;
+        return currentUser.depositAccess && !currentUser.cannotDeleteDeposit;
       case 'bank':
-        return currentUser.userLevel.bankAccess && !currentUser.userLevel.cannotDeleteBank;
+        return currentUser.bankAccess && !currentUser.cannotDeleteBank;
       default:
         return false;
     }
@@ -198,30 +194,28 @@ export function AuthProvider({ children }) {
     // Super admin can add everything
     if (currentUser.role === 'admin') return true;
     
-    // Otherwise check user level permissions
-    if (!currentUser.userLevel) return false;
-    
+    // Otherwise check direct user permissions
     switch(accessType) {
       case 'member':
-        return currentUser.userLevel.memberAccess && currentUser.userLevel.canAddMember;
+        return currentUser.memberAccess && currentUser.canAddMember;
       case 'visitor':
-        return currentUser.userLevel.visitorAccess && currentUser.userLevel.canAddVisitor;
+        return currentUser.visitorAccess && currentUser.canAddVisitor;
       case 'vendor':
-        return currentUser.userLevel.vendorAccess && currentUser.userLevel.canAddVendor;
+        return currentUser.vendorAccess && currentUser.canAddVendor;
       case 'group':
-        return currentUser.userLevel.groupAccess && currentUser.userLevel.canAddGroup;
+        return currentUser.groupAccess && currentUser.canAddGroup;
       case 'donation':
-        return currentUser.userLevel.donationAccess && currentUser.userLevel.canAddDonation;
+        return currentUser.donationAccess && currentUser.canAddDonation;
       case 'expense':
-        return currentUser.userLevel.expenseAccess && currentUser.userLevel.canAddExpense;
+        return currentUser.expenseAccess && currentUser.canAddExpense;
       case 'charges':
-        return currentUser.userLevel.chargesAccess && currentUser.userLevel.canAddCharges;
+        return currentUser.chargesAccess && currentUser.canAddCharges;
       case 'reports':
-        return currentUser.userLevel.reportsAccess && currentUser.userLevel.canAddReports;
+        return currentUser.reportsAccess && currentUser.canAddReports;
       case 'deposit':
-        return currentUser.userLevel.depositAccess && currentUser.userLevel.canAddDeposit;
+        return currentUser.depositAccess && currentUser.canAddDeposit;
       case 'bank':
-        return currentUser.userLevel.bankAccess && currentUser.userLevel.canAddBank;
+        return currentUser.bankAccess && currentUser.canAddBank;
       default:
         return false;
     }

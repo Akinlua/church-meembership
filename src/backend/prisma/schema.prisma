@@ -15,18 +15,60 @@ model User {
   role                  String    @default("user")
   passwordChangeRequired Boolean   @default(false) @map("password_change_required")
   createdAt             DateTime  @default(now()) @map("created_at")
-  userLevelId           Int?      @map("user_level_id")
-  userLevel             UserLevel? @relation(fields: [userLevelId], references: [id])
+  // Removing userLevel relation and adding direct permissions
+  // userLevelId           Int?      @map("user_level_id")
+  // userLevel             UserLevel? @relation(fields: [userLevelId], references: [id])
+  
+  // Direct permission access fields
+  memberAccess Boolean @default(false) @map("member_access")
+  visitorAccess Boolean @default(false) @map("visitor_access")
+  vendorAccess Boolean @default(false) @map("vendor_access")
+  groupAccess Boolean @default(false) @map("group_access")
+  donationAccess Boolean @default(false) @map("donation_access")
+  adminAccess Boolean @default(false) @map("admin_access")
+  expenseAccess Boolean @default(false) @map("expense_access")
+  chargesAccess Boolean @default(false) @map("charges_access")
+  reportsAccess Boolean @default(false) @map("reports_access")
+  depositAccess Boolean @default(false) @map("deposit_access")
+  bankAccess Boolean @default(false) @map("bank_access")
+  
+  // Delete permissions
+  cannotDeleteMember Boolean @default(true) @map("cannot_delete_member")
+  cannotDeleteVisitor Boolean @default(true) @map("cannot_delete_visitor")
+  cannotDeleteVendor Boolean @default(true) @map("cannot_delete_vendor")
+  cannotDeleteGroup Boolean @default(true) @map("cannot_delete_group") 
+  cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
+  cannotDeleteExpense Boolean @default(true) @map("cannot_delete_expense")
+  cannotDeleteCharges Boolean @default(true) @map("cannot_delete_charges")
+  cannotDeleteReports Boolean @default(true) @map("cannot_delete_reports")
+  cannotDeleteDeposit Boolean @default(true) @map("cannot_delete_deposit")
+  cannotDeleteBank Boolean @default(true) @map("cannot_delete_bank")
+
+  // Add permissions
+  canAddMember          Boolean  @default(false) @map("can_add_member")
+  canAddVisitor         Boolean  @default(false) @map("can_add_visitor")
+  canAddVendor          Boolean  @default(false) @map("can_add_vendor")
+  canAddGroup           Boolean  @default(false) @map("can_add_group")
+  canAddDonation        Boolean  @default(false) @map("can_add_donation")
+  canAddExpense         Boolean  @default(false) @map("can_add_expense")
+  canAddCharges         Boolean  @default(false) @map("can_add_charges")
+  canAddReports         Boolean  @default(false) @map("can_add_reports")
+  canAddDeposit         Boolean  @default(false) @map("can_add_deposit")
+  canAddBank            Boolean  @default(false) @map("can_add_bank")
 
   @@map("users")
 }
 
+// Keeping UserLevel for backward compatibility, but marking it as deprecated
+// Will eventually be removed once migration is complete
+/// @deprecated Use permissions directly on User model instead
 model UserLevel {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
-  users       User[]
+  // Removing users relation as it's no longer used
+  // users       User[]
   memberAccess Boolean @default(false) @map("member_access")
   visitorAccess Boolean @default(false) @map("visitor_access")
   vendorAccess Boolean @default(false) @map("vendor_access")

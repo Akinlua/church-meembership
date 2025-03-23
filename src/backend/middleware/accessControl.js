@@ -1,4 +1,4 @@
-// Access control middleware based on user level permissions
+// Access control middleware based on direct user permissions
 const checkAccess = (accessType) => {
   return (req, res, next) => {
     // First check if user is authenticated
@@ -11,46 +11,41 @@ const checkAccess = (accessType) => {
       return next();
     }
 
-    // Check if user has a userLevel
-    if (!req.user.userLevel) {
-      return res.status(403).json({ message: 'Access denied: No user level assigned' });
-    }
-
-    // Check specific access permission
+    // Check specific access permission directly on user
     let hasAccess = false;
     switch(accessType) {
       case 'member':
-        hasAccess = req.user.userLevel.memberAccess;
+        hasAccess = req.user.memberAccess;
         break;
       case 'visitor':
-        hasAccess = req.user.userLevel.visitorAccess;
+        hasAccess = req.user.visitorAccess;
         break;
       case 'vendor':
-        hasAccess = req.user.userLevel.vendorAccess;
+        hasAccess = req.user.vendorAccess;
         break;
       case 'group':
-        hasAccess = req.user.userLevel.groupAccess;
+        hasAccess = req.user.groupAccess;
         break;
       case 'donation':
-        hasAccess = req.user.userLevel.donationAccess;
+        hasAccess = req.user.donationAccess;
         break;
       case 'admin':
-        hasAccess = req.user.userLevel.adminAccess;
+        hasAccess = req.user.adminAccess;
         break;
       case 'expense':
-        hasAccess = req.user.userLevel.expenseAccess;
+        hasAccess = req.user.expenseAccess;
         break;
       case 'charges':
-        hasAccess = req.user.userLevel.chargesAccess;
+        hasAccess = req.user.chargesAccess;
         break;
       case 'reports':
-        hasAccess = req.user.userLevel.reportsAccess;
+        hasAccess = req.user.reportsAccess;
         break;
       case 'deposit':
-        hasAccess = req.user.userLevel.depositAccess;
+        hasAccess = req.user.depositAccess;
         break;
       case 'bank':
-        hasAccess = req.user.userLevel.bankAccess;
+        hasAccess = req.user.bankAccess;
         break;
       default:
         hasAccess = false;
@@ -77,55 +72,50 @@ const checkDeleteAccess = (accessType) => {
       return next();
     }
 
-    // Check if user has a userLevel
-    if (!req.user.userLevel) {
-      return res.status(403).json({ message: 'Access denied: No user level assigned' });
-    }
-
-    // Check specific access permission and delete permission
+    // Check specific access permission and delete permission directly on user
     let hasAccess = false;
     let canDelete = true;
     
     switch(accessType) {
       case 'member':
-        hasAccess = req.user.userLevel.memberAccess;
-        canDelete = !req.user.userLevel.cannotDeleteMember;
+        hasAccess = req.user.memberAccess;
+        canDelete = !req.user.cannotDeleteMember;
         break;
       case 'visitor':
-        hasAccess = req.user.userLevel.visitorAccess;
-        canDelete = !req.user.userLevel.cannotDeleteVisitor;
+        hasAccess = req.user.visitorAccess;
+        canDelete = !req.user.cannotDeleteVisitor;
         break;
       case 'vendor':
-        hasAccess = req.user.userLevel.vendorAccess;
-        canDelete = !req.user.userLevel.cannotDeleteVendor;
+        hasAccess = req.user.vendorAccess;
+        canDelete = !req.user.cannotDeleteVendor;
         break;
       case 'group':
-        hasAccess = req.user.userLevel.groupAccess;
-        canDelete = !req.user.userLevel.cannotDeleteGroup;
+        hasAccess = req.user.groupAccess;
+        canDelete = !req.user.cannotDeleteGroup;
         break;
       case 'donation':
-        hasAccess = req.user.userLevel.donationAccess;
-        canDelete = !req.user.userLevel.cannotDeleteDonation;
+        hasAccess = req.user.donationAccess;
+        canDelete = !req.user.cannotDeleteDonation;
         break;
       case 'expense':
-        hasAccess = req.user.userLevel.expenseAccess;
-        canDelete = !req.user.userLevel.cannotDeleteExpense;
+        hasAccess = req.user.expenseAccess;
+        canDelete = !req.user.cannotDeleteExpense;
         break;
       case 'charges':
-        hasAccess = req.user.userLevel.chargesAccess;
-        canDelete = !req.user.userLevel.cannotDeleteCharges;
+        hasAccess = req.user.chargesAccess;
+        canDelete = !req.user.cannotDeleteCharges;
         break;
       case 'reports':
-        hasAccess = req.user.userLevel.reportsAccess;
-        canDelete = !req.user.userLevel.cannotDeleteReports;
+        hasAccess = req.user.reportsAccess;
+        canDelete = !req.user.cannotDeleteReports;
         break;
       case 'deposit':
-        hasAccess = req.user.userLevel.depositAccess;
-        canDelete = !req.user.userLevel.cannotDeleteDeposit;
+        hasAccess = req.user.depositAccess;
+        canDelete = !req.user.cannotDeleteDeposit;
         break;
       case 'bank':
-        hasAccess = req.user.userLevel.bankAccess;
-        canDelete = !req.user.userLevel.cannotDeleteBank;
+        hasAccess = req.user.bankAccess;
+        canDelete = !req.user.cannotDeleteBank;
         break;
       default:
         hasAccess = false;
@@ -140,7 +130,79 @@ const checkDeleteAccess = (accessType) => {
   };
 };
 
+// Check if user has add permission for a specific resource
+const checkAddAccess = (accessType) => {
+  return (req, res, next) => {
+    // First check if user is authenticated
+    if (!req.user) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    // Super admin can add everything
+    if (req.user.role === 'admin') {
+      return next();
+    }
+
+    // Check specific access permission and add permission directly on user
+    let hasAccess = false;
+    let canAdd = false;
+    
+    switch(accessType) {
+      case 'member':
+        hasAccess = req.user.memberAccess;
+        canAdd = req.user.canAddMember;
+        break;
+      case 'visitor':
+        hasAccess = req.user.visitorAccess;
+        canAdd = req.user.canAddVisitor;
+        break;
+      case 'vendor':
+        hasAccess = req.user.vendorAccess;
+        canAdd = req.user.canAddVendor;
+        break;
+      case 'group':
+        hasAccess = req.user.groupAccess;
+        canAdd = req.user.canAddGroup;
+        break;
+      case 'donation':
+        hasAccess = req.user.donationAccess;
+        canAdd = req.user.canAddDonation;
+        break;
+      case 'expense':
+        hasAccess = req.user.expenseAccess;
+        canAdd = req.user.canAddExpense;
+        break;
+      case 'charges':
+        hasAccess = req.user.chargesAccess;
+        canAdd = req.user.canAddCharges;
+        break;
+      case 'reports':
+        hasAccess = req.user.reportsAccess;
+        canAdd = req.user.canAddReports;
+        break;
+      case 'deposit':
+        hasAccess = req.user.depositAccess;
+        canAdd = req.user.canAddDeposit;
+        break;
+      case 'bank':
+        hasAccess = req.user.bankAccess;
+        canAdd = req.user.canAddBank;
+        break;
+      default:
+        hasAccess = false;
+        canAdd = false;
+    }
+
+    if (hasAccess && canAdd) {
+      return next();
+    }
+
+    return res.status(403).json({ message: `Access denied: You don't have permission to add ${accessType}` });
+  };
+};
+
 module.exports = {
   checkAccess,
-  checkDeleteAccess
+  checkDeleteAccess,
+  checkAddAccess
 }; 

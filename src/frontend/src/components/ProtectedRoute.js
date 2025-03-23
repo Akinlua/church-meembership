@@ -31,9 +31,8 @@ export const AdminRoute = () => {
     return <Navigate to="/login" />;
   }
   
-  // Allow access if user is super admin or has admin access through user level
-  const isAdmin = currentUser.role === 'admin' || 
-    (currentUser.userLevel && currentUser.userLevel.adminAccess);
+  // Allow access if user is super admin or has admin access directly
+  const isAdmin = currentUser.role === 'admin' || currentUser.adminAccess;
   
   if (!isAdmin) {
     return <Navigate to="/" />;
