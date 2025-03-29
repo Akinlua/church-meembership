@@ -142,6 +142,8 @@ export function AuthProvider({ children }) {
         return currentUser.expenseAccess;
       case 'charges':
         return currentUser.chargesAccess;
+      case 'checks':
+        return currentUser.checksAccess;
       case 'reports':
         return currentUser.reportsAccess;
       case 'deposit':
@@ -176,6 +178,8 @@ export function AuthProvider({ children }) {
         return currentUser.expenseAccess && !currentUser.cannotDeleteExpense;
       case 'charges':
         return currentUser.chargesAccess && !currentUser.cannotDeleteCharges;
+      case 'checks':
+        return currentUser.checksAccess && !currentUser.cannotDeleteChecks;
       case 'reports':
         return currentUser.reportsAccess && !currentUser.cannotDeleteReports;
       case 'deposit':
@@ -210,12 +214,32 @@ export function AuthProvider({ children }) {
         return currentUser.expenseAccess && currentUser.canAddExpense;
       case 'charges':
         return currentUser.chargesAccess && currentUser.canAddCharges;
+      case 'checks':
+        return currentUser.checksAccess && currentUser.canAddChecks;
       case 'reports':
         return currentUser.reportsAccess && currentUser.canAddReports;
       case 'deposit':
         return currentUser.depositAccess && currentUser.canAddDeposit;
       case 'bank':
         return currentUser.bankAccess && currentUser.canAddBank;
+      default:
+        return false;
+    }
+  };
+
+  // Add this function to check if user should only see their own data
+  const shouldSeeOnlyOwnData = (accessType) => {
+    if (!currentUser) return false;
+    
+    // Admin can see all data
+    if (currentUser.role === 'admin') return false;
+    
+    // Check if this user is restricted to only seeing their own data
+    switch(accessType) {
+      case 'member':
+        return currentUser.memberOnlyOwnData || false;
+      case 'visitor':
+        return currentUser.visitorOnlyOwnData || false;
       default:
         return false;
     }
@@ -232,7 +256,8 @@ export function AuthProvider({ children }) {
     signup,
     hasAccess,
     hasDeleteAccess,
-    hasAddAccess
+    hasAddAccess,
+    shouldSeeOnlyOwnData
   };
 
   return (

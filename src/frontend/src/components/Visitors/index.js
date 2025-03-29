@@ -10,7 +10,7 @@ const Visitors = () => {
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const { hasDeleteAccess } = useAuth();
+  const { hasDeleteAccess, hasAddAccess, currentUser, shouldSeeOnlyOwnData } = useAuth();
 
   useEffect(() => {
     fetchVisitors();
@@ -20,7 +20,11 @@ const Visitors = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/visitors`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        params: {
+          ownDataOnly: shouldSeeOnlyOwnData('visitor') ? 'true' : 'false',
+          userId: currentUser?.id
+        }
       });
       setVisitors(response.data);
     } catch (error) {
@@ -76,13 +80,21 @@ const Visitors = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Visitors</h1>
-          <button
-            onClick={handleAddVisitor}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Add Visitor
-          </button>
+          {hasAddAccess('visitor') && (
+            <button
+              onClick={handleAddVisitor}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Add Visitor
+            </button>
+          )}
         </div>
+
+        {shouldSeeOnlyOwnData('visitor') && (
+          <div className="mb-4 bg-purple-50 border-l-4 border-purple-500 p-4 text-purple-700">
+            <p>You are viewing your visitor data only. Contact an administrator if you need access to other records.</p>
+          </div>
+        )}
 
         <div className="mb-4">
           <input
@@ -146,6 +158,9 @@ const Visitors = () => {
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
                               {visitor.firstName} {visitor.middleInitial ? visitor.middleInitial + '.' : ''} {visitor.lastName}
+                              {currentUser && currentUser.visitorId === visitor.id && (
+                                <span className="ml-2 text-xs text-green-600 font-medium">(Your record)</span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -167,7 +182,7 @@ const Visitors = () => {
                         >
                           Edit
                         </button>
-                        {hasDeleteAccess('visitor') && (
+                        {(hasDeleteAccess('visitor') || (currentUser && currentUser.visitorId === visitor.id)) && (
                           <button
                             onClick={() => handleDeleteVisitor(visitor.id)}
                             className="text-red-600 hover:text-red-900"

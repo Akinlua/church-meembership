@@ -18,6 +18,9 @@ model User {
   // Member relation
   memberId              Int?      @map("member_id")
   member                Member?   @relation(fields: [memberId], references: [id])
+  // Visitor relation
+  visitorId             Int?      @map("visitor_id")
+  visitor               Visitor?  @relation(fields: [visitorId], references: [id])
   
   // Direct permission access fields
   memberAccess Boolean @default(false) @map("member_access")
@@ -28,9 +31,14 @@ model User {
   adminAccess Boolean @default(false) @map("admin_access")
   expenseAccess Boolean @default(false) @map("expense_access")
   chargesAccess Boolean @default(false) @map("charges_access")
+  checksAccess Boolean @default(false) @map("checks_access")
   reportsAccess Boolean @default(false) @map("reports_access")
   depositAccess Boolean @default(false) @map("deposit_access")
   bankAccess Boolean @default(false) @map("bank_access")
+  
+  // Data restriction fields
+  memberOnlyOwnData Boolean @default(false) @map("member_only_own_data")
+  visitorOnlyOwnData Boolean @default(false) @map("visitor_only_own_data")
   
   // Delete permissions
   cannotDeleteMember Boolean @default(true) @map("cannot_delete_member")
@@ -40,6 +48,7 @@ model User {
   cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
   cannotDeleteExpense Boolean @default(true) @map("cannot_delete_expense")
   cannotDeleteCharges Boolean @default(true) @map("cannot_delete_charges")
+  cannotDeleteChecks Boolean @default(true) @map("cannot_delete_checks")
   cannotDeleteReports Boolean @default(true) @map("cannot_delete_reports")
   cannotDeleteDeposit Boolean @default(true) @map("cannot_delete_deposit")
   cannotDeleteBank Boolean @default(true) @map("cannot_delete_bank")
@@ -52,6 +61,7 @@ model User {
   canAddDonation        Boolean  @default(false) @map("can_add_donation")
   canAddExpense         Boolean  @default(false) @map("can_add_expense")
   canAddCharges         Boolean  @default(false) @map("can_add_charges")
+  canAddChecks          Boolean  @default(false) @map("can_add_checks")
   canAddReports         Boolean  @default(false) @map("can_add_reports")
   canAddDeposit         Boolean  @default(false) @map("can_add_deposit")
   canAddBank            Boolean  @default(false) @map("can_add_bank")
@@ -77,6 +87,7 @@ model UserLevel {
   adminAccess Boolean @default(false) @map("admin_access")
   expenseAccess Boolean @default(false) @map("expense_access")
   chargesAccess Boolean @default(false) @map("charges_access")
+  checksAccess Boolean @default(false) @map("checks_access")
   reportsAccess Boolean @default(false) @map("reports_access")
   depositAccess Boolean @default(false) @map("deposit_access")
   bankAccess Boolean @default(false) @map("bank_access")
@@ -89,6 +100,7 @@ model UserLevel {
   cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
   cannotDeleteExpense Boolean @default(true) @map("cannot_delete_expense")
   cannotDeleteCharges Boolean @default(true) @map("cannot_delete_charges")
+  cannotDeleteChecks Boolean @default(true) @map("cannot_delete_checks")
   cannotDeleteReports Boolean @default(true) @map("cannot_delete_reports")
   cannotDeleteDeposit Boolean @default(true) @map("cannot_delete_deposit")
   cannotDeleteBank Boolean @default(true) @map("cannot_delete_bank")
@@ -101,6 +113,7 @@ model UserLevel {
   canAddDonation        Boolean  @default(false)
   canAddExpense         Boolean  @default(false)
   canAddCharges         Boolean  @default(false)
+  canAddChecks          Boolean  @default(false)
   canAddReports         Boolean  @default(false)
   canAddDeposit         Boolean  @default(false)
   canAddBank            Boolean  @default(false)
@@ -193,6 +206,7 @@ model Visitor {
   profileImage   String?   @map("profile_image")
   visitDate      DateTime  @default(now()) @map("visit_date")
   createdAt      DateTime  @default(now()) @map("created_at")
+  users          User[]
 
   @@map("visitors")
 }

@@ -83,7 +83,27 @@ module.exports = (app) => {
   // Get all visitors
   app.get('/visitors', authenticateToken, async (req, res) => {
     try {
+      const { ownDataOnly, userId } = req.query;
+      let whereClause = {};
+      
+      // If ownDataOnly is true and userId is provided, filter by the user's visitorId
+      if (ownDataOnly === 'true' && userId) {
+        // Get the user with their visitorId
+        const user = await prisma.user.findUnique({
+          where: { id: parseInt(userId) },
+          select: { visitorId: true }
+        });
+        
+        if (user && user.visitorId) {
+          whereClause.id = user.visitorId;
+        } else {
+          // If user has no visitorId, return empty array
+          return res.json([]);
+        }
+      }
+      
       const visitors = await prisma.visitor.findMany({
+        where: whereClause,
         orderBy: [
           { lastName: 'asc' },
           { firstName: 'asc' }
@@ -152,8 +172,27 @@ module.exports = (app) => {
     try {
       console.log('Updating visitor:', req.params.id, req.body);
       
+      // Check if this is the user's own visitor record
+      const visitorId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Get the user to check if this is their own visitor record
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { 
+          visitorId: true,
+          role: true,
+          visitorAccess: true 
+        }
+      });
+      
+      // If this is not the user's own record and they don't have access, reject the request
+      if (user.visitorId !== visitorId && user.role !== 'admin' && !user.visitorAccess) {
+        return res.status(403).json({ message: 'You do not have permission to update this visitor' });
+      }
+      
       const visitor = await prisma.visitor.update({
-        where: { id: parseInt(req.params.id) },
+        where: { id: visitorId },
         data: {
           firstName: req.body.first_name,
           lastName: req.body.last_name,
@@ -178,10 +217,33 @@ module.exports = (app) => {
   });
 
   // Delete visitor
-  app.delete('/visitors/:id', authenticateToken, checkAccess('visitor'), checkDeleteAccess('visitor'), async (req, res) => {
+  app.delete('/visitors/:id', authenticateToken, async (req, res) => {
     try {
+      // Check if this is the user's own visitor record
+      const visitorId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Get the user to check if this is their own visitor record
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { 
+          visitorId: true,
+          role: true,
+          visitorAccess: true,
+          cannotDeleteVisitor: true
+        }
+      });
+      
+      // Allow if this is the user's own record OR they have delete access
+      const isOwnRecord = user.visitorId === visitorId;
+      const hasDeletePermission = user.role === 'admin' || (user.visitorAccess && !user.cannotDeleteVisitor);
+      
+      if (!isOwnRecord && !hasDeletePermission) {
+        return res.status(403).json({ message: 'You do not have permission to delete this visitor' });
+      }
+      
       await prisma.visitor.delete({
-        where: { id: parseInt(req.params.id) }
+        where: { id: visitorId }
       });
       res.json({ message: 'Visitor deleted successfully' });
     } catch (error) {

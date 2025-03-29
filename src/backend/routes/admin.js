@@ -48,6 +48,7 @@ module.exports = (app) => {
           adminAccess: true,
           expenseAccess: true,
           chargesAccess: true,
+          checksAccess: true,
           reportsAccess: true,
           depositAccess: true,
           bankAccess: true,
@@ -58,6 +59,7 @@ module.exports = (app) => {
           cannotDeleteDonation: true,
           cannotDeleteExpense: true,
           cannotDeleteCharges: true,
+          cannotDeleteChecks: true,
           cannotDeleteReports: true,
           cannotDeleteDeposit: true,
           cannotDeleteBank: true,
@@ -68,9 +70,12 @@ module.exports = (app) => {
           canAddDonation: true,
           canAddExpense: true,
           canAddCharges: true,
+          canAddChecks: true,
           canAddReports: true,
           canAddDeposit: true,
-          canAddBank: true
+          canAddBank: true,
+          memberOnlyOwnData: true,
+          visitorOnlyOwnData: true
         }
       });
       res.json(users);
@@ -87,6 +92,7 @@ module.exports = (app) => {
       username, 
       password,
       memberId,
+      visitorId,
       memberAccess,
       visitorAccess,
       vendorAccess,
@@ -95,6 +101,7 @@ module.exports = (app) => {
       adminAccess,
       expenseAccess,
       chargesAccess,
+      checksAccess,
       reportsAccess,
       depositAccess,
       bankAccess,
@@ -105,6 +112,7 @@ module.exports = (app) => {
       cannotDeleteDonation,
       cannotDeleteExpense,
       cannotDeleteCharges,
+      cannotDeleteChecks,
       cannotDeleteReports,
       cannotDeleteDeposit,
       cannotDeleteBank,
@@ -115,9 +123,12 @@ module.exports = (app) => {
       canAddDonation,
       canAddExpense,
       canAddCharges,
+      canAddChecks,
       canAddReports,
       canAddDeposit,
-      canAddBank
+      canAddBank,
+      memberOnlyOwnData,
+      visitorOnlyOwnData
     } = req.body;
 
     try {
@@ -140,6 +151,17 @@ module.exports = (app) => {
           return res.status(400).json({ message: 'Selected member does not exist' });
         }
       }
+      
+      // If visitorId is provided, validate it exists
+      if (visitorId) {
+        const visitorExists = await prisma.visitor.findUnique({
+          where: { id: parseInt(visitorId) }
+        });
+        
+        if (!visitorExists) {
+          return res.status(400).json({ message: 'Selected visitor does not exist' });
+        }
+      }
 
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -152,6 +174,7 @@ module.exports = (app) => {
           password: hashedPassword,
           passwordChangeRequired: true, // Require password change on first login
           memberId: memberId ? parseInt(memberId) : null,
+          visitorId: visitorId ? parseInt(visitorId) : null,
           memberAccess: memberAccess || false,
           visitorAccess: visitorAccess || false,
           vendorAccess: vendorAccess || false,
@@ -160,6 +183,7 @@ module.exports = (app) => {
           adminAccess: adminAccess || false,
           expenseAccess: expenseAccess || false,
           chargesAccess: chargesAccess || false,
+          checksAccess: checksAccess || false,
           reportsAccess: reportsAccess || false,
           depositAccess: depositAccess || false,
           bankAccess: bankAccess || false,
@@ -170,6 +194,7 @@ module.exports = (app) => {
           cannotDeleteDonation: cannotDeleteDonation !== undefined ? cannotDeleteDonation : true,
           cannotDeleteExpense: cannotDeleteExpense !== undefined ? cannotDeleteExpense : true,
           cannotDeleteCharges: cannotDeleteCharges !== undefined ? cannotDeleteCharges : true,
+          cannotDeleteChecks: cannotDeleteChecks !== undefined ? cannotDeleteChecks : true,
           cannotDeleteReports: cannotDeleteReports !== undefined ? cannotDeleteReports : true,
           cannotDeleteDeposit: cannotDeleteDeposit !== undefined ? cannotDeleteDeposit : true,
           cannotDeleteBank: cannotDeleteBank !== undefined ? cannotDeleteBank : true,
@@ -180,9 +205,12 @@ module.exports = (app) => {
           canAddDonation: canAddDonation || false,
           canAddExpense: canAddExpense || false,
           canAddCharges: canAddCharges || false,
+          canAddChecks: canAddChecks !== undefined ? canAddChecks : false,
           canAddReports: canAddReports || false,
           canAddDeposit: canAddDeposit || false,
-          canAddBank: canAddBank || false
+          canAddBank: canAddBank || false,
+          memberOnlyOwnData: memberOnlyOwnData || false,
+          visitorOnlyOwnData: visitorOnlyOwnData || false
         }
       });
 
@@ -192,6 +220,7 @@ module.exports = (app) => {
         username: user.username,
         role: user.role,
         memberId: user.memberId,
+        visitorId: user.visitorId,
         memberAccess: user.memberAccess,
         visitorAccess: user.visitorAccess,
         vendorAccess: user.vendorAccess,
@@ -200,9 +229,12 @@ module.exports = (app) => {
         adminAccess: user.adminAccess,
         expenseAccess: user.expenseAccess,
         chargesAccess: user.chargesAccess,
+        checksAccess: user.checksAccess,
         reportsAccess: user.reportsAccess,
         depositAccess: user.depositAccess,
-        bankAccess: user.bankAccess
+        bankAccess: user.bankAccess,
+        memberOnlyOwnData: user.memberOnlyOwnData,
+        visitorOnlyOwnData: user.visitorOnlyOwnData
       });
     } catch (error) {
       console.error('Error creating user:', error);
@@ -218,6 +250,7 @@ module.exports = (app) => {
       username, 
       password,
       memberId,
+      visitorId,
       memberAccess,
       visitorAccess,
       vendorAccess,
@@ -226,6 +259,7 @@ module.exports = (app) => {
       adminAccess,
       expenseAccess,
       chargesAccess,
+      checksAccess,
       reportsAccess,
       depositAccess,
       bankAccess,
@@ -236,6 +270,7 @@ module.exports = (app) => {
       cannotDeleteDonation,
       cannotDeleteExpense,
       cannotDeleteCharges,
+      cannotDeleteChecks,
       cannotDeleteReports,
       cannotDeleteDeposit,
       cannotDeleteBank,
@@ -246,9 +281,12 @@ module.exports = (app) => {
       canAddDonation,
       canAddExpense,
       canAddCharges,
+      canAddChecks,
       canAddReports,
       canAddDeposit,
-      canAddBank
+      canAddBank,
+      memberOnlyOwnData,
+      visitorOnlyOwnData
     } = req.body;
 
     try {
@@ -273,12 +311,24 @@ module.exports = (app) => {
           return res.status(400).json({ message: 'Selected member does not exist' });
         }
       }
+      
+      // If visitorId is provided, validate it exists
+      if (visitorId) {
+        const visitorExists = await prisma.visitor.findUnique({
+          where: { id: parseInt(visitorId) }
+        });
+        
+        if (!visitorExists) {
+          return res.status(400).json({ message: 'Selected visitor does not exist' });
+        }
+      }
 
       // Prepare update data with permissions
       const updateData = {
         name,
         username,
         memberId: memberId ? parseInt(memberId) : undefined,
+        visitorId: visitorId ? parseInt(visitorId) : undefined,
         memberAccess: memberAccess !== undefined ? memberAccess : undefined,
         visitorAccess: visitorAccess !== undefined ? visitorAccess : undefined,
         vendorAccess: vendorAccess !== undefined ? vendorAccess : undefined,
@@ -287,6 +337,7 @@ module.exports = (app) => {
         adminAccess: adminAccess !== undefined ? adminAccess : undefined,
         expenseAccess: expenseAccess !== undefined ? expenseAccess : undefined,
         chargesAccess: chargesAccess !== undefined ? chargesAccess : undefined,
+        checksAccess: checksAccess !== undefined ? checksAccess : undefined,
         reportsAccess: reportsAccess !== undefined ? reportsAccess : undefined,
         depositAccess: depositAccess !== undefined ? depositAccess : undefined,
         bankAccess: bankAccess !== undefined ? bankAccess : undefined,
@@ -297,6 +348,7 @@ module.exports = (app) => {
         cannotDeleteDonation: cannotDeleteDonation !== undefined ? cannotDeleteDonation : undefined,
         cannotDeleteExpense: cannotDeleteExpense !== undefined ? cannotDeleteExpense : undefined,
         cannotDeleteCharges: cannotDeleteCharges !== undefined ? cannotDeleteCharges : undefined,
+        cannotDeleteChecks: cannotDeleteChecks !== undefined ? cannotDeleteChecks : undefined,
         cannotDeleteReports: cannotDeleteReports !== undefined ? cannotDeleteReports : undefined,
         cannotDeleteDeposit: cannotDeleteDeposit !== undefined ? cannotDeleteDeposit : undefined,
         cannotDeleteBank: cannotDeleteBank !== undefined ? cannotDeleteBank : undefined,
@@ -307,9 +359,12 @@ module.exports = (app) => {
         canAddDonation: canAddDonation !== undefined ? canAddDonation : undefined,
         canAddExpense: canAddExpense !== undefined ? canAddExpense : undefined,
         canAddCharges: canAddCharges !== undefined ? canAddCharges : undefined,
+        canAddChecks: canAddChecks !== undefined ? canAddChecks : undefined,
         canAddReports: canAddReports !== undefined ? canAddReports : undefined,
         canAddDeposit: canAddDeposit !== undefined ? canAddDeposit : undefined,
-        canAddBank: canAddBank !== undefined ? canAddBank : undefined
+        canAddBank: canAddBank !== undefined ? canAddBank : undefined,
+        memberOnlyOwnData: memberOnlyOwnData !== undefined ? memberOnlyOwnData : undefined,
+        visitorOnlyOwnData: visitorOnlyOwnData !== undefined ? visitorOnlyOwnData : undefined
       };
 
       // Remove undefined fields
@@ -337,6 +392,7 @@ module.exports = (app) => {
         username: user.username,
         role: user.role,
         memberId: user.memberId,
+        visitorId: user.visitorId,
         memberAccess: user.memberAccess,
         visitorAccess: user.visitorAccess,
         vendorAccess: user.vendorAccess,
@@ -345,9 +401,12 @@ module.exports = (app) => {
         adminAccess: user.adminAccess,
         expenseAccess: user.expenseAccess,
         chargesAccess: user.chargesAccess,
+        checksAccess: user.checksAccess,
         reportsAccess: user.reportsAccess,
         depositAccess: user.depositAccess,
-        bankAccess: user.bankAccess
+        bankAccess: user.bankAccess,
+        memberOnlyOwnData: user.memberOnlyOwnData,
+        visitorOnlyOwnData: user.visitorOnlyOwnData
       });
     } catch (error) {
       console.error('Error updating user:', error);
@@ -586,6 +645,70 @@ module.exports = (app) => {
       res.json({ message: 'User level deleted successfully' });
     } catch (error) {
       console.error('Error deleting user level:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  // Get single user
+  app.get('/admin/users/:id', adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: parseInt(id) },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          role: true,
+          memberId: true,
+          memberAccess: true,
+          visitorAccess: true,
+          vendorAccess: true,
+          groupAccess: true,
+          donationAccess: true,
+          adminAccess: true,
+          expenseAccess: true,
+          chargesAccess: true,
+          checksAccess: true,
+          reportsAccess: true,
+          depositAccess: true,
+          bankAccess: true,
+          cannotDeleteMember: true,
+          cannotDeleteVisitor: true,
+          cannotDeleteVendor: true,
+          cannotDeleteGroup: true,
+          cannotDeleteDonation: true,
+          cannotDeleteExpense: true,
+          cannotDeleteCharges: true,
+          cannotDeleteChecks: true,
+          cannotDeleteReports: true,
+          cannotDeleteDeposit: true,
+          cannotDeleteBank: true,
+          canAddMember: true,
+          canAddVisitor: true,
+          canAddVendor: true,
+          canAddGroup: true,
+          canAddDonation: true,
+          canAddExpense: true,
+          canAddCharges: true,
+          canAddChecks: true,
+          canAddReports: true,
+          canAddDeposit: true,
+          canAddBank: true,
+          visitorId: true,
+          memberOnlyOwnData: true,
+          visitorOnlyOwnData: true
+        }
+      });
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      res.json(user);
+    } catch (error) {
+      console.error('Error fetching user:', error);
       res.status(500).json({ message: 'Server error' });
     }
   });

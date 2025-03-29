@@ -10,7 +10,7 @@ const Members = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { currentUser, hasDeleteAccess } = useAuth();
+  const { currentUser, hasDeleteAccess, hasAddAccess, shouldSeeOnlyOwnData } = useAuth();
 
   useEffect(() => {
     fetchMembers();
@@ -20,7 +20,11 @@ const Members = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        params: {
+          ownDataOnly: shouldSeeOnlyOwnData('member') ? 'true' : 'false',
+          userId: currentUser?.id
+        }
       });
       setMembers(response.data);
     } catch (error) {
@@ -65,13 +69,21 @@ const Members = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Members</h1>
-          <button
-            onClick={handleAddMember}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Add Member
-          </button>
+          {hasAddAccess('member') && (
+            <button
+              onClick={handleAddMember}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Add Member
+            </button>
+          )}
         </div>
+
+        {shouldSeeOnlyOwnData('member') && (
+          <div className="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4 text-blue-700">
+            <p>You are viewing your membership data. Only your records are displayed.</p>
+          </div>
+        )}
 
         {loading ? (
           <PageLoader />

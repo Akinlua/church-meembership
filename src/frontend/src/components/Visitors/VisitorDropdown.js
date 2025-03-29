@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import VisitorForm from './VisitorForm';
 import { useAuth } from '../../contexts/AuthContext';
+import QRCodeSection from './QRCodeSection';
 
 const VisitorDropdown = () => {
   const [visitors, setVisitors] = useState([]);
@@ -14,7 +15,7 @@ const VisitorDropdown = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const dropdownRef = useRef(null);
-  const { hasDeleteAccess, hasAddAccess } = useAuth();
+  const { hasDeleteAccess, hasAddAccess, currentUser, shouldSeeOnlyOwnData } = useAuth();
 
   useEffect(() => {
     fetchVisitors();
@@ -44,9 +45,19 @@ const VisitorDropdown = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/visitors`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        params: {
+          ownDataOnly: shouldSeeOnlyOwnData('visitor') ? 'true' : 'false',
+          userId: currentUser?.id
+        }
       });
       setVisitors(response.data);
+      
+      // If user can only see their own data and has data, auto-select it
+      if (shouldSeeOnlyOwnData('visitor') && response.data.length === 1) {
+        setSelectedVisitor(response.data[0]);
+        setSearchTerm(`${response.data[0].lastName} ${response.data[0].firstName}`);
+      }
     } catch (error) {
       console.error('Error fetching visitors:', error);
     } finally {
@@ -198,6 +209,12 @@ const VisitorDropdown = () => {
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Visitor Lookup</h1>
         
+        {shouldSeeOnlyOwnData('visitor') && (
+          <div className="mb-4 bg-purple-50 border-l-4 border-purple-500 p-4 text-purple-700">
+            <p>You are viewing your visitor data only. Contact an administrator if you need access to other records.</p>
+          </div>
+        )}
+        
         {loading ? (
           <PageLoader />
         ) : (
@@ -313,7 +330,8 @@ const VisitorDropdown = () => {
                     </div>
 
                     <div className="flex space-x-3 mt-6">
-                      {hasAddAccess('visitor') && (
+                      {/* Show Edit button if user has add access OR if it's their own record */}
+                      {(hasAddAccess('visitor') || (currentUser && currentUser.visitorId === selectedVisitor.id)) && (
                       <button 
                         onClick={handleEditVisitor}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
@@ -325,7 +343,8 @@ const VisitorDropdown = () => {
                       </button>
                       )}
                       
-                      {hasDeleteAccess('visitor') && (
+                      {/* Show Delete button if user has delete access OR if it's their own record */}
+                      {(hasDeleteAccess('visitor') || (currentUser && currentUser.visitorId === selectedVisitor.id)) && (
                         <button 
                           onClick={handleDeleteVisitor}
                           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
@@ -336,6 +355,13 @@ const VisitorDropdown = () => {
                           Delete
                         </button>
                       )}
+                      
+                      {/* Show "Your record" indicator if it's the user's own record */}
+                      {currentUser && currentUser.visitorId === selectedVisitor.id && (
+                        <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Your record
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -344,6 +370,9 @@ const VisitorDropdown = () => {
           </>
         )}
       </div>
+
+      {/* Add QR Code Section for Visitor Registration */}
+      <QRCodeSection />
 
       {showForm && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">

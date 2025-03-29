@@ -42,6 +42,8 @@ const Navigation = () => {
         return currentUser.depositAccess;
       case 'bank':
         return currentUser.bankAccess;
+      case 'checks':
+        return currentUser.checksAccess;
       default:
         return false;
     }
@@ -101,13 +103,14 @@ const Navigation = () => {
               <Link to="/charges" className="hover:text-gray-300">
                 Charges
               </Link>
-            )}
-           
-            {hasAccess('reports') && (
+            )}           
+            
+            {hasAccess('checks') && (
             <Link to="/reports/check-generator" className="hover:text-gray-300">
                 Checks
               </Link>
             )}
+
             {hasAccess('deposit') && (
               <Link to="/deposit-dropdown" className="hover:text-gray-300">
                 Deposit
@@ -124,21 +127,12 @@ const Navigation = () => {
                 Administrator
              </Link>
             )}
-
+            
             {hasAccess('reports') && (
-              // <div className="relative group">
-              //   <button className="hover:text-gray-300 flex items-center">
-              //     Reports <span className="ml-1">▼</span>
-              //   </button>
-              //   <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                  
-              //     {/* Add other report links as needed */}
-              //   </div>
-              // </div>
               <Link to="/reports" className="hover:text-gray-300">
-                    Reports
-              </Link>                  
-            )} 
+                Reports
+              </Link>
+            )}
           </div>
           
           <div className="flex items-center">

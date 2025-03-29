@@ -23,6 +23,8 @@ module.exports = (app) => {
           name: user.name,
           username: user.username,
           role: user.role,
+          memberId: user.memberId,
+          visitorId: user.visitorId,
           memberAccess: user.memberAccess,
           visitorAccess: user.visitorAccess,
           vendorAccess: user.vendorAccess,
@@ -53,7 +55,9 @@ module.exports = (app) => {
           canAddCharges: user.canAddCharges,
           canAddReports: user.canAddReports,
           canAddDeposit: user.canAddDeposit,
-          canAddBank: user.canAddBank
+          canAddBank: user.canAddBank,
+          memberOnlyOwnData: user.memberOnlyOwnData,
+          visitorOnlyOwnData: user.visitorOnlyOwnData
         },
         process.env.JWT_SECRET,
         { expiresIn: '30d' }
@@ -66,6 +70,8 @@ module.exports = (app) => {
           name: user.name,
           username: user.username,
           role: user.role,
+          memberId: user.memberId,
+          visitorId: user.visitorId,
           memberAccess: user.memberAccess,
           visitorAccess: user.visitorAccess,
           vendorAccess: user.vendorAccess,
@@ -96,7 +102,9 @@ module.exports = (app) => {
           canAddCharges: user.canAddCharges,
           canAddReports: user.canAddReports,
           canAddDeposit: user.canAddDeposit,
-          canAddBank: user.canAddBank
+          canAddBank: user.canAddBank,
+          memberOnlyOwnData: user.memberOnlyOwnData,
+          visitorOnlyOwnData: user.visitorOnlyOwnData
         },
         passwordChangeRequired: user.passwordChangeRequired
       });
@@ -164,6 +172,8 @@ module.exports = (app) => {
           username: true,
           passwordChangeRequired: true,
           role: true,
+          memberId: true,
+          visitorId: true,
           memberAccess: true,
           visitorAccess: true,
           vendorAccess: true,
@@ -194,7 +204,12 @@ module.exports = (app) => {
           canAddCharges: true,
           canAddReports: true,
           canAddDeposit: true,
-          canAddBank: true
+          canAddBank: true,
+          memberOnlyOwnData: true,
+          visitorOnlyOwnData: true,
+          checksAccess: true,
+          cannotDeleteChecks: true,
+          canAddChecks: true
         }
       });
 
@@ -209,6 +224,8 @@ module.exports = (app) => {
           name: user.name,
           username: user.username,
           role: user.role,
+          memberId: user.memberId,
+          visitorId: user.visitorId,
           memberAccess: user.memberAccess,
           visitorAccess: user.visitorAccess,
           vendorAccess: user.vendorAccess,
@@ -239,7 +256,12 @@ module.exports = (app) => {
           canAddCharges: user.canAddCharges,
           canAddReports: user.canAddReports,
           canAddDeposit: user.canAddDeposit,
-          canAddBank: user.canAddBank
+          canAddBank: user.canAddBank,
+          memberOnlyOwnData: user.memberOnlyOwnData,
+          visitorOnlyOwnData: user.visitorOnlyOwnData,
+          checksAccess: user.checksAccess,
+          cannotDeleteChecks: user.cannotDeleteChecks,
+          canAddChecks: user.canAddChecks
         },
         passwordChangeRequired: user.passwordChangeRequired
       });

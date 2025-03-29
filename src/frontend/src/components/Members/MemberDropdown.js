@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import MemberForm from './MemberForm';
 import { useAuth } from '../../contexts/AuthContext';
+import QRCodeSection from './QRCodeSection';
 
 const MemberDropdown = () => {
   const [members, setMembers] = useState([]);
@@ -14,7 +15,7 @@ const MemberDropdown = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const dropdownRef = useRef(null);
-  const { hasDeleteAccess, hasAddAccess } = useAuth();
+  const { hasDeleteAccess, hasAddAccess, currentUser, shouldSeeOnlyOwnData } = useAuth();
 
   useEffect(() => {
     fetchMembers();
@@ -44,9 +45,19 @@ const MemberDropdown = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        params: {
+          ownDataOnly: shouldSeeOnlyOwnData('member') ? 'true' : 'false',
+          userId: currentUser?.id
+        }
       });
       setMembers(response.data);
+      
+      // If user can only see their own data and has data, auto-select it
+      if (shouldSeeOnlyOwnData('member') && response.data.length === 1) {
+        setSelectedMember(response.data[0]);
+        setSearchTerm(`${response.data[0].lastName} ${response.data[0].firstName}`);
+      }
     } catch (error) {
       console.error('Error fetching members:', error);
     } finally {
@@ -222,6 +233,12 @@ const MemberDropdown = () => {
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Member Lookup</h1>
         
+        {shouldSeeOnlyOwnData('member') && (
+          <div className="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4 text-blue-700">
+            <p>You are viewing your membership data only. Contact an administrator if you need access to other records.</p>
+          </div>
+        )}
+        
         {loading ? (
           <PageLoader />
         ) : (
@@ -374,7 +391,8 @@ const MemberDropdown = () => {
                     )}
                     
                     <div className="flex space-x-3 mt-6">
-                      {hasAddAccess('member') && (
+                      {/* Show Edit button if user has add access OR if it's their own record */}
+                      {(hasAddAccess('member') || (currentUser && currentUser.memberId === selectedMember.id)) && (
                         <button 
                           onClick={handleEditMember}
                           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
@@ -386,7 +404,8 @@ const MemberDropdown = () => {
                         </button>
                       )}
                       
-                      {hasDeleteAccess('member') && (
+                      {/* Show Delete button if user has delete access OR if it's their own record */}
+                      {(hasDeleteAccess('member') || (currentUser && currentUser.memberId === selectedMember.id)) && (
                         <button 
                           onClick={handleDeleteMember}
                           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
@@ -397,6 +416,13 @@ const MemberDropdown = () => {
                           Delete
                         </button>
                       )}
+                      
+                      {/* Show "Your record" indicator if it's the user's own record */}
+                      {currentUser && currentUser.memberId === selectedMember.id && (
+                        <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          Your record
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -405,6 +431,9 @@ const MemberDropdown = () => {
           </>
         )}
       </div>
+
+      {/* Add QR Code Section for Member Registration */}
+      <QRCodeSection />
 
       {showForm && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">

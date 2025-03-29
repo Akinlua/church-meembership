@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 const MemberList = ({ members, onEdit, onDelete }) => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showInactive, setShowInactive] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  const { currentUser } = useAuth();
 
   const filteredMembers = members.filter(member => {
     const matchesSearch = (
@@ -21,6 +23,13 @@ const MemberList = ({ members, onEdit, onDelete }) => {
     } else {
       setSelectedMember(member);
     }
+  };
+
+  // Check if this is the current user's member record
+  const isOwnMemberData = (memberId) => {
+    console.log(currentUser)
+    console.log(memberId)
+    return currentUser && currentUser.memberId === memberId;
   };
 
   return (
@@ -86,7 +95,7 @@ const MemberList = ({ members, onEdit, onDelete }) => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {selectedMember && selectedMember.id === member.id && (
+                  {(isOwnMemberData(member.id) || (selectedMember && selectedMember.id === member.id)) && (
                     <>
                       <button
                         onClick={(e) => {
@@ -109,6 +118,9 @@ const MemberList = ({ members, onEdit, onDelete }) => {
                         Delete
                       </button>
                     </>
+                  )}
+                  {isOwnMemberData(member.id) && (
+                    <span className="ml-2 text-xs text-green-600 font-medium">(Your record)</span>
                   )}
                 </td>
               </tr>

@@ -81,7 +81,7 @@ module.exports = (app) => {
   const prisma = app.get('prisma');
 
   // Apply member access middleware to all member routes
-  app.use('/members', authenticateToken, checkAccess('member'));
+  // app.use('/members', authenticateToken, checkAccess('member'));
 
   app.post('/upload-image', upload.single('image'), async (req, res) => {
     try {
@@ -102,7 +102,27 @@ module.exports = (app) => {
   // Get all members
   app.get('/members', async (req, res) => {
     try {
+      const { ownDataOnly, userId } = req.query;
+      let whereClause = {};
+      
+      // If ownDataOnly is true and userId is provided, filter by the user's memberId
+      if (ownDataOnly === 'true' && userId) {
+        // Get the user with their memberId
+        const user = await prisma.user.findUnique({
+          where: { id: parseInt(userId) },
+          select: { memberId: true }
+        });
+        
+        if (user && user.memberId) {
+          whereClause.id = user.memberId;
+        } else {
+          // If user has no memberId, return empty array
+          return res.json([]);
+        }
+      }
+      
       const members = await prisma.member.findMany({
+        where: whereClause,
         include: {
           groups: {
             include: {
@@ -117,6 +137,7 @@ module.exports = (app) => {
       });
       res.json(members);
     } catch (error) {
+      console.error('Error fetching members:', error);
       res.status(500).json({ message: 'Error fetching members' });
     }
   });
@@ -215,12 +236,31 @@ module.exports = (app) => {
   });
 
   // Update member
-  app.put('/members/:id', async (req, res) => {
+  app.put('/members/:id', authenticateToken, async (req, res) => {
     try {
       console.log('Updating member:', req.params.id, req.body);
       
+      // Check if this is the user's own member record
+      const memberId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Get the user to check if this is their own member record
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { 
+          memberId: true,
+          role: true,
+          memberAccess: true 
+        }
+      });
+      
+      // If this is not the user's own record and they don't have access, reject the request
+      if (user.memberId !== memberId && user.role !== 'admin' && !user.memberAccess) {
+        return res.status(403).json({ message: 'You do not have permission to update this member' });
+      }
+      
       const member = await prisma.member.update({
-        where: { id: parseInt(req.params.id) },
+        where: { id: memberId },
         data: {
           firstName: req.body.first_name,
           middleName: req.body.middle_name,
@@ -265,10 +305,33 @@ module.exports = (app) => {
   });
 
   // Delete a member
-  app.delete('/members/:id', authenticateToken, checkAccess('member'), checkDeleteAccess('member'), async (req, res) => {
+  app.delete('/members/:id', authenticateToken, async (req, res) => {
     try {
+      // Check if this is the user's own member record
+      const memberId = parseInt(req.params.id);
+      const userId = req.user.id;
+      
+      // Get the user to check if this is their own member record
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { 
+          memberId: true,
+          role: true,
+          memberAccess: true,
+          cannotDeleteMember: true
+        }
+      });
+      
+      // Allow if this is the user's own record OR they have delete access
+      const isOwnRecord = user.memberId === memberId;
+      const hasDeletePermission = user.role === 'admin' || (user.memberAccess && !user.cannotDeleteMember);
+      
+      if (!isOwnRecord && !hasDeletePermission) {
+        return res.status(403).json({ message: 'You do not have permission to delete this member' });
+      }
+      
       await prisma.member.delete({
-        where: { id: parseInt(req.params.id) }
+        where: { id: memberId }
       });
       res.json({ message: 'Member deleted successfully' });
     } catch (error) {

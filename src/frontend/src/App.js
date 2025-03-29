@@ -28,6 +28,8 @@ import Deposits from './components/Deposits';
 import ChangePassword from './components/ChangePassword';
 import UserManagement from './components/UserManagement';
 import CheckGenerator from './components/Reports/CheckGenerator';
+import MemberFormPage from './components/Forms/MemberFormPage';
+import VisitorFormPage from './components/Forms/VisitorFormPage';
 
 // Layout component that includes Navigation
 const Layout = ({ children }) => {
@@ -48,6 +50,10 @@ function App() {
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Layout><Signup /></Layout>} />
+        
+        {/* Public Form Routes accessed via QR codes */}
+        <Route path="/member-form" element={<MemberFormPage />} />
+        <Route path="/visitor-form" element={<VisitorFormPage />} />
         
         {/* Password change route */}
         <Route element={<PasswordChangeRoute />}>

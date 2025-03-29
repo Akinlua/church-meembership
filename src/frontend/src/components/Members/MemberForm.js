@@ -6,7 +6,7 @@ import MaskedDateInput from '../common/MaskedDateInput';
 import Modal from '../../common/Modal';
 
 
-const MemberForm = ({ member, onClose, onSubmit }) => {
+const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -26,13 +26,16 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
     baptismal_date: member?.baptismalDate || null,
     profile_image: member?.profileImage || '',
     groups: member?.groups?.map(g => g.group?.id || g.groupId || g.id) || [],
-    past_church: member?.pastChurch || ''
+    past_church: member?.pastChurch || '',
+    source: isPublicForm ? 'qr_code' : 'admin'  // Track the source of submission
   });
   
   const [availableGroups, setAvailableGroups] = useState([]);
   const [showGroupDropdown, setShowGroupDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const fileInputRef = useRef();
   const groupDropdownRef = useRef(null);
+  const groupButtonRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
 
   // Close dropdown when clicking outside
@@ -71,6 +74,11 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
   }, [member]);
 
   const fetchGroups = async () => {
+    if (isPublicForm) {
+      setFormLoading(false);
+      return;
+    }
+    
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/groups`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -78,6 +86,8 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
       setAvailableGroups(response.data);
     } catch (error) {
       console.error('Error fetching groups:', error);
+    } finally {
+      setFormLoading(false);
     }
   };
 
@@ -108,15 +118,20 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
       formData.append('image', file);
       try {
         setLoading(true);
+        
+        // Handle the public form case differently
+        const headers = {
+          'Content-Type': 'multipart/form-data'
+        };
+        
+        if (!isPublicForm) {
+          headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+        }
+        
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/upload-image`, 
           formData, 
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          }
+          { headers }
         );
         setFormData(prev => ({ ...prev, profile_image: response.data.imageUrl }));
       } catch (error) {
@@ -135,18 +150,33 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
     try {
       const url = `${process.env.REACT_APP_API_URL}/members${member ? `/${member.id}` : ''}`;
       const method = member ? 'put' : 'post';
-      await axios[method](url, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      
+      let headers = {};
+      if (!isPublicForm) {
+        headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+      }
+      
+      // For public form, we're using a special public endpoint
+      const apiUrl = isPublicForm 
+        ? `${process.env.REACT_APP_API_URL}/public/members` 
+        : url;
+      
+      const response = await axios[isPublicForm ? 'post' : method](apiUrl, formData, { headers });
+      
+      // Call the provided onSubmit callback with the new member ID
+      if (onSubmit) {
+        onSubmit(response.data.id);
+      }
 
-      // Show modal only when adding a new member
-      if (!member) {
+      // Show modal only when adding a new member and not in public form mode
+      if (!member && !isPublicForm) {
         setShowModal(true);
-      } else {
+      } else if (!isPublicForm) {
         onClose(); // Close the form if updating
       }
     } catch (error) {
       console.error('Error saving member:', error);
+      alert('Failed to save member information. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -170,7 +200,8 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
       baptismal_date: null,
       profile_image: '',
       groups: [],
-      past_church: ''
+      past_church: '',
+      source: 'admin'  // Reset source to admin
     });
     setShowModal(false);
   };
@@ -188,6 +219,18 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
     return 'Unknown';
   };
 
+  const toggleGroupDropdown = () => {
+    if (!showGroupDropdown && groupButtonRef.current) {
+      const rect = groupButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+    setShowGroupDropdown(!showGroupDropdown);
+  };
+
   if (formLoading) {
     return <PageLoader />;
   }
@@ -195,7 +238,9 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4 text-center">
-        {member ? 'Edit Member' : 'Add Church Member'}
+        {isPublicForm 
+          ? 'Church Membership Registration' 
+          : (member ? 'Edit Member' : 'Add Church Member')}
       </h2>
       
       {formLoading ? (
@@ -382,27 +427,31 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   </button>
 
                   {showGroupDropdown && (
-                    <div className="absolute mt-1 z-10 w-full bg-white shadow border border-gray-600 py-1 text-sm overflow-auto max-h-32">
-                      {availableGroups.map((group) => (
-                        <div
-                          key={group.id}
-                          className="flex items-center px-3 py-1 hover:bg-gray-100 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleGroup(group.id);
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.groups.includes(group.id)}
-                            onChange={() => {}}
-                            className="h-3 w-3"
-                          />
-                          <label className="ml-2 block text-xs">
-                            {formatMemberName(group)}
-                          </label>
-                        </div>
-                      ))}
+                    <div className="absolute left-0 right-0 mt-1 z-50 bg-white shadow-lg border-2 border-blue-500 py-2 text-sm overflow-y-auto" style={{maxHeight: "200px", top: "100%"}}>
+                      {availableGroups.length > 0 ? (
+                        availableGroups.map((group) => (
+                          <div
+                            key={group.id}
+                            className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleGroup(group.id);
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.groups.includes(group.id)}
+                              onChange={() => {}}
+                              className="h-4 w-4"
+                            />
+                            <label className="ml-2 block text-sm">
+                              {formatMemberName(group)}
+                            </label>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-3 py-2 text-gray-500">No groups available</div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -473,7 +522,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
                   className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
                   style={{ marginBottom: '12px' }}
                 >
-                  {loading ? <ButtonLoader /> : (member ? 'Update' : 'Save')}
+                  {loading ? <ButtonLoader /> : (member ? 'Update' : 'Submit')}
                 </button>
               </div>
             </div>
@@ -481,7 +530,7 @@ const MemberForm = ({ member, onClose, onSubmit }) => {
         </form>
       )}
 
-      {showModal && (
+      {showModal && !isPublicForm && (
         <Modal onClose={handleCloseModal}>
           <h2 className="text-lg font-bold">Success!</h2>
           <p>Member added successfully! Do you want to add another?</p>

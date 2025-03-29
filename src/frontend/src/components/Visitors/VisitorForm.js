@@ -4,7 +4,7 @@ import DatePickerField from '../common/DatePickerField';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 import Modal from '../../common/Modal';
 
-const VisitorForm = ({ visitor, onClose, onSubmit }) => {
+const VisitorForm = ({ visitor, onClose, onSubmit, isPublicForm = false }) => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,7 +19,8 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
     email: visitor?.email || '',
     home_church: visitor?.homeChurch || '',
     profile_image: visitor?.profileImage || '',
-    visit_date: visitor?.visitDate ? new Date(visitor.visitDate) : new Date()
+    visit_date: visitor?.visitDate ? new Date(visitor.visitDate) : new Date(),
+    source: isPublicForm ? 'qr_code' : 'admin'  // Track the source of submission
   });
   
   const fileInputRef = useRef();
@@ -81,15 +82,20 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
       formData.append('image', file);
       try {
         setLoading(true);
+        
+        // Handle the public form case differently
+        const headers = {
+          'Content-Type': 'multipart/form-data'
+        };
+        
+        if (!isPublicForm) {
+          headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+        }
+        
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/upload-image`, 
           formData, 
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
-          }
+          { headers }
         );
         setFormData(prev => ({ ...prev, profile_image: response.data.imageUrl }));
       } catch (error) {
@@ -115,19 +121,33 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
       
       const url = `${process.env.REACT_APP_API_URL}/visitors${visitor ? `/${visitor.id}` : ''}`;
       const method = visitor ? 'put' : 'post';
-      await axios[method](url, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      
+      let headers = {};
+      if (!isPublicForm) {
+        headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+      }
+      
+      // For public form, we're using a special public endpoint
+      const apiUrl = isPublicForm 
+        ? `${process.env.REACT_APP_API_URL}/public/visitors` 
+        : url;
+      
+      const response = await axios[isPublicForm ? 'post' : method](apiUrl, formData, { headers });
+      
+      // Call the provided onSubmit callback with the new visitor ID
+      if (onSubmit) {
+        onSubmit(response.data.id);
+      }
 
-      // Show modal only when adding a new visitor
-      if (!visitor) {
+      // Show modal only when adding a new visitor and not in public form mode
+      if (!visitor && !isPublicForm) {
         setShowModal(true);
-      } else {
+      } else if (!isPublicForm) {
         onClose(); // Close the form if updating
       }
     } catch (error) {
       console.error('Error saving visitor:', error);
-      alert('Failed to save visitor');
+      alert('Failed to save visitor information. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -146,7 +166,8 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
       email: '',
       home_church: '',
       profile_image: '',
-      visit_date: new Date()
+      visit_date: new Date(),
+      source: 'admin'  // Reset source to admin when adding a new visitor
     });
     setShowModal(false);
   };
@@ -159,7 +180,9 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
   return (
     <div className="px-2 py-4 max-w-4xl mx-auto">
       <h2 className="text-xl font-bold mb-4 text-center">
-        {visitor ? 'Edit Visitor' : 'Add Church Visitor Form'}
+        {isPublicForm 
+          ? 'Church Visitor Registration' 
+          : (visitor ? 'Edit Visitor' : 'Add Church Visitor Form')}
       </h2>
 
       <form onSubmit={handleSubmit}>
@@ -358,7 +381,7 @@ const VisitorForm = ({ visitor, onClose, onSubmit }) => {
         </div>
       </form>
 
-      {showModal && (
+      {showModal && !isPublicForm && (
         <Modal onClose={handleCloseModal}>
           <h2 className="text-lg font-bold">Success!</h2>
           <p>Visitor added successfully! Do you want to add another?</p>
