@@ -205,7 +205,21 @@ const DepositDropdown = () => {
                   </div>
                   <div>
                     <p><span className="font-medium">Cash Amount:</span> {formatCurrency(selectedDeposit.cashAmount)}</p>
-                    <p><span className="font-medium">Check Amount:</span> {formatCurrency(selectedDeposit.checkAmount)}</p>
+                    
+                    {/* Display individual checks */}
+                    {selectedDeposit.checks && selectedDeposit.checks.length > 0 ? (
+                      <div>
+                        <p className="font-medium mb-1">Checks:</p>
+                        {selectedDeposit.checks.map((check, index) => (
+                          <p key={index} className="ml-4">
+                            Check {index + 1}: {formatCurrency(check.amount)}
+                          </p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p><span className="font-medium">Checks:</span> {formatCurrency(0)}</p>
+                    )}
+                    
                     <p><span className="font-medium">Total Amount:</span> {formatCurrency(selectedDeposit.totalAmount)}</p>
                     {selectedDeposit.notes && (
                       <div className="mt-2">

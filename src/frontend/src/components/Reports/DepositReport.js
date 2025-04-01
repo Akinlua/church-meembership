@@ -15,6 +15,14 @@ const DepositReport = ({ reportData }) => {
     }).format(parseFloat(amount || 0));
   };
 
+  // Calculate the total check amount from the checks array
+  const getCheckAmount = (deposit) => {
+    if (!deposit.checks || deposit.checks.length === 0) {
+      return 0;
+    }
+    return deposit.checks.reduce((sum, check) => sum + parseFloat(check.amount || 0), 0);
+  };
+
   return (
     <div className="p-6">
       <div className="mb-6 bg-blue-50 p-4 rounded-lg">
@@ -63,7 +71,7 @@ const DepositReport = ({ reportData }) => {
                   {formatCurrency(deposit.cashAmount)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                  {formatCurrency(deposit.checkAmount)}
+                  {formatCurrency(getCheckAmount(deposit))}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                   {formatCurrency(deposit.totalAmount)}

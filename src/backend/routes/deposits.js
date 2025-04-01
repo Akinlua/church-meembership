@@ -16,7 +16,8 @@ router.get('/', authenticateToken, async (req, res) => {
             id: true,
             name: true,
           }
-        }
+        },
+        checks: true
       },
       orderBy: {
         date: 'desc'
@@ -43,7 +44,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
             id: true,
             name: true,
           }
-        }
+        },
+        checks: true
       }
     });
     
@@ -66,7 +68,7 @@ router.post('/', authenticateToken, async (req, res) => {
       account_number,
       date,
       cash_amount,
-      check_amount,
+      checks,
       total_amount,
       notes
     } = req.body;
@@ -82,16 +84,19 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(404).json({ msg: 'Bank not found' });
     }
 
-    // Create the deposit
+    // Create the deposit with checks
     const deposit = await prisma.deposit.create({
       data: {
         bankId: bank_id,
         accountNumber: account_number,
         date: date ? new Date(date) : new Date(),
         cashAmount: parseFloat(cash_amount) || 0,
-        checkAmount: parseFloat(check_amount) || 0,
         totalAmount: parseFloat(total_amount) || 0,
-        // notes: notes || ""
+        checks: {
+          create: checks && checks.length > 0 ? checks.map(check => ({
+            amount: parseFloat(check.amount) || 0
+          })) : []
+        }
       },
       include: {
         bank: {
@@ -99,7 +104,8 @@ router.post('/', authenticateToken, async (req, res) => {
             id: true,
             name: true
           }
-        }
+        },
+        checks: true
       }
     });
 
@@ -118,7 +124,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
       account_number,
       date,
       cash_amount,
-      check_amount,
+      checks,
       total_amount,
       notes
     } = req.body;
@@ -147,6 +153,15 @@ router.put('/:id', authenticateToken, async (req, res) => {
       }
     }
 
+    // First delete the existing checks
+    if (checks) {
+      await prisma.check.deleteMany({
+        where: {
+          depositId: req.params.id
+        }
+      });
+    }
+
     // Update the deposit
     const deposit = await prisma.deposit.update({
       where: {
@@ -157,9 +172,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
         accountNumber: account_number !== undefined ? account_number : undefined,
         date: date !== undefined ? new Date(date) : undefined,
         cashAmount: cash_amount !== undefined ? parseFloat(cash_amount) : undefined,
-        checkAmount: check_amount !== undefined ? parseFloat(check_amount) : undefined,
         totalAmount: total_amount !== undefined ? parseFloat(total_amount) : undefined,
-        // notes: notes !== undefined ? notes : undefined
+        checks: checks ? {
+          create: checks.map(check => ({
+            amount: parseFloat(check.amount) || 0
+          }))
+        } : undefined
       },
       include: {
         bank: {
@@ -167,7 +185,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
             id: true,
             name: true
           }
-        }
+        },
+        checks: true
       }
     });
 

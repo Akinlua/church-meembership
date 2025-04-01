@@ -1098,7 +1098,8 @@ module.exports = (app) => {
       const deposits = await prisma.deposit.findMany({
         where: whereClause,
         include: {
-          bank: true
+          bank: true,
+          checks: true
         },
         orderBy: {
           date: 'desc'
@@ -1142,7 +1143,8 @@ module.exports = (app) => {
       const deposits = await prisma.deposit.findMany({
         where: whereClause,
         include: {
-          bank: true
+          bank: true,
+          checks: true
         },
         orderBy: {
           date: 'desc'
@@ -1191,6 +1193,14 @@ module.exports = (app) => {
         }).format(parseFloat(amount || 0));
       };
 
+      // Calculate the total check amount from the checks array
+      const getCheckAmount = (deposit) => {
+        if (!deposit.checks || deposit.checks.length === 0) {
+          return 0;
+        }
+        return deposit.checks.reduce((sum, check) => sum + parseFloat(check.amount || 0), 0);
+      };
+
       deposits.forEach(deposit => {
         if (y > 700) {
           doc.addPage();
@@ -1210,7 +1220,7 @@ module.exports = (app) => {
         doc.text(deposit.bank?.name || 'N/A', 150, y);
         doc.text(deposit.accountNumber || 'N/A', 250, y);
         doc.text(formatCurrency(deposit.cashAmount), 350, y);
-        doc.text(formatCurrency(deposit.checkAmount), 430, y);
+        doc.text(formatCurrency(getCheckAmount(deposit)), 430, y);
         doc.text(formatCurrency(deposit.totalAmount), 510, y);
         y += 20;
       });

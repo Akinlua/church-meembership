@@ -27,7 +27,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
     account_number: '',
     date: new Date(),
     cash_amount: '',
-    check_amount: '',
+    checks: [{ amount: '' }, { amount: '' }],
     total_amount: '',
     notes: ''
   });
@@ -52,7 +52,9 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
             } : '',
             date: deposit.date ? new Date(deposit.date) : new Date(),
             cash_amount: deposit.cashAmount || '',
-            check_amount: deposit.checkAmount || '',
+            checks: deposit.checks && deposit.checks.length > 0 
+              ? deposit.checks.map(check => ({ amount: check.amount }))
+              : [{ amount: '' }, { amount: '' }],
             total_amount: deposit.totalAmount || '',
             notes: deposit.notes || ''
           });
@@ -139,11 +141,71 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
     
     // Calculate total automatically
     const cashAmount = parseFloat(field === 'cash_amount' ? numericValue : formData.cash_amount) || 0;
-    const checkAmount = parseFloat(field === 'check_amount' ? numericValue : formData.check_amount) || 0;
     
-    updatedFormData.total_amount = (cashAmount + checkAmount).toFixed(2);
+    // Calculate the total check amount
+    const totalCheckAmount = formData.checks.reduce((sum, check) => {
+      return sum + (parseFloat(check.amount) || 0);
+    }, 0);
+    
+    updatedFormData.total_amount = (cashAmount + totalCheckAmount).toFixed(2);
     
     setFormData(updatedFormData);
+  };
+
+  const handleCheckChange = (index, value) => {
+    // Remove non-numeric characters except decimal point
+    value = value.replace(/[^0-9.]/g, '');
+    
+    const updatedChecks = [...formData.checks];
+    updatedChecks[index] = {
+      ...updatedChecks[index],
+      amount: value
+    };
+    
+    const updatedFormData = {
+      ...formData,
+      checks: updatedChecks
+    };
+    
+    // Calculate the total check amount
+    const totalCheckAmount = updatedChecks.reduce((sum, check) => {
+      return sum + (parseFloat(check.amount) || 0);
+    }, 0);
+    
+    // Calculate total automatically
+    const cashAmount = parseFloat(formData.cash_amount) || 0;
+    updatedFormData.total_amount = (cashAmount + totalCheckAmount).toFixed(2);
+    
+    setFormData(updatedFormData);
+  };
+
+  const addCheckField = () => {
+    setFormData({
+      ...formData,
+      checks: [...formData.checks, { amount: '' }]
+    });
+  };
+
+  const removeCheckField = (index) => {
+    if (formData.checks.length === 1) {
+      return;
+    }
+    
+    const updatedChecks = formData.checks.filter((_, i) => i !== index);
+    
+    // Recalculate total
+    const totalCheckAmount = updatedChecks.reduce((sum, check) => {
+      return sum + (parseFloat(check.amount) || 0);
+    }, 0);
+    
+    const cashAmount = parseFloat(formData.cash_amount) || 0;
+    const updatedTotal = (cashAmount + totalCheckAmount).toFixed(2);
+    
+    setFormData({
+      ...formData,
+      checks: updatedChecks,
+      total_amount: updatedTotal
+    });
   };
 
   const formatCurrency = (value) => {
@@ -174,7 +236,9 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
         account_number: formData.account_number.value,
         date: formData.date,
         cash_amount: parseFloat(formData.cash_amount) || 0,
-        check_amount: parseFloat(formData.check_amount) || 0,
+        checks: formData.checks.map(check => ({
+          amount: parseFloat(check.amount) || 0
+        })),
         total_amount: parseFloat(formData.total_amount) || 0,
         notes: formData.notes
       };
@@ -205,7 +269,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
       account_number: '',
       date: new Date(),
       cash_amount: '',
-      check_amount: '',
+      checks: [{ amount: '' }, { amount: '' }],
       total_amount: '',
       notes: ''
     });
@@ -291,9 +355,8 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                   type="text"
                   value={formData.cash_amount}
                   onChange={(e) => handleAmountChange('cash_amount', e.target.value)}
-                  className="w-25 pl-7 px-2 py-1 border border-gray-600"
+                  className="w-40 pl-7 px-2 py-1 border border-gray-600 text-right"
                   placeholder="0.00"
-                  required
                   onBlur={() => setFormData({
                     ...formData,
                     cash_amount: formatCurrency(formData.cash_amount)
@@ -303,26 +366,50 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
             </div>
 
             <div className="col-span-3 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Checks Amount</label>
+              <label className="block text-sm font-medium text-gray-700">Checks</label>
             </div>
             <div className="col-span-9">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 sm:text-sm">$</span>
+              {formData.checks.map((check, index) => (
+                <div key={index} className="flex items-center mb-2">
+                  <div className="relative" style={{ width: "168px" }}>
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">$</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={check.amount}
+                      onChange={(e) => handleCheckChange(index, e.target.value)}
+                      className="w-40 pl-7 px-2 py-1 border border-gray-600 text-right"
+                      placeholder="0.00"
+                      onBlur={() => {
+                        const updatedChecks = [...formData.checks];
+                        updatedChecks[index] = {
+                          ...updatedChecks[index],
+                          amount: formatCurrency(updatedChecks[index].amount)
+                        };
+                        setFormData({
+                          ...formData,
+                          checks: updatedChecks
+                        });
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeCheckField(index)}
+                    className="ml-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    -
+                  </button>
                 </div>
-                <input
-                  type="text"
-                  value={formData.check_amount}
-                  onChange={(e) => handleAmountChange('check_amount', e.target.value)}
-                  className="w-25 pl-7 px-2 py-1 border border-gray-600"
-                  placeholder="0.00"
-                  required
-                  onBlur={() => setFormData({
-                    ...formData,
-                    check_amount: formatCurrency(formData.check_amount)
-                  })}
-                />
-              </div>
+              ))}
+              <button
+                type="button"
+                onClick={addCheckField}
+                className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                + Add Check
+              </button>
             </div>
 
             <div className="col-span-3 flex items-center">
@@ -336,7 +423,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                 <input
                   type="text"
                   value={formData.total_amount}
-                  className="w-25 pl-7 px-2 py-1 border border-gray-600 bg-gray-100"
+                  className="w-40 pl-7 px-2 py-1 border border-gray-600 bg-gray-100 text-right"
                   readOnly
                 />
               </div>

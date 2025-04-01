@@ -273,6 +273,15 @@ model Bank {
   deposits       Deposit[]
 }
 
+model Check {
+  id            String    @id @default(cuid())
+  amount        Float
+  depositId     String
+  deposit       Deposit   @relation(fields: [depositId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
 model Deposit {
   id            String   @id @default(cuid())
   bank          Bank     @relation(fields: [bankId], references: [id])
@@ -280,7 +289,7 @@ model Deposit {
   accountNumber String
   date          DateTime @default(now())
   cashAmount    Float    @default(0)
-  checkAmount   Float    @default(0)
+  checks        Check[]
   totalAmount   Float
   // notes         String?
   createdAt     DateTime @default(now())

@@ -17,6 +17,14 @@ const DepositList = ({ deposits, onEdit, onDelete, loading, selectedDeposit, set
     }
   };
 
+  // Calculate the total check amount from the checks array
+  const getCheckAmount = (deposit) => {
+    if (!deposit.checks || deposit.checks.length === 0) {
+      return 0;
+    }
+    return deposit.checks.reduce((sum, check) => sum + parseFloat(check.amount || 0), 0);
+  };
+
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow">
       <table className="min-w-full divide-y divide-gray-200">
@@ -72,7 +80,7 @@ const DepositList = ({ deposits, onEdit, onDelete, loading, selectedDeposit, set
                   {formatCurrency(deposit.cashAmount || 0)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatCurrency(deposit.checkAmount || 0)}
+                  {formatCurrency(getCheckAmount(deposit))}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {formatCurrency(deposit.totalAmount || 0)}
