@@ -50,117 +50,131 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-gray-800 text-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="text-xl font-bold">
-              Church Management
-            </Link>
-            
-            {hasAccess('member') && (
-              <Link to="/member-lookup" className="hover:text-gray-300">
+    <aside className="w-64 bg-gray-800 text-white min-h-screen flex flex-col">
+      <div className="p-4 border-b border-gray-700">
+        <Link to="/" className="text-xl font-bold block hover:text-gray-300">
+          Church Management
+        </Link>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto">
+        <ul className="py-2">
+          {hasAccess('member') && (
+            <li>
+              <Link to="/member-lookup" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Member
               </Link>
-            )}              
-            {hasAccess('visitor') && (
-              <Link to="/visitor-lookup" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('visitor') && (
+            <li>
+              <Link to="/visitor-lookup" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Visitor
               </Link>
-            )}
-            
-            {hasAccess('vendor') && (
-              <Link to="/vendor" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('vendor') && (
+            <li>
+              <Link to="/vendor" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Vendor
               </Link>
-            )}
-            
-            {hasAccess('group') && (
-              <Link to="/group-lookup" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('group') && (
+            <li>
+              <Link to="/group-lookup" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Group
               </Link>
-            )}
-            
-            {hasAccess('donation') && (
-              <Link to="/donation-lookup" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('donation') && (
+            <li>
+              <Link to="/donation-lookup" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Donation
               </Link>
-            )}
-
-            {hasAccess('donation') && (
-              <Link to="/donation-types-dropdown" className="hover:text-gray-300">
-              Donation Types
-              </Link>   
-            )}
-
-                  
-            {hasAccess('expense') && (
-              <Link to="/expense-categories" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('donation') && (
+            <li>
+              <Link to="/donation-types-dropdown" className="block px-4 py-2 hover:bg-gray-700 rounded">
+                Donation Types
+              </Link>
+            </li>
+          )}
+          {hasAccess('expense') && (
+            <li>
+              <Link to="/expense-categories" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Expense
               </Link>
-            )}
-            {hasAccess('charges') && (
-              <Link to="/charges" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('charges') && (
+            <li>
+              <Link to="/charges" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Charges
               </Link>
-            )}           
-            
-            {hasAccess('checks') && (
-            <Link to="/reports/check-generator" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('checks') && (
+            <li>
+              <Link to="/reports/check-generator" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Checks
               </Link>
-            )}
-
-            {hasAccess('deposit') && (
-              <Link to="/deposit-dropdown" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('deposit') && (
+            <li>
+              <Link to="/deposit-dropdown" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Deposit
               </Link>
-            )}
-            {hasAccess('bank') && (
-              <Link to="/bank-dropdown" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('bank') && (
+            <li>
+              <Link to="/bank-dropdown" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Bank
               </Link>
-            )}
-            
-            {hasAccess('admin') && (
-               <Link to="/admin/users" className="hover:text-gray-300">
+            </li>
+          )}
+          {hasAccess('admin') && (
+            <li>
+              <Link to="/admin/users" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Administrator
-             </Link>
-            )}
-            
-            {hasAccess('reports') && (
-              <Link to="/reports" className="hover:text-gray-300">
+              </Link>
+            </li>
+          )}
+          {hasAccess('reports') && (
+            <li>
+              <Link to="/reports" className="block px-4 py-2 hover:bg-gray-700 rounded">
                 Reports
               </Link>
-            )}
+            </li>
+          )}
+        </ul>
+      </nav>
+
+      <div className="p-4 border-t border-gray-700">
+        {currentUser ? (
+          <div>
+            <div className="text-sm mb-2">{currentUser.name || currentUser.username}</div>
+            <button
+              onClick={handleLogout}
+              className="w-full px-3 py-2 rounded bg-red-600 hover:bg-red-700 text-white text-sm"
+            >
+              Logout
+            </button>
           </div>
-          
-          <div className="flex items-center">
-            {currentUser ? (
-              <>
-                <span className="mr-4 text-sm">
-                  {currentUser.name || currentUser.username}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-sm"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link
-                to="/login"
-                className="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
-              >
-                Login
-              </Link>
-            )}
-          </div>
-        </div>
+        ) : (
+          <Link
+            to="/login"
+            className="block w-full px-3 py-2 text-center rounded bg-blue-600 hover:bg-blue-700 text-white text-sm"
+          >
+            Login
+          </Link>
+        )}
       </div>
-    </nav>
+    </aside>
   );
 };
 
-export default Navigation; 
+export default Navigation;

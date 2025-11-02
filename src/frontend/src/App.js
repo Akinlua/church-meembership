@@ -31,13 +31,13 @@ import CheckGenerator from './components/Reports/CheckGenerator';
 import MemberFormPage from './components/Forms/MemberFormPage';
 import VisitorFormPage from './components/Forms/VisitorFormPage';
 
-// Layout component that includes Navigation
+// Layout component with left sidebar navigation
 const Layout = ({ children }) => {
   return (
-    <>
+    <div className="min-h-screen flex bg-gray-100">
       <Navigation />
-      <main>{children}</main>
-    </>
+      <main className="flex-1 p-6 overflow-auto">{children}</main>
+    </div>
   );
 };
 
@@ -98,4 +98,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
