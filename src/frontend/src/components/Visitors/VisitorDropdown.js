@@ -372,7 +372,7 @@ const VisitorDropdown = () => {
       </div>
 
       {/* Add QR Code Section for Visitor Registration */}
-      <QRCodeSection />
+      {/* <QRCodeSection /> */}
 
       {showForm && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
