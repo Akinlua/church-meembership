@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ButtonLoader } from '../common/Loader';
 
@@ -53,23 +53,9 @@ const UserForm = ({ user, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('basic'); // 'basic' or 'permissions'
-  const [members, setMembers] = useState([]);
-  const [visitors, setVisitors] = useState([]);
-  const [membersLoading, setMembersLoading] = useState(false);
-  const [visitorsLoading, setVisitorsLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedMember, setSelectedMember] = useState(null);
-  const [selectedVisitor, setSelectedVisitor] = useState(null);
-  const [userType, setUserType] = useState('member'); // 'member' or 'visitor'
-  const dropdownRef = useRef(null);
+  const [role, setRole] = useState('user'); // 'admin' or 'user'
 
   useEffect(() => {
-    if (!user) {
-      fetchMembers();
-      fetchVisitors();
-    }
-
     if (user) {
       console.log("User data loaded:", user);
       // Set basic user data
@@ -78,6 +64,7 @@ const UserForm = ({ user, onClose, onSubmit }) => {
         username: user.username || '',
         password: '', // Don't populate password for security
       });
+      setRole(user.role || 'user');
       
       // Set all permissions from the user object
       const newPermissions = { ...permissions };
@@ -99,92 +86,8 @@ const UserForm = ({ user, onClose, onSubmit }) => {
       console.log("Setting permissions:", newPermissions);
       setPermissions(newPermissions);
 
-      // If user has a linked memberId, set userType to member
-      if (user.memberId) {
-        setUserType('member');
-      } else if (user.visitorId) {
-        setUserType('visitor');
-      }
     }
-
-    // Close dropdown when clicking outside
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [user]);
-
-  const fetchMembers = async () => {
-    try {
-      setMembersLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      setMembers(response.data);
-    } catch (error) {
-      console.error('Error fetching members:', error);
-    } finally {
-      setMembersLoading(false);
-    }
-  };
-
-  const fetchVisitors = async () => {
-    try {
-      setVisitorsLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/visitors`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      setVisitors(response.data);
-    } catch (error) {
-      console.error('Error fetching visitors:', error);
-    } finally {
-      setVisitorsLoading(false);
-    }
-  };
-
-  const filteredMembers = members.filter(member => {
-    const fullName = `${member.lastName} ${member.firstName}`.toLowerCase();
-    const memberNumber = member.memberNumber ? member.memberNumber.toString() : '';
-    const query = searchTerm.toLowerCase();
-    
-    return fullName.includes(query) || memberNumber.includes(query);
-  });
-
-  const filteredVisitors = visitors.filter(visitor => {
-    const fullName = `${visitor.lastName} ${visitor.firstName}`.toLowerCase();
-    const visitorNumber = visitor.visitorNumber ? visitor.visitorNumber.toString() : '';
-    const query = searchTerm.toLowerCase();
-    
-    return fullName.includes(query) || visitorNumber.includes(query);
-  });
-
-  const handleSelectMember = (member) => {
-    setSelectedMember(member);
-    setSelectedVisitor(null);
-    setShowDropdown(false);
-    setSearchTerm(`${member.lastName} ${member.firstName}`);
-    setFormData({
-      ...formData,
-      name: `${member.firstName} ${member.lastName}`,
-      username: member.email ? member.email.split('@')[0] : ''
-    });
-  };
-
-  const handleSelectVisitor = (visitor) => {
-    setSelectedVisitor(visitor);
-    setSelectedMember(null);
-    setShowDropdown(false);
-    setSearchTerm(`${visitor.lastName} ${visitor.firstName}`);
-    setFormData({
-      ...formData,
-      name: `${visitor.firstName} ${visitor.lastName}`,
-      username: visitor.email ? visitor.email.split('@')[0] : ''
-    });
-  };
 
   const handlePermissionChange = (e) => {
     const { name, checked } = e.target;
@@ -219,18 +122,8 @@ const UserForm = ({ user, onClose, onSubmit }) => {
       const userData = {
         ...formData,
         ...permissions,
+        role: role === 'admin' ? 'admin' : 'user'
       };
-
-      // Add the appropriate ID based on userType
-      if (userType === 'member' && selectedMember) {
-        userData.memberId = selectedMember.id;
-        userData.visitorId = null;
-        userData.memberOnlyOwnData = true; // Set this to true by default for member users
-      } else if (userType === 'visitor' && selectedVisitor) {
-        userData.visitorId = selectedVisitor.id;
-        userData.memberId = null;
-        userData.visitorOnlyOwnData = true; // Set this to true by default for visitor users
-      }
       
       await axios[method](url, userData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -361,146 +254,19 @@ const UserForm = ({ user, onClose, onSubmit }) => {
       <form onSubmit={handleSubmit}>
         {activeTab === 'basic' && (
           <div className="space-y-4">
-            {!user && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  User Type
-                </label>
-                <div className="flex space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio h-4 w-4 text-blue-600"
-                      checked={userType === 'member'}
-                      onChange={() => {
-                        setUserType('member');
-                        setSelectedVisitor(null);
-                        setSearchTerm('');
-                        // Reset any visitor-specific settings
-                        setPermissions(prev => ({
-                          ...prev,
-                          memberOnlyOwnData: true,
-                          visitorOnlyOwnData: false
-                        }));
-                      }}
-                    />
-                    <span className="ml-2">Member</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio h-4 w-4 text-blue-600"
-                      checked={userType === 'visitor'}
-                      onChange={() => {
-                        setUserType('visitor');
-                        setSelectedMember(null);
-                        setSearchTerm('');
-                        // Reset any member-specific settings
-                        setPermissions(prev => ({
-                          ...prev,
-                          memberOnlyOwnData: false,
-                          visitorOnlyOwnData: true
-                        }));
-                      }}
-                    />
-                    <span className="ml-2">Visitor</span>
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {!user && (
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {userType === 'member' ? 'Select Member' : 'Select Visitor'}
-                </label>
-                <div className="relative" ref={dropdownRef}>
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onClick={() => setShowDropdown(true)}
-                    placeholder={userType === 'member' ? "Search for a member..." : "Search for a visitor..."}
-                    className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  {showDropdown && (
-                    <div className="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 overflow-auto border rounded">
-                      {userType === 'member' ? (
-                        membersLoading ? (
-                          <div className="p-2 text-center text-gray-500">Loading members...</div>
-                        ) : filteredMembers.length > 0 ? (
-                          filteredMembers.map(member => (
-                            <div
-                              key={member.id}
-                              className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"
-                              onClick={() => handleSelectMember(member)}
-                            >
-                              {member.profileImage && (
-                                <img
-                                  src={member.profileImage}
-                                  alt=""
-                                  className="w-8 h-8 rounded-full mr-2 object-cover"
-                                />
-                              )}
-                              <div>
-                                <div className="font-medium">{member.lastName}, {member.firstName}</div>
-                                <div className="text-xs text-gray-500">Member #{member.memberNumber}</div>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="p-2 text-center text-gray-500">No members found</div>
-                        )
-                      ) : (
-                        visitorsLoading ? (
-                          <div className="p-2 text-center text-gray-500">Loading visitors...</div>
-                        ) : filteredVisitors.length > 0 ? (
-                          filteredVisitors.map(visitor => (
-                            <div
-                              key={visitor.id}
-                              className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"
-                              onClick={() => handleSelectVisitor(visitor)}
-                            >
-                              {visitor.profileImage && (
-                                <img
-                                  src={visitor.profileImage}
-                                  alt=""
-                                  className="w-8 h-8 rounded-full mr-2 object-cover"
-                                />
-                              )}
-                              <div>
-                                <div className="font-medium">{visitor.lastName}, {visitor.firstName}</div>
-                                <div className="text-xs text-gray-500">Visitor #{visitor.visitorNumber}</div>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="p-2 text-center text-gray-500">No visitors found</div>
-                        )
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {selectedMember && (
-                  <div className="mt-2 p-2 bg-blue-50 rounded flex items-center">
-                    <span className="font-medium mr-2">Selected Member:</span>
-                    <span>
-                      {selectedMember.firstName} {selectedMember.lastName} (#{selectedMember.memberNumber})
-                    </span>
-                  </div>
-                )}
-
-                {selectedVisitor && (
-                  <div className="mt-2 p-2 bg-purple-50 rounded flex items-center">
-                    <span className="font-medium mr-2">Selected Visitor:</span>
-                    <span>
-                      {selectedVisitor.firstName} {selectedVisitor.lastName} (#{selectedVisitor.visitorNumber})
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                User-Type
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="admin">Administrator</option>
+                <option value="user">User</option>
+              </select>
+            </div>
 
             <div className="grid grid-cols-1 gap-4">
               <div>
@@ -576,8 +342,8 @@ const UserForm = ({ user, onClose, onSubmit }) => {
           </button>
           <button
             type="submit"
-            disabled={loading || (!user && userType === 'member' && !selectedMember) || (!user && userType === 'visitor' && !selectedVisitor)}
-            className={`px-4 py-2 ${((!user && userType === 'member' && !selectedMember) || (!user && userType === 'visitor' && !selectedVisitor)) ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'} text-white rounded`}
+            disabled={loading}
+            className={`px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded`}
           >
             {loading ? <ButtonLoader /> : 'Save'}
           </button>
@@ -587,4 +353,4 @@ const UserForm = ({ user, onClose, onSubmit }) => {
   );
 };
 
-export default UserForm; 
+export default UserForm;

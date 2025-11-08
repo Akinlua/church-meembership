@@ -91,6 +91,7 @@ module.exports = (app) => {
       name, 
       username, 
       password,
+      role,
       memberId,
       visitorId,
       memberAccess,
@@ -173,6 +174,7 @@ module.exports = (app) => {
           username,
           password: hashedPassword,
           passwordChangeRequired: true, // Require password change on first login
+          role: role === 'admin' ? 'admin' : 'user',
           memberId: memberId ? parseInt(memberId) : null,
           visitorId: visitorId ? parseInt(visitorId) : null,
           memberAccess: memberAccess || false,
@@ -249,6 +251,7 @@ module.exports = (app) => {
       name, 
       username, 
       password,
+      role,
       memberId,
       visitorId,
       memberAccess,
@@ -327,6 +330,7 @@ module.exports = (app) => {
       const updateData = {
         name,
         username,
+        role: role === 'admin' ? 'admin' : (role === 'user' ? 'user' : undefined),
         memberId: memberId ? parseInt(memberId) : undefined,
         visitorId: visitorId ? parseInt(visitorId) : undefined,
         memberAccess: memberAccess !== undefined ? memberAccess : undefined,
@@ -712,4 +716,4 @@ module.exports = (app) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
-}; 
+};
