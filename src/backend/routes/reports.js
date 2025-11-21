@@ -319,7 +319,7 @@ module.exports = (app) => {
          .fontSize(10);
 
       // Header background
-      doc.rect(50, tableTop - 5, 490, 20)
+      doc.rect(50, tableTop - 5, 490, 16)
          .fill('#f3f4f6');
 
       // Header text
@@ -328,7 +328,7 @@ module.exports = (app) => {
         .text('Amount', columns.amount.x, tableTop);
 
       // Draw rows
-      let yPosition = tableTop + 25;
+      let yPosition = tableTop + 20;
       doc.font('Helvetica').fontSize(10);
 
       // Add summary data
@@ -338,7 +338,7 @@ module.exports = (app) => {
           yPosition = 50;
           
           // Repeat header on new page
-          doc.rect(50, yPosition - 5, 490, 20)
+          doc.rect(50, yPosition - 5, 490, 16)
               .fill('#f3f4f6');
           
           doc.fillColor('#000000')
@@ -346,13 +346,13 @@ module.exports = (app) => {
               .text('Type Name', columns.type.x, yPosition)
               .text('Amount', columns.amount.x, yPosition);
           
-          yPosition += 25;
+          yPosition += 16;
           doc.font('Helvetica');
         }
   
         // Alternate row background
         if (i % 2 === 0) {
-          doc.rect(50, yPosition - 5, 490, 20)
+          doc.rect(50, yPosition - 5, 490, 16)
               .fill('#f9fafb');
         }
   
@@ -360,7 +360,7 @@ module.exports = (app) => {
             .text(type, columns.type.x, yPosition)
             .text(formatCurrency(amount), columns.amount.x, yPosition);
   
-        yPosition += 20;
+        yPosition += 16;
       });
 
       // Add summary section
@@ -493,7 +493,7 @@ module.exports = (app) => {
           yPosition = 50;
           
           // Repeat header on new page
-          doc.rect(50, yPosition - 5, 490, 20)
+          doc.rect(50, yPosition - 5, 490, 16)
              .fill('#f3f4f6');
           
           doc.fillColor('#000000')
@@ -504,13 +504,13 @@ module.exports = (app) => {
              .text('Type', columns.type.x, yPosition);
 
           
-          yPosition += 25;
+          yPosition += 16;
           doc.font('Helvetica');
         }
 
         // Alternate row background
         if (i % 2 === 0) {
-          doc.rect(50, yPosition - 5, 490, 20)
+          doc.rect(50, yPosition - 5, 490, 16)
              .fill('#f9fafb');
         }
 
@@ -520,7 +520,7 @@ module.exports = (app) => {
            .text(formatCurrency(donation.amount), columns.amount.x, yPosition)
            .text(donation.donationType, columns.type.x, yPosition);
 
-        yPosition += 20;
+        yPosition += 16;
       });
 
       // Add summary section
@@ -709,14 +709,14 @@ module.exports = (app) => {
       doc.text(tableHeaders[2], 400, y, { align: 'right' });
       
       // Draw horizontal line
-      y += 20;
+      y += 16;
       doc.moveTo(50, y).lineTo(550, y).stroke();
       
       // Draw rows
       doc.font('Helvetica').fontSize(10);
       
       vendorsWithCharges.forEach(vendor => {
-        y += 20;
+        y += 16;
         
         // Add a new page if we're near the bottom
         if (y > 700) {
@@ -730,7 +730,7 @@ module.exports = (app) => {
           doc.text(tableHeaders[2], 400, y, { align: 'right' });
           
           // Draw horizontal line
-          y += 20;
+          y += 16;
           doc.moveTo(50, y).lineTo(550, y).stroke();
           
           doc.font('Helvetica').fontSize(10);
@@ -868,7 +868,7 @@ module.exports = (app) => {
           doc.text('Vendor', 150, y);
           doc.text('Category', 250, y);
           doc.text('Amount', 350, y);
-          y += 30;
+          y += 24;
           doc.font('Helvetica');
         }
 
@@ -876,7 +876,7 @@ module.exports = (app) => {
         doc.text(`${expense.vendor.lastName}`, 150, y);
         doc.text(expense.expenseCategory?.name || 'N/A', 250, y);
         doc.text(formatCurrency(expense.amount), 350, y);
-        y += 20;
+        y += 16;
       });
 
       // Total
@@ -1031,7 +1031,7 @@ module.exports = (app) => {
           doc.text('Vendor', 150, y);
           doc.text('Category', 250, y);
           doc.text('Amount', 350, y);
-          y += 30;
+          y += 24;
           doc.font('Helvetica');
         }
 
@@ -1039,7 +1039,7 @@ module.exports = (app) => {
         doc.text(`${charge.vendor.lastName}`, 150, y);
         doc.text(charge.expenseCategory?.name || 'N/A', 250, y);
         doc.text(formatCurrency(charge.amount), 350, y);
-        y += 20;
+        y += 16;
       });
 
       // Total
@@ -1063,7 +1063,7 @@ module.exports = (app) => {
       Object.entries(categorySummary).forEach(([category, amount]) => {
         doc.text(category, 100, y);
         doc.text(formatCurrency(amount), 300, y);
-        y += 20;
+        y += 16;
       });
 
       doc.end();
@@ -1212,7 +1212,7 @@ module.exports = (app) => {
           doc.text('Cash', 350, y);
           doc.text('Check', 430, y);
           doc.text('Total', 510, y);
-          y += 30;
+          y += 24;
           doc.font('Helvetica');
         }
 
@@ -1222,7 +1222,7 @@ module.exports = (app) => {
         doc.text(formatCurrency(deposit.cashAmount), 350, y);
         doc.text(formatCurrency(getCheckAmount(deposit)), 430, y);
         doc.text(formatCurrency(deposit.totalAmount), 510, y);
-        y += 20;
+        y += 16;
       });
 
       // Total
@@ -1399,9 +1399,9 @@ module.exports = (app) => {
           doc.text('Groups', xPos, y);
           
           // Draw a line
-          y += 15;
+          y += 12;
           doc.moveTo(30, y).lineTo(doc.page.width - 30, y).stroke();
-          y += 15;
+          y += 12;
           doc.font('Helvetica').fontSize(9);
         }
         
@@ -1430,7 +1430,7 @@ module.exports = (app) => {
         
         doc.text(groups, xPos, y, { width: columnWidths.groups - 5 });
         
-        y += 20;
+        y += 16;
       });
       
       // Finalize PDF
@@ -1506,9 +1506,9 @@ module.exports = (app) => {
           doc.text('Member Count', 450, y, { align: 'right' });
           
           // Draw a line
-          y += 20;
+          y += 16;
           doc.moveTo(50, y).lineTo(550, y).stroke();
-          y += 20;
+          y += 16;
           doc.font('Helvetica');
         }
         
@@ -1517,7 +1517,7 @@ module.exports = (app) => {
         doc.text(group.description || 'No description', 200, y, { width: 240 });
         doc.text(group._count.members.toString(), 450, y, { align: 'right' });
         
-        y += 20;
+        y += 16;
       });
       
       // Finalize PDF
