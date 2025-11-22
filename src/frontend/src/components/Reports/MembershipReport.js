@@ -9,11 +9,6 @@ const MembershipReport = ({ reportData }) => {
 
   return (
     <div className="p-6">
-      <div className="mb-6 bg-blue-50 p-4 rounded-lg">
-        <h3 className="text-xl font-bold text-blue-800">
-          Total Members: {total || 0}
-        </h3>
-      </div>
 
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">

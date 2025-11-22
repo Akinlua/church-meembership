@@ -62,7 +62,7 @@ const CheckTemplate = ({ checkData }) => {
             <div className="payee-line flex-grow border-b border-gray-400">
               <span className="payee-name font-bold">{payTo || 'Morgan Stanley'}</span>
             </div>
-            <div className="amount-box border border-gray-400 px-2 py-1 ml-2">
+            <div className="amount-box px-2 py-1 ml-2">
               <span className="font-bold">${formattedAmount || '13,239.72'}</span>
             </div>
           </div>
@@ -241,4 +241,4 @@ function convertNumberToWords(number) {
   }
 }
 
-export default CheckTemplate; 
+export default CheckTemplate;

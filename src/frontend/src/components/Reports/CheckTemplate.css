@@ -52,7 +52,6 @@
   .check-template, 
   .check-template * {
     visibility: visible !important;
-    color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
   
@@ -80,4 +79,6 @@
     position: relative !important;
     top: -30px !important;
   }
-} 
+  .check-template { line-height: 1 !important; }
+  .check-template p, .check-template div, .check-template span { line-height: 1 !important; }
+}

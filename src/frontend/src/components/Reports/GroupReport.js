@@ -9,41 +9,33 @@ const GroupReport = ({ reportData }) => {
 
   return (
     <div className="p-6">
-      <div className="mb-6 bg-blue-50 p-4 rounded-lg">
-        <h3 className="text-xl font-bold text-blue-800">
-          Total Groups: {total || 0}
-        </h3>
-      </div>
-
-      <div className="space-y-8">
-        {(groups || []).map(group => (
-          <div key={group.id} className="bg-white shadow overflow-hidden rounded-lg">
-            <div className="px-4 py-5 sm:px-6 bg-gray-50">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                {group.name || 'Unnamed Group'}
-              </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                {group.description || 'No description available'}
-              </p>
-            </div>
-            <div className="border-t border-gray-200">
-              <div className="px-4 py-5 sm:p-6">
-                <h4 className="text-md font-medium text-gray-700 mb-3">Members ({(group.members || []).length})</h4>
-                {group.members && group.members.length > 0 ? (
-                  <ul className="divide-y divide-gray-200">
-                    {group.members.map((member, index) => (
-                      <li key={index} className="py-2">
-                        {member.firstName && member.lastName ? `${member.lastName}, ${member.firstName}` : 'Unknown Member'}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-gray-500">No members in this group</p>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Members</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member List</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {(groups || []).map(group => (
+              <tr key={group.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{group.name || 'Unnamed Group'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{group.description || 'No description available'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">{(group.members || []).length}</td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {group.members && group.members.length > 0
+                    ? group.members
+                        .map(m => (m.firstName && m.lastName ? `${m.lastName}, ${m.firstName}` : 'Unknown Member'))
+                        .join(', ')
+                    : 'None'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

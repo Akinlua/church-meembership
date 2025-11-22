@@ -212,4 +212,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 40px;
   display: flex;
   align-items: center;
+  }
+
+.reports-container, .reports-container * {
+  line-height: 1 !important;
+}
+
+form, form * {
+  line-height: 1 !important;
+}
+
+@media print {
+  html { line-height: 1 !important; }
+  body { line-height: inherit !important; }
+  p, li, div, span, td, th { line-height: 1 !important; }
+  table th, table td { padding-top: 2px !important; padding-bottom: 2px !important; line-height: 1 !important; }
 }

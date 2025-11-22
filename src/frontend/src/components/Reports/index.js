@@ -237,7 +237,7 @@ const Reports = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container reports-container mx-auto px-4 py-6">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Reports</h1>
       
       {/* Compact layout with dates and buttons in a single row */}
@@ -384,4 +384,4 @@ const Reports = () => {
   );
 };
 
-export default Reports; 
+export default Reports;

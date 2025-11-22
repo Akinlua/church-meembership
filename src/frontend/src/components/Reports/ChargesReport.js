@@ -17,11 +17,6 @@ const ChargesReport = ({ reportData }) => {
 
   return (
     <div className="p-6">
-      <div className="mb-6 bg-blue-50 p-4 rounded-lg">
-        <h3 className="text-xl font-bold text-blue-800">
-          Total Charges: {formatCurrency(total || 0)}
-        </h3>
-      </div>
 
       {/* Category Summary */}
       {categorySummary && Object.keys(categorySummary).length > 0 && (
@@ -112,4 +107,4 @@ const ChargesReport = ({ reportData }) => {
   );
 };
 
-export default ChargesReport; 
+export default ChargesReport;
