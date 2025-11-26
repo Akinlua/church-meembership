@@ -31,10 +31,10 @@ const GroupReport = ({ reportData }) => {
               })
               .map(group => (
               <tr key={group.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap w-3/12 text-sm text-gray-900">{group.name || 'Unnamed Group'}</td>
-                <td className="px-6 py-4 whitespace-nowrap w-3/12 text-sm text-gray-500">{group.description || 'No description available'}</td>
-                <td className="px-6 py-4 whitespace-nowrap w-2/12 text-sm text-gray-500 text-right">{(group.members || []).length}</td>
-                <td className="px-6 py-4 w-4/12 text-sm text-gray-500">
+                <td className="px-6 py-4 w-3/12 text-sm text-gray-900 align-top">{group.name || 'Unnamed Group'}</td>
+                <td className="px-6 py-4 w-3/12 text-sm text-gray-500 align-top">{group.description || 'No description available'}</td>
+                <td className="px-6 py-4 whitespace-nowrap w-2/12 text-sm text-gray-500 text-right align-top">{(group.members || []).length}</td>
+                <td className="px-6 py-4 w-4/12 text-sm text-gray-500 align-top">
                   {group.members && group.members.length > 0
                     ? [...group.members]
                         .sort((a, b) => {

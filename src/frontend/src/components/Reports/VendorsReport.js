@@ -47,13 +47,13 @@ const VendorsReport = ({ reportData }) => {
           <tbody className="bg-white divide-y divide-gray-200">
             {rows.map(vendor => (
               <tr key={vendor.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap w-5/12 text-sm text-gray-500">
+                <td className="px-6 py-4 w-5/12 text-sm text-gray-500 align-top">
                   {`${vendor.lastName}`}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap w-4/12 text-sm text-gray-500">
+                <td className="px-6 py-4 w-4/12 text-sm text-gray-500 align-top">
                   {vendor.email || 'N/A'}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap w-3/12 text-sm text-gray-500 text-right">
+                <td className="px-6 py-4 w-3/12 text-sm text-gray-500 text-right align-top">
                   {formatCurrency(vendor.totalCharges || 0)}
                 </td>
               </tr>
