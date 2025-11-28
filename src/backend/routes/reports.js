@@ -17,9 +17,9 @@ module.exports = (app) => {
   app.get('/reports/donations', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate, memberId } = req.query;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.donationDate = {
           gte: new Date(startDate),
@@ -70,9 +70,9 @@ module.exports = (app) => {
   app.get('/reports/membership', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate, memberStatus } = req.query;
-      
+
       let whereClause = {};
-      
+
       // Date filtering
       if (startDate && endDate) {
         whereClause.membershipDate = {
@@ -88,7 +88,7 @@ module.exports = (app) => {
           lte: new Date(new Date(endDate).setHours(23, 59, 59))
         };
       }
-      
+
       // Member status filtering
       if (memberStatus === 'active') {
         whereClause.isActive = true;
@@ -96,7 +96,7 @@ module.exports = (app) => {
         whereClause.isActive = false;
       }
       // If memberStatus is 'all' or undefined, don't filter by status
-      
+
       const members = await prisma.member.findMany({
         where: whereClause,
         include: {
@@ -114,13 +114,13 @@ module.exports = (app) => {
           lastName: 'asc'
         }
       });
-      
+
       // Transform the data to include group names
       const formattedMembers = members.map(member => ({
         ...member,
         groups: member.groups.map(membership => membership.group.name)
       }));
-      
+
       res.json({
         members: formattedMembers,
         total: formattedMembers.length
@@ -233,7 +233,7 @@ module.exports = (app) => {
       const { startDate, endDate, memberId } = req.body;
 
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.donationDate = {
           gte: new Date(startDate),
@@ -292,16 +292,16 @@ module.exports = (app) => {
       doc.pipe(res);
 
       doc.moveDown(0.5)
-          .fontSize(18)
-          .font('Helvetica')
-          .text('Donation Type Summary', { align: 'center' });
+        .fontSize(18)
+        .font('Helvetica')
+        .text('Donation Type Summary', { align: 'center' });
 
       // Updated date range display
       if (startDate || endDate) {
         doc.moveDown(0.5)
-            .fontSize(12)
-            .font('Helvetica-Bold')
-            .text(`From    ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'}    To    ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text(`From    ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'}    To    ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
       }
 
       doc.moveDown(2);
@@ -316,11 +316,11 @@ module.exports = (app) => {
 
       // Draw header
       doc.font('Helvetica-Bold')
-         .fontSize(10);
+        .fontSize(10);
 
       // Header background
       doc.rect(50, tableTop - 5, 490, 16)
-         .fill('#f3f4f6');
+        .fill('#f3f4f6');
 
       // Header text
       doc.fillColor('#000000')
@@ -336,37 +336,37 @@ module.exports = (app) => {
         if (yPosition > 700) {
           doc.addPage();
           yPosition = 50;
-          
+
           // Repeat header on new page
           doc.rect(50, yPosition - 5, 490, 16)
-              .fill('#f3f4f6');
-          
+            .fill('#f3f4f6');
+
           doc.fillColor('#000000')
-              .font('Helvetica-Bold')
-              .text('Type Name', columns.type.x, yPosition)
-              .text('Amount', columns.amount.x, yPosition);
-          
+            .font('Helvetica-Bold')
+            .text('Type Name', columns.type.x, yPosition)
+            .text('Amount', columns.amount.x, yPosition);
+
           yPosition += 16;
           doc.font('Helvetica');
         }
-  
+
         // Alternate row background
         if (i % 2 === 0) {
           doc.rect(50, yPosition - 5, 490, 16)
-              .fill('#f9fafb');
+            .fill('#f9fafb');
         }
-  
+
         doc.fillColor('#000000')
-            .text(type, columns.type.x, yPosition)
-            .text(formatCurrency(amount), columns.amount.x, yPosition);
-  
+          .text(type, columns.type.x, yPosition)
+          .text(formatCurrency(amount), columns.amount.x, yPosition);
+
         yPosition += 16;
       });
 
       // Add summary section
       doc.moveDown(5)
-         .font('Helvetica-Bold')
-         .fontSize(12);
+        .font('Helvetica-Bold')
+        .fontSize(12);
 
       // Calculate the total text
       const totalText = `Total: ${formatCurrency(totalAmount)}`;
@@ -391,7 +391,7 @@ module.exports = (app) => {
   router.post('/donations/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate, memberId } = req.body;
-      
+
       // Create date filter
       let whereClause = {};
       if (startDate || endDate) {
@@ -441,18 +441,18 @@ module.exports = (app) => {
       res.setHeader('Content-Disposition', 'attachment; filename=donations-report.pdf');
 
       doc.pipe(res);
-      
+
       doc.moveDown(0.5)
-         .fontSize(18)
-         .font('Helvetica')
-         .text('Donation Totals', { align: 'center' });
+        .fontSize(18)
+        .font('Helvetica')
+        .text('Donation Totals', { align: 'center' });
 
       if (startDate || endDate) {
         // Updated date range display
         doc.moveDown(0.5)
-        .fontSize(12)
-        .font('Helvetica-Bold')
-        .text(`From    ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'}    To    ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text(`From    ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'}    To    ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
 
       }
 
@@ -470,18 +470,18 @@ module.exports = (app) => {
 
       // Draw header
       doc.font('Helvetica-Bold')
-         .fontSize(10);
+        .fontSize(10);
 
       // Header background
       doc.rect(50, tableTop - 5, 490, 20)
-         .fill('#f3f4f6');
+        .fill('#f3f4f6');
 
       // Header text
       doc.fillColor('#000000')
-         .text('Date', columns.date.x, tableTop)
-         .text('Member', columns.member.x, tableTop)
-         .text('Amount', columns.amount.x, tableTop)
-         .text('Type', columns.type.x, tableTop);
+        .text('Date', columns.date.x, tableTop)
+        .text('Member', columns.member.x, tableTop)
+        .text('Amount', columns.amount.x, tableTop)
+        .text('Type', columns.type.x, tableTop);
 
       // Draw rows
       let yPosition = tableTop + 25;
@@ -491,19 +491,19 @@ module.exports = (app) => {
         if (yPosition > 700) {
           doc.addPage();
           yPosition = 50;
-          
+
           // Repeat header on new page
           doc.rect(50, yPosition - 5, 490, 16)
-             .fill('#f3f4f6');
-          
-          doc.fillColor('#000000')
-             .font('Helvetica-Bold')
-             .text('Date', columns.date.x, yPosition)
-             .text('Member', columns.member.x, yPosition)
-             .text('Amount', columns.amount.x, yPosition)
-             .text('Type', columns.type.x, yPosition);
+            .fill('#f3f4f6');
 
-          
+          doc.fillColor('#000000')
+            .font('Helvetica-Bold')
+            .text('Date', columns.date.x, yPosition)
+            .text('Member', columns.member.x, yPosition)
+            .text('Amount', columns.amount.x, yPosition)
+            .text('Type', columns.type.x, yPosition);
+
+
           yPosition += 16;
           doc.font('Helvetica');
         }
@@ -511,22 +511,22 @@ module.exports = (app) => {
         // Alternate row background
         if (i % 2 === 0) {
           doc.rect(50, yPosition - 5, 490, 16)
-             .fill('#f9fafb');
+            .fill('#f9fafb');
         }
 
         doc.fillColor('#000000')
-           .text(new Date(donation.donationDate).toLocaleDateString(), columns.date.x, yPosition)
-           .text(`${donation.member.firstName} ${donation.member.lastName}`, columns.member.x, yPosition)
-           .text(formatCurrency(donation.amount), columns.amount.x, yPosition)
-           .text(donation.donationType, columns.type.x, yPosition);
+          .text(new Date(donation.donationDate).toLocaleDateString(), columns.date.x, yPosition)
+          .text(`${donation.member.firstName} ${donation.member.lastName}`, columns.member.x, yPosition)
+          .text(formatCurrency(donation.amount), columns.amount.x, yPosition)
+          .text(donation.donationType, columns.type.x, yPosition);
 
         yPosition += 16;
       });
 
       // Add summary section
       doc.moveDown(5)
-         .font('Helvetica-Bold')
-         .fontSize(12);
+        .font('Helvetica-Bold')
+        .fontSize(12);
 
       // Calculate the total text
       const totalText = `Total: ${formatCurrency(totalAmount)}`;
@@ -554,9 +554,9 @@ module.exports = (app) => {
   app.get('/reports/vendors', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate, vendorId } = req.query;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.createdAt = {
           gte: new Date(startDate),
@@ -592,9 +592,9 @@ module.exports = (app) => {
               vendorId: vendor.id
             }
           });
-          
+
           const totalCharges = charges.reduce((sum, charge) => sum + parseFloat(charge.amount), 0);
-          
+
           return {
             ...vendor,
             totalCharges
@@ -616,9 +616,9 @@ module.exports = (app) => {
   app.post('/reports/vendors/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate, vendorId } = req.body;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.createdAt = {
           gte: new Date(startDate),
@@ -654,9 +654,9 @@ module.exports = (app) => {
               vendorId: vendor.id
             }
           });
-          
+
           const totalCharges = charges.reduce((sum, charge) => sum + parseFloat(charge.amount), 0);
-          
+
           return {
             ...vendor,
             totalCharges
@@ -664,83 +664,122 @@ module.exports = (app) => {
         })
       );
 
+      const totalAmount = vendorsWithCharges.reduce((sum, v) => sum + v.totalCharges, 0);
+
       // Create PDF document
-      const doc = new PDFDocument();
-      
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4'
+      });
+
       // Set response headers
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=vendors-report.pdf');
-      
+
       // Pipe PDF to response
       doc.pipe(res);
-      
-      // Add title
-      doc.fontSize(20).text('Vendors Report', { align: 'center' });
-      doc.moveDown();
-      
-      // Add date range if provided
+
+      doc.moveDown(0.5)
+        .fontSize(18)
+        .font('Helvetica')
+        .text('Vendors Report', { align: 'center' });
+
       if (startDate || endDate) {
-        doc.fontSize(12).text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
-        doc.moveDown();
+        doc.moveDown(0.5)
+          .fontSize(12)
+          .font('Helvetica-Bold')
+          .text(`From    ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'}    To    ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
       }
-      
-      // Add vendor filter if provided
+
       if (vendorId) {
         const vendor = vendorsWithCharges.find(v => v.id === parseInt(vendorId));
         if (vendor) {
-          doc.fontSize(12).text(`Filtered by Vendor: ${vendor.lastName}`, { align: 'center' });
-          doc.moveDown();
+          doc.moveDown(0.5)
+            .fontSize(12)
+            .font('Helvetica')
+            .text(`Filtered by Vendor: ${vendor.lastName}`, { align: 'center' });
         }
       }
-      
-      // Add total count with more space before the table
-      doc.fontSize(14).text(`Total Vendors: ${vendorsWithCharges.length}`, { align: 'left' });
-      doc.moveDown(2); // Add extra space here
-      
-      // Create table with adjusted position
-      const tableTop = 180; // Increased from 150 to provide more space
-      const tableHeaders = ['Vendor Name', 'Contact', 'Total Charges'];
-      
+
+      doc.moveDown(2);
+
+      // Draw table
+      const tableTop = 150;
+      const columns = {
+        name: { x: 50, width: 200 },
+        contact: { x: 270, width: 180 },
+        amount: { x: 470, width: 100 }
+      };
+
       // Draw header
-      let y = tableTop;
-      doc.font('Helvetica-Bold').fontSize(12);
-      doc.text(tableHeaders[0], 50, y);
-      doc.text(tableHeaders[1], 200, y);
-      doc.text(tableHeaders[2], 400, y, { align: 'right' });
-      
-      // Draw horizontal line
-      y += 16;
-      doc.moveTo(50, y).lineTo(550, y).stroke();
-      
+      doc.font('Helvetica-Bold')
+        .fontSize(10);
+
+      // Header background
+      doc.rect(50, tableTop - 5, 490, 20)
+        .fill('#f3f4f6');
+
+      // Header text
+      doc.fillColor('#000000')
+        .text('Vendor Name', columns.name.x, tableTop)
+        .text('Contact', columns.contact.x, tableTop)
+        .text('Total Charges', columns.amount.x, tableTop);
+
       // Draw rows
+      let yPosition = tableTop + 25;
       doc.font('Helvetica').fontSize(10);
-      
-      vendorsWithCharges.forEach(vendor => {
-        y += 16;
-        
-        // Add a new page if we're near the bottom
-        if (y > 700) {
+
+      vendorsWithCharges.forEach((vendor, i) => {
+        if (yPosition > 700) {
           doc.addPage();
-          y = 50;
-          
-          // Redraw header
-          doc.font('Helvetica-Bold').fontSize(12);
-          doc.text(tableHeaders[0], 50, y);
-          doc.text(tableHeaders[1], 200, y);
-          doc.text(tableHeaders[2], 400, y, { align: 'right' });
-          
-          // Draw horizontal line
-          y += 16;
-          doc.moveTo(50, y).lineTo(550, y).stroke();
-          
-          doc.font('Helvetica').fontSize(10);
+          yPosition = 50;
+
+          // Repeat header on new page
+          doc.rect(50, yPosition - 5, 490, 16)
+            .fill('#f3f4f6');
+
+          doc.fillColor('#000000')
+            .font('Helvetica-Bold')
+            .text('Vendor Name', columns.name.x, yPosition)
+            .text('Contact', columns.contact.x, yPosition)
+            .text('Total Charges', columns.amount.x, yPosition);
+
+          yPosition += 16;
+          doc.font('Helvetica');
         }
-        
-        doc.text(vendor.lastName, 50, y);
-        doc.text(vendor.email || 'N/A', 200, y);
-        doc.text(formatCurrency(vendor.totalCharges || 0), 400, y, { align: 'right' });
+
+        // Alternate row background
+        if (i % 2 === 0) {
+          doc.rect(50, yPosition - 5, 490, 16)
+            .fill('#f9fafb');
+        }
+
+        doc.fillColor('#000000')
+          .text(vendor.lastName, columns.name.x, yPosition)
+          .text(vendor.email || 'N/A', columns.contact.x, yPosition)
+          .text(formatCurrency(vendor.totalCharges || 0), columns.amount.x, yPosition);
+
+        yPosition += 16;
       });
-      
+
+      // Add summary section
+      doc.moveDown(5)
+        .font('Helvetica-Bold')
+        .fontSize(12);
+
+      // Calculate the total text
+      const totalText = `Total: ${formatCurrency(totalAmount)}`;
+      const textWidth = doc.widthOfString(totalText);
+
+      // Center the text by calculating the x position
+      const x_Position = (doc.page.width - textWidth) / 2;
+
+      // Set the y position right below the table
+      const y_Position = yPosition + 20;
+
+      // Add the total text at the calculated position
+      doc.text(totalText, x_Position, y_Position);
+
       // Finalize PDF
       doc.end();
     } catch (error) {
@@ -753,9 +792,9 @@ module.exports = (app) => {
   app.get('/reports/expenses', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.dueDate = {
           gte: new Date(startDate),
@@ -798,9 +837,9 @@ module.exports = (app) => {
   app.post('/reports/expenses/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.dueDate = {
           gte: new Date(startDate),
@@ -844,7 +883,7 @@ module.exports = (app) => {
 
       if (startDate || endDate) {
         doc.fontSize(12)
-           .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+          .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
         doc.moveDown();
       }
 
@@ -895,9 +934,9 @@ module.exports = (app) => {
   app.get('/reports/charges', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.dueDate = {
           gte: new Date(startDate),
@@ -951,9 +990,9 @@ module.exports = (app) => {
   app.post('/reports/charges/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.dueDate = {
           gte: new Date(startDate),
@@ -1007,7 +1046,7 @@ module.exports = (app) => {
 
       if (startDate || endDate) {
         doc.fontSize(12)
-           .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+          .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
         doc.moveDown();
       }
 
@@ -1077,9 +1116,9 @@ module.exports = (app) => {
   app.get('/reports/deposits', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.date = {
           gte: new Date(startDate),
@@ -1122,9 +1161,9 @@ module.exports = (app) => {
   app.post('/reports/deposits/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate } = req.body;
-      
+
       let whereClause = {};
-      
+
       if (startDate && endDate) {
         whereClause.date = {
           gte: new Date(startDate),
@@ -1168,7 +1207,7 @@ module.exports = (app) => {
 
       if (startDate || endDate) {
         doc.fontSize(12)
-           .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
+          .text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
         doc.moveDown();
       }
 
@@ -1241,9 +1280,9 @@ module.exports = (app) => {
   app.post('/reports/membership/pdf', authenticateToken, async (req, res) => {
     try {
       const { startDate, endDate, memberStatus } = req.body;
-      
+
       let whereClause = {};
-      
+
       // Date filtering
       if (startDate && endDate) {
         whereClause.membershipDate = {
@@ -1259,7 +1298,7 @@ module.exports = (app) => {
           lte: new Date(new Date(endDate).setHours(23, 59, 59))
         };
       }
-      
+
       // Member status filtering
       if (memberStatus === 'active') {
         whereClause.isActive = true;
@@ -1298,24 +1337,24 @@ module.exports = (app) => {
         size: 'A4',
         layout: 'landscape'
       });
-      
+
       // Set response headers
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=membership-report.pdf');
-      
+
       // Pipe PDF to response
       doc.pipe(res);
-      
+
       // Add title
       doc.fontSize(20).text('Membership Report', { align: 'center' });
       doc.moveDown();
-      
+
       // Add date range if provided
       if (startDate || endDate) {
         doc.fontSize(12).text(`Date Range: ${startDate ? new Date(startDate).toLocaleDateString() : 'Start'} to ${endDate ? new Date(endDate).toLocaleDateString() : 'Present'}`, { align: 'center' });
         doc.moveDown();
       }
-      
+
       // Add member status filter info
       if (memberStatus === 'active') {
         doc.fontSize(12).text('Active Members Only', { align: 'center' });
@@ -1325,11 +1364,11 @@ module.exports = (app) => {
         doc.fontSize(12).text('All Members', { align: 'center' });
       }
       doc.moveDown();
-      
+
       // Add total count
       doc.fontSize(14).text(`Total Members: ${formattedMembers.length}`, { align: 'left' });
       doc.moveDown(2);
-      
+
       // Define column widths with more space for address
       const columnWidths = {
         name: 120,
@@ -1339,103 +1378,103 @@ module.exports = (app) => {
         date: 80,
         groups: 140
       };
-      
+
       // Create table headers
       const tableTop = doc.y;
       doc.fontSize(10).font('Helvetica-Bold');
-      
+
       let xPos = 30;
       doc.text('Name', xPos, tableTop);
       xPos += columnWidths.name;
-      
+
       doc.text('Phone', xPos, tableTop);
       xPos += columnWidths.phone;
-      
+
       doc.text('Address', xPos, tableTop);
       xPos += columnWidths.address;
-      
+
       doc.text('Email', xPos, tableTop);
       xPos += columnWidths.email;
-      
+
       doc.text('Member Date', xPos, tableTop);
       xPos += columnWidths.date;
-      
+
       doc.text('Groups', xPos, tableTop);
-      
+
       // Draw a line
       doc.moveDown();
       doc.moveTo(30, doc.y).lineTo(doc.page.width - 30, doc.y).stroke();
       doc.moveDown(0.5);
-      
+
       // Table rows
       let y = doc.y;
       doc.font('Helvetica').fontSize(9);
-      
+
       formattedMembers.forEach((member) => {
         // Check if we need a new page
         if (y > doc.page.height - 50) {
           doc.addPage({ layout: 'landscape' });
           y = 50;
-          
+
           // Redraw headers on new page
           doc.fontSize(10).font('Helvetica-Bold');
-          
+
           xPos = 30;
           doc.text('Name', xPos, y);
           xPos += columnWidths.name;
-          
+
           doc.text('Phone', xPos, y);
           xPos += columnWidths.phone;
-          
+
           doc.text('Address', xPos, y);
           xPos += columnWidths.address;
-          
+
           doc.text('Email', xPos, y);
           xPos += columnWidths.email;
-          
+
           doc.text('Member Date', xPos, y);
           xPos += columnWidths.date;
-          
+
           doc.text('Groups', xPos, y);
-          
+
           // Draw a line
           y += 12;
           doc.moveTo(30, y).lineTo(doc.page.width - 30, y).stroke();
           y += 12;
           doc.font('Helvetica').fontSize(9);
         }
-        
+
         const name = `${member.lastName}, ${member.firstName}`;
         const address = [member.address, member.city, member.state, member.zipCode]
           .filter(Boolean)
           .join(', ');
         const groups = member.groups.join(', ') || 'None';
         const memberDate = member.membershipDate ? new Date(member.membershipDate).toLocaleDateString() : 'N/A';
-        
+
         xPos = 30;
         doc.text(name, xPos, y, { width: columnWidths.name - 5 });
         xPos += columnWidths.name;
-        
+
         doc.text(member.cellPhone || 'N/A', xPos, y);
         xPos += columnWidths.phone;
-        
+
         doc.text(address || 'N/A', xPos, y, { width: columnWidths.address - 5 });
         xPos += columnWidths.address;
-        
+
         doc.text(member.email || 'N/A', xPos, y, { width: columnWidths.email - 5 });
         xPos += columnWidths.email;
-        
+
         doc.text(memberDate, xPos, y);
         xPos += columnWidths.date;
-        
+
         doc.text(groups, xPos, y, { width: columnWidths.groups - 5 });
-        
+
         y += 16;
       });
-      
+
       // Finalize PDF
       doc.end();
-      
+
     } catch (error) {
       console.error('Error generating membership PDF report:', error);
       res.status(500).json({ message: 'Error generating membership PDF report' });
@@ -1461,68 +1500,101 @@ module.exports = (app) => {
         margin: 50,
         size: 'A4'
       });
-      
+
       // Set response headers
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=groups-report.pdf');
-      
+
       // Pipe PDF to response
       doc.pipe(res);
-      
-      // Add title
-      doc.fontSize(20).text('Groups Report', { align: 'center' });
-      doc.moveDown();
-      
-      // Add total count
-      doc.fontSize(14).text(`Total Groups: ${groups.length}`, { align: 'center' });
+
+      doc.moveDown(0.5)
+        .fontSize(18)
+        .font('Helvetica')
+        .text('Groups Report', { align: 'center' });
+
       doc.moveDown(2);
-      
-      // Create table headers
-      const tableTop = doc.y;
-      doc.fontSize(12).font('Helvetica-Bold');
-      doc.text('Group Name', 50, tableTop);
-      doc.text('Description', 200, tableTop);
-      doc.text('Member Count', 450, tableTop, { align: 'right' });
-      
-      // Draw a line
-      doc.moveDown();
-      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-      doc.moveDown(0.5);
-      
-      // Table rows
-      let y = doc.y;
-      doc.font('Helvetica');
-      
-      groups.forEach((group) => {
-        // Check if we need a new page
-        if (y > 700) {
+
+      // Draw table
+      const tableTop = 150;
+      const columns = {
+        name: { x: 50, width: 150 },
+        description: { x: 220, width: 230 },
+        count: { x: 470, width: 100 }
+      };
+
+      // Draw header
+      doc.font('Helvetica-Bold')
+        .fontSize(10);
+
+      // Header background
+      doc.rect(50, tableTop - 5, 490, 20)
+        .fill('#f3f4f6');
+
+      // Header text
+      doc.fillColor('#000000')
+        .text('Group Name', columns.name.x, tableTop)
+        .text('Description', columns.description.x, tableTop)
+        .text('Member Count', columns.count.x, tableTop);
+
+      // Draw rows
+      let yPosition = tableTop + 25;
+      doc.font('Helvetica').fontSize(10);
+
+      groups.forEach((group, i) => {
+        if (yPosition > 700) {
           doc.addPage();
-          y = 50;
-          
-          // Redraw headers on new page
-          doc.fontSize(12).font('Helvetica-Bold');
-          doc.text('Group Name', 50, y);
-          doc.text('Description', 200, y);
-          doc.text('Member Count', 450, y, { align: 'right' });
-          
-          // Draw a line
-          y += 16;
-          doc.moveTo(50, y).lineTo(550, y).stroke();
-          y += 16;
+          yPosition = 50;
+
+          // Repeat header on new page
+          doc.rect(50, yPosition - 5, 490, 16)
+            .fill('#f3f4f6');
+
+          doc.fillColor('#000000')
+            .font('Helvetica-Bold')
+            .text('Group Name', columns.name.x, yPosition)
+            .text('Description', columns.description.x, yPosition)
+            .text('Member Count', columns.count.x, yPosition);
+
+          yPosition += 16;
           doc.font('Helvetica');
         }
-        
-        doc.fontSize(10);
-        doc.text(group.name, 50, y, { width: 140 });
-        doc.text(group.description || 'No description', 200, y, { width: 240 });
-        doc.text(group._count.members.toString(), 450, y, { align: 'right' });
-        
-        y += 16;
+
+        // Alternate row background
+        if (i % 2 === 0) {
+          doc.rect(50, yPosition - 5, 490, 16)
+            .fill('#f9fafb');
+        }
+
+        doc.fillColor('#000000')
+          .text(group.name, columns.name.x, yPosition)
+          .text(group.description || 'No description', columns.description.x, yPosition)
+          .text(group._count.members.toString(), columns.count.x, yPosition);
+
+        yPosition += 16;
       });
-      
+
+      // Add summary section
+      doc.moveDown(5)
+        .font('Helvetica-Bold')
+        .fontSize(12);
+
+      // Calculate the total text
+      const totalText = `Total Groups: ${groups.length}`;
+      const textWidth = doc.widthOfString(totalText);
+
+      // Center the text by calculating the x position
+      const x_Position = (doc.page.width - textWidth) / 2;
+
+      // Set the y position right below the table
+      const y_Position = yPosition + 20;
+
+      // Add the total text at the calculated position
+      doc.text(totalText, x_Position, y_Position);
+
       // Finalize PDF
       doc.end();
-      
+
     } catch (error) {
       console.error('Error generating groups PDF report:', error);
       res.status(500).json({ message: 'Error generating groups PDF report' });
