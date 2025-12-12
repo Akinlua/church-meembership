@@ -1,9 +1,11 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import DatePickerField from '../common/DatePickerField';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 import MaskedDateInput from '../common/MaskedDateInput';
 import Modal from '../../common/Modal';
+import { validateZipCodeInput, formatPhoneNumber } from '../../utils/formValidation';
 
 
 const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
@@ -29,7 +31,7 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
     past_church: member?.pastChurch || '',
     source: isPublicForm ? 'qr_code' : 'admin'  // Track the source of submission
   });
-  
+
   const [availableGroups, setAvailableGroups] = useState([]);
   const [showGroupDropdown, setShowGroupDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
@@ -45,7 +47,7 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
         setShowGroupDropdown(false);
       }
     }
-    
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -60,7 +62,7 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
           const groupIds = member.groups?.map(g => {
             return g.group?.id || g.groupId || g.id;
           }).filter(id => id) || [];
-          
+
           setFormData(prev => ({
             ...prev,
             groups: groupIds
@@ -78,7 +80,7 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
       setFormLoading(false);
       return;
     }
-    
+
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/groups`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -89,14 +91,6 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
     } finally {
       setFormLoading(false);
     }
-  };
-
-  const formatPhoneNumber = (value) => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length === 10) {
-      return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6)}`;
-    }
-    return value;
   };
 
   const handlePhoneChange = (e) => {
@@ -118,19 +112,19 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
       formData.append('image', file);
       try {
         setLoading(true);
-        
+
         // Handle the public form case differently
         const headers = {
           'Content-Type': 'multipart/form-data'
         };
-        
+
         if (!isPublicForm) {
           headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
         }
-        
+
         const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/upload-image`, 
-          formData, 
+          `${process.env.REACT_APP_API_URL}/upload-image`,
+          formData,
           { headers }
         );
         setFormData(prev => ({ ...prev, profile_image: response.data.imageUrl }));
@@ -150,19 +144,19 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
     try {
       const url = `${process.env.REACT_APP_API_URL}/members${member ? `/${member.id}` : ''}`;
       const method = member ? 'put' : 'post';
-      
+
       let headers = {};
       if (!isPublicForm) {
         headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
       }
-      
+
       // For public form, we're using a special public endpoint
-      const apiUrl = isPublicForm 
-        ? `${process.env.REACT_APP_API_URL}/public/members` 
+      const apiUrl = isPublicForm
+        ? `${process.env.REACT_APP_API_URL}/public/members`
         : url;
-      
+
       const response = await axios[isPublicForm ? 'post' : method](apiUrl, formData, { headers });
-      
+
       // Call the provided onSubmit callback with the new member ID
       if (onSubmit) {
         onSubmit(response.data.id);
@@ -236,283 +230,283 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
   }
 
   return (
-    <div>
+    <div className="px-2 py-4 max-w-4xl mx-auto">
       <h2 className="text-xl font-bold mb-4 text-center">
-        {isPublicForm 
-          ? 'Church Membership Registration' 
+        {isPublicForm
+          ? 'Church Membership Registration'
           : (member ? 'Edit Member' : 'Add Church Member')}
       </h2>
-      
+
       {formLoading ? (
         <PageLoader />
       ) : (
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-12 gap-x-4 gap-y-2">
-            {/* Left column - Labels */}
-            <div className="col-span-2">
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">First Name</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Last Name</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Address</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">City</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Cell Phone</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Birth Date</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Membership Date</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Past Church</label>
-              </div>
-              <div className="flex justify-end items-center h-8 mb-3">
-                <label className="text-sm font-medium">Groups</label>
-              </div>
-            </div>
-            
-            {/* Middle column - Form inputs */}
-            <div className="col-span-6">
-              <div className="mb-3 flex items-center h-8">
-                <input
-                  required
-                  type="text"
-                  className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                />
-                <span className="mx-2 text-sm font-medium">M.I.</span>
-                <input
-                  type="text"
-                  className="w-12 border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.middle_name}
-                  onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
-                />
-              </div>
-              
-              <div className="mb-3 h-8">
-                <input
-                  required
-                  type="text"
-                  className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                />
-              </div>
-              
-              <div className="mb-3 h-8">
-                <input
-                  type="text"
-                  className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                />
-              </div>
-              
-              <div className="mb-3 flex items-center h-8">
-                <input
-                  type="text"
-                  className="w-2/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                />
-                <span className="mr-2 text-sm font-medium">State</span>
-                <input
-                  type="text"
-                  className="w-12 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
-                  value={formData.state}
-                  onChange={(e) => {
-                    const value = e.target.value.toUpperCase().slice(0, 2);
-                    setFormData({ ...formData, state: value });
-                  }}
-                />
-                <span className="mr-2 text-sm font-medium">Zip</span>
-                <input
-                  type="text"
-                  className="w-16 border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.zip_code}
-                  onChange={(e) => {
-                    const numericValue = e.target.value.replace(/\D/g, '').slice(0, 5);
-                    setFormData({ ...formData, zip_code: numericValue });
-                  }}
-                  maxLength={5}
-                  pattern="[0-9]{5}"
-                  placeholder="12345"
-                />
-              </div>
-              
-              <div className="mb-3 flex items-center h-8">
-                <input
-                  type="text"
-                  className="w-1/3 border border-gray-600 px-2 py-1 text-sm h-8 mr-3"
-                  value={formData.cell_phone}
-                  onChange={handlePhoneChange}
-                  placeholder="(123) 456-7890"
-                />
-                <span className="mr-2 text-sm font-medium">Email</span>
-                <input
-                  type="email"
-                  className="flex-1 border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-              
-              <div className="mb-3 flex items-center h-8">
-                <MaskedDateInput
-                  value={formData.birthday}
-                  onChange={(date) => setFormData({ ...formData, birthday: date })}
-                  required
-                  inputClassName="w-40 mr-5"
-                />
-                
-                <span className="text-sm font-medium mr-1">Sex</span>
-                <select
-                  className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.gender}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                >
-                  <option value="">M/F/NA</option>
-                  <option value="Male">M</option>
-                  <option value="Female">F</option>
-                  <option value="NA">NA</option>
-                </select>
-              </div>
-              
-              <div className="mb-3 flex items-center h-8">
-                <MaskedDateInput
-                  value={formData.membership_date}
-                  onChange={(date) => setFormData({ ...formData, membership_date: date })}
-                  required
-                  inputClassName="w-30 mr-5"
-                />                
-                
-                <span className="text-sm font-medium mr-1">Baptismal</span>
-                <MaskedDateInput
-                  value={formData.baptismal_date}
-                  onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
-                  required
-                  inputClassName="w-24"
-                />
-              </div>
-              
-              <div className="mb-3 flex items-center h-8">
-                <input
-                  type="text"
-                  className="flex-1 border border-gray-600 px-2 py-1 text-sm h-8"
-                  value={formData.past_church || ''}
-                  onChange={(e) => setFormData({ ...formData, past_church: e.target.value })}
-                />
-              </div>
-              
-              <div className="mb-3 flex items-center h-8">
-                {/* <span className="mr-2 text-sm font-medium">Groups</span> */}
-                <div className="relative flex-1 mr-4" ref={groupDropdownRef}>
-                  <button
-                    type="button"
-                    className="w-full border border-gray-600 px-2 py-1 text-sm h-8 text-left"
-                    onClick={() => setShowGroupDropdown(!showGroupDropdown)}
-                  >
-                    <span className="block truncate">
-                      {formData.groups.length} groups selected
-                    </span>
-                  </button>
+          <div className="flex flex-col md:flex-row">
+            {/* Main form (left side) */}
+            <div className="flex-grow md:pr-4 order-2 md:order-1">
+              <div className="grid grid-cols-12 gap-x-4 gap-y-2">
 
-                  {showGroupDropdown && (
-                    <div className="absolute left-0 right-0 mt-1 z-50 bg-white shadow-lg border-2 border-blue-500 py-2 text-sm overflow-y-auto" style={{maxHeight: "200px", top: "100%"}}>
-                      {availableGroups.length > 0 ? (
-                        availableGroups.map((group) => (
-                          <div
-                            key={group.id}
-                            className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleGroup(group.id);
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={formData.groups.includes(group.id)}
-                              onChange={() => {}}
-                              className="h-4 w-4"
-                            />
-                            <label className="ml-2 block text-sm">
-                              {formatMemberName(group)}
-                            </label>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="px-3 py-2 text-gray-500">No groups available</div>
-                      )}
-                    </div>
-                  )}
+                {/* First Name & MI */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">First Name</label>
                 </div>
-
-                <span className="mr-2 text-sm font-medium">Active</span>
-                <div className="w-16 border border-gray-600 px-2 py-1 text-sm h-8 flex items-center">
+                <div className="col-span-12 md:col-span-9 flex items-center">
                   <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                    className="h-4 w-4 mr-1"
+                    required
+                    type="text"
+                    className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                   />
-                  <label htmlFor="is_active" className="text-sm">
-                    {formData.is_active ? "Y" : "N"}
-                  </label>
+                  <span className="mx-2 text-sm font-medium">M.I.</span>
+                  <input
+                    type="text"
+                    className="w-12 border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.middle_name}
+                    onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
+                  />
                 </div>
+
+                {/* Last Name */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">Last Name</label>
+                </div>
+                <div className="col-span-12 md:col-span-9">
+                  <input
+                    required
+                    type="text"
+                    className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                  />
+                </div>
+
+                {/* Address */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">Address</label>
+                </div>
+                <div className="col-span-12 md:col-span-9">
+                  <input
+                    type="text"
+                    className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  />
+                </div>
+
+                {/* City, State, Zip */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">City</label>
+                </div>
+                <div className="col-span-12 md:col-span-9 flex items-center flex-wrap gap-2">
+                  <input
+                    type="text"
+                    className="flex-grow border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  />
+                  <span className="text-sm font-medium">State</span>
+                  <input
+                    type="text"
+                    className="w-12 border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.state}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase().slice(0, 2);
+                      setFormData({ ...formData, state: value });
+                    }}
+                  />
+                  <span className="text-sm font-medium">Zip</span>
+                  <input
+                    type="text"
+                    className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.zip_code}
+                    onChange={(e) => {
+                      const numericValue = validateZipCodeInput(e.target.value);
+                      setFormData({ ...formData, zip_code: numericValue });
+                    }}
+                    maxLength={5}
+                    pattern="[0-9]{5}"
+                    placeholder="12345"
+                  />
+                </div>
+
+                {/* Cell Phone & Email */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">Cell Phone</label>
+                </div>
+                <div className="col-span-12 md:col-span-9 flex items-center flex-wrap gap-2">
+                  <input
+                    type="text"
+                    className="w-40 border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.cell_phone}
+                    onChange={handlePhoneChange}
+                    placeholder="(123) 456-7890"
+                  />
+                  <span className="text-sm font-medium">Email</span>
+                  <input
+                    type="email"
+                    className="flex-grow border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+
+                {/* Birth Date & Sex */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">Birth Date</label>
+                </div>
+                <div className="col-span-12 md:col-span-9 flex items-center flex-wrap gap-2">
+                  <MaskedDateInput
+                    value={formData.birthday}
+                    onChange={(date) => setFormData({ ...formData, birthday: date })}
+                    required
+                    inputClassName="w-40"
+                  />
+                  <span className="text-sm font-medium">Sex</span>
+                  <select
+                    className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.gender}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  >
+                    <option value="">M/F/NA</option>
+                    <option value="Male">M</option>
+                    <option value="Female">F</option>
+                    <option value="NA">NA</option>
+                  </select>
+                </div>
+
+                {/* Membership & Baptismal */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">Membership Date</label>
+                </div>
+                <div className="col-span-12 md:col-span-9 flex items-center flex-wrap gap-2">
+                  <MaskedDateInput
+                    value={formData.membership_date}
+                    onChange={(date) => setFormData({ ...formData, membership_date: date })}
+                    required
+                    inputClassName="w-40"
+                  />
+                  <span className="text-sm font-medium">Baptismal</span>
+                  <MaskedDateInput
+                    value={formData.baptismal_date}
+                    onChange={(date) => setFormData({ ...formData, baptismal_date: date })}
+                    required
+                    inputClassName="w-40"
+                  />
+                </div>
+
+                {/* Past Church */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">Past Church</label>
+                </div>
+                <div className="col-span-12 md:col-span-9">
+                  <input
+                    type="text"
+                    className="w-full border border-gray-600 px-2 py-1 text-sm h-8"
+                    value={formData.past_church || ''}
+                    onChange={(e) => setFormData({ ...formData, past_church: e.target.value })}
+                  />
+                </div>
+
+                {/* Groups & Active */}
+                <div className="col-span-12 md:col-span-3 flex items-center md:justify-end">
+                  <label className="text-sm font-medium">Groups</label>
+                </div>
+                <div className="col-span-12 md:col-span-9 flex items-center gap-4">
+                  <div className="relative flex-1" ref={groupDropdownRef}>
+                    <button
+                      type="button"
+                      className="w-full border border-gray-600 px-2 py-1 text-sm h-8 text-left"
+                      onClick={() => setShowGroupDropdown(!showGroupDropdown)}
+                    >
+                      <span className="block truncate">
+                        {formData.groups.length} groups selected
+                      </span>
+                    </button>
+
+                    {showGroupDropdown && (
+                      <div className="absolute left-0 right-0 mt-1 z-50 bg-white shadow-lg border-2 border-blue-500 py-2 text-sm overflow-y-auto" style={{ maxHeight: "200px", top: "100%" }}>
+                        {availableGroups.length > 0 ? (
+                          availableGroups.map((group) => (
+                            <div
+                              key={group.id}
+                              className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleGroup(group.id);
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={formData.groups.includes(group.id)}
+                                onChange={() => { }}
+                                className="h-4 w-4"
+                              />
+                              <label className="ml-2 block text-sm">
+                                {formatMemberName(group)}
+                              </label>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-gray-500">No groups available</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <span className="text-sm font-medium">Active</span>
+                  <div className="w-16 border border-gray-600 px-2 py-1 text-sm h-8 flex items-center">
+                    <input
+                      type="checkbox"
+                      id="is_active"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      className="h-4 w-4 mr-1"
+                    />
+                    <label htmlFor="is_active" className="text-sm">
+                      {formData.is_active ? "Y" : "N"}
+                    </label>
+                  </div>
+                </div>
+
               </div>
             </div>
-            
-            {/* Right column - Image */}
-            <div className="col-span-4 flex flex-col justify-between">
-              <div className="flex flex-col items-center">
-                <div className="text-sm font-medium mb-2">Member's Picture</div>
-                <div
-                  className="border border-gray-300 w-48 h-48 flex items-center justify-center mb-2 cursor-pointer"
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  {formData.profile_image ? (
-                    <img 
-                      src={formData.profile_image} 
-                      alt="Profile" 
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  ) : (
-                    <div className="text-center text-gray-400 text-sm">No image</div>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-                
-                {/* Member ID Field */}
-                
-                  <div className="mt-2">
-                    <label className="text-sm font-medium">Member ID: {member ? member.memberNumber : "" }</label>
-                  </div>
+
+            {/* Right Side - Image */}
+            <div className="w-full md:w-48 flex flex-col items-center mb-6 md:mb-0 order-1 md:order-2">
+              <div className="text-sm font-medium mb-2">Member's Picture</div>
+              <div
+                className="border border-gray-300 w-48 h-48 flex items-center justify-center mb-2 cursor-pointer"
+                onClick={() => fileInputRef.current.click()}
+              >
+                {formData.profile_image ? (
+                  <img
+                    src={formData.profile_image}
+                    alt="Profile"
+                    className="max-h-full max-w-full object-contain"
+                  />
+                ) : (
+                  <div className="text-center text-gray-400 text-sm">No image</div>
+                )}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+
+              <div className="mt-2">
+                <label className="text-sm font-medium">Member ID: {member ? member.memberNumber : ""}</label>
               </div>
 
-              {/* Push buttons to the bottom */}
               <div className="flex space-x-2 mt-auto" style={{ marginTop: '10px' }}>
                 <button
                   type="button"
                   onClick={onClose}
                   disabled={loading}
                   className="px-4 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  style={{ marginLeft: '34px', marginBottom: '12px' }}
                 >
                   Cancel
                 </button>
@@ -520,7 +514,6 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
                   type="submit"
                   disabled={loading}
                   className="px-4 py-1 border border-transparent rounded text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                  style={{ marginBottom: '12px' }}
                 >
                   {loading ? <ButtonLoader /> : (member ? 'Update' : 'Submit')}
                 </button>
@@ -548,4 +541,4 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
   );
 };
 
-export default MemberForm; 
+export default MemberForm;

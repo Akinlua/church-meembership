@@ -19,14 +19,14 @@ const MemberDropdown = () => {
 
   useEffect(() => {
     fetchMembers();
-    
+
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -52,7 +52,7 @@ const MemberDropdown = () => {
         }
       });
       setMembers(response.data);
-      
+
       // If user can only see their own data and has data, auto-select it
       if (shouldSeeOnlyOwnData('member') && response.data.length === 1) {
         setSelectedMember(response.data[0]);
@@ -70,7 +70,7 @@ const MemberDropdown = () => {
     const memberNumber = member.memberNumber ? member.memberNumber.toString() : '';
     const memberId = member.id ? member.id.toString() : '';
     const query = searchTerm.toLowerCase();
-    
+
     return fullName.includes(query) || memberNumber.includes(query) || memberId.includes(query);
   });
 
@@ -89,26 +89,26 @@ const MemberDropdown = () => {
     setIsEditing(false);
     setShowForm(true);
   };
-  
+
   const handleEditMember = () => {
     setIsEditing(true);
     setShowForm(true);
   };
-  
+
   const handleDeleteMember = async () => {
     if (window.confirm('Are you sure you want to delete this member?')) {
       try {
         await axios.delete(`${process.env.REACT_APP_API_URL}/members/${selectedMember.id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        
+
         // Show success notification
         setNotification({
           show: true,
           message: `${selectedMember.lastName} ${selectedMember.firstName} was successfully deleted!`,
           type: 'success'
         });
-        
+
         // Clear selection and refresh list
         setSelectedMember(null);
         setSearchTerm('');
@@ -128,25 +128,25 @@ const MemberDropdown = () => {
     try {
       // Refresh the members list
       await fetchMembers();
-      
+
       // Get the newly added member details
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/members/${memberId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      
+
       const newMember = response.data;
-      
+
       // Select the new member
       setSelectedMember(newMember);
       setSearchTerm(`${newMember.lastName} ${newMember.firstName}`);
-      
+
       // Show success notification
       setNotification({
         show: true,
         message: `${newMember.lastName} ${newMember.firstName} was successfully ${isEditing ? 'updated' : 'added'}!`,
         type: 'success'
       });
-      
+
       // Close the form
       setShowForm(false);
       setIsEditing(false);
@@ -201,11 +201,10 @@ const MemberDropdown = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {notification.show && (
-        <div className={`fixed top-5 right-5 px-6 py-4 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 ${
-          notification.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' : 
-          notification.type === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' : 
-          'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
-        }`}>
+        <div className={`fixed top-5 right-5 px-6 py-4 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 ${notification.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
+            notification.type === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+              'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          }`}>
           <div className="flex items-center">
             {notification.type === 'success' && (
               <svg className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -218,9 +217,9 @@ const MemberDropdown = () => {
               </svg>
             )}
             <p>{notification.message}</p>
-            <button 
-              className="ml-auto text-gray-500 hover:text-gray-800" 
-              onClick={() => setNotification({...notification, show: false})}
+            <button
+              className="ml-auto text-gray-500 hover:text-gray-800"
+              onClick={() => setNotification({ ...notification, show: false })}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -232,13 +231,13 @@ const MemberDropdown = () => {
 
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Member Lookup</h1>
-        
+
         {shouldSeeOnlyOwnData('member') && (
           <div className="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4 text-blue-700">
             <p>You are viewing your membership data only. Contact an administrator if you need access to other records.</p>
           </div>
         )}
-        
+
         {loading ? (
           <PageLoader />
         ) : (
@@ -248,40 +247,44 @@ const MemberDropdown = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select a Member
                 </label>
-                <div className="flex">
-                  <input
-                    type="text"
-                    className="w-32 p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder=""
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onClick={handleInputClick}
-                  />
-                  <button
-                    onClick={() => setShowDropdown(prev => !prev)}
-                    className="bg-gray-100 text-gray-700 px-3 hover:bg-gray-200 focus:outline-none border-t border-b border-r border-gray-300"
-                    aria-label="Show all options"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none border-t border-b border-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  {hasAddAccess('member') && (
+                <div className="flex flex-col md:flex-row gap-2">
+                  <div className="flex flex-grow">
+                    <input
+                      type="text"
+                      className="w-full md:w-32 p-3 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder=""
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onClick={handleInputClick}
+                    />
                     <button
-                      onClick={handleAddMember}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 focus:outline-none"
+                      onClick={() => setShowDropdown(prev => !prev)}
+                      className="bg-gray-100 text-gray-700 px-3 hover:bg-gray-200 focus:outline-none border-t border-b border-r border-gray-300"
+                      aria-label="Show all options"
                     >
-                      Add
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
                     </button>
-                  )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleCancel}
+                      className="flex-1 md:flex-none bg-gray-300 text-gray-700 px-4 py-2 hover:bg-gray-400 focus:outline-none border border-gray-300 rounded md:rounded-none md:border-l-0"
+                    >
+                      Cancel
+                    </button>
+                    {hasAddAccess('member') && (
+                      <button
+                        onClick={handleAddMember}
+                        className="flex-1 md:flex-none bg-blue-600 text-white px-4 py-2 rounded md:rounded-r hover:bg-blue-700 focus:outline-none"
+                      >
+                        Add
+                      </button>
+                    )}
+                  </div>
                 </div>
-                
+
                 {showDropdown && (
                   <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
                     {filteredMembers.length > 0 ? (
@@ -299,7 +302,7 @@ const MemberDropdown = () => {
                             />
                           </div>
                           <div>
-                          {member.memberNumber} {member.lastName}, {member.firstName}
+                            {member.memberNumber} {member.lastName}, {member.firstName}
                           </div>
                         </div>
                       ))
@@ -321,12 +324,12 @@ const MemberDropdown = () => {
                       className="h-48 w-48 rounded-full object-cover"
                     />
                   </div>
-                  
+
                   <div className="md:w-2/3 md:pl-8">
                     <h2 className="text-2xl font-bold mb-4">
-                    {selectedMember.lastName}, {selectedMember.firstName} {selectedMember.middleName ? selectedMember.middleName + ' ' : ''}
+                      {selectedMember.lastName}, {selectedMember.firstName} {selectedMember.middleName ? selectedMember.middleName + ' ' : ''}
                     </h2>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Contact Information</h3>
@@ -346,14 +349,13 @@ const MemberDropdown = () => {
                           {selectedMember.membershipDate ? new Date(selectedMember.birthday).toLocaleDateString() : 'N/A'}
                         </p>
                       </div>
-                      
+
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Church Information</h3>
                         <p className="mb-1">
                           <span className="font-medium">Member Status:</span>{' '}
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            selectedMember.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${selectedMember.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
                             {selectedMember.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </p>
@@ -373,7 +375,7 @@ const MemberDropdown = () => {
                         </p>
                       </div>
                     </div>
-                    
+
                     {selectedMember.groups && selectedMember.groups.length > 0 && (
                       <div className="mt-4">
                         <h3 className="text-lg font-semibold mb-2">Groups</h3>
@@ -389,11 +391,11 @@ const MemberDropdown = () => {
                         </div>
                       </div>
                     )}
-                    
+
                     <div className="flex space-x-3 mt-6">
                       {/* Show Edit button if user has add access OR if it's their own record */}
                       {(hasAddAccess('member') || (currentUser && currentUser.memberId === selectedMember.id)) && (
-                        <button 
+                        <button
                           onClick={handleEditMember}
                           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
                         >
@@ -403,10 +405,10 @@ const MemberDropdown = () => {
                           Edit
                         </button>
                       )}
-                      
+
                       {/* Show Delete button if user has delete access OR if it's their own record */}
                       {(hasDeleteAccess('member') || (currentUser && currentUser.memberId === selectedMember.id)) && (
-                        <button 
+                        <button
                           onClick={handleDeleteMember}
                           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
                         >
@@ -416,7 +418,7 @@ const MemberDropdown = () => {
                           Delete
                         </button>
                       )}
-                      
+
                       {/* Show "Your record" indicator if it's the user's own record */}
                       {currentUser && currentUser.memberId === selectedMember.id && (
                         <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -454,4 +456,4 @@ const MemberDropdown = () => {
   );
 };
 
-export default MemberDropdown; 
+export default MemberDropdown;

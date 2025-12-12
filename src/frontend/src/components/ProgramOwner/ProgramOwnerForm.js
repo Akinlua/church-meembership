@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { ButtonLoader, PageLoader } from '../common/Loader';
+import Modal from '../../common/Modal';
+import { validateZipCodeInput, formatPhoneNumber } from '../../utils/formValidation';
 
 const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
   const [formData, setFormData] = useState({
@@ -16,30 +19,9 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
 
-  const formatPhoneNumber = (phoneNumber) => {
-    // Remove all non-digit characters
-    let cleaned = ('' + phoneNumber).replace(/\D/g, '');
-    
-    // Limit to 10 digits
-    cleaned = cleaned.substring(0, 10);
-    
-    // Format as (XXX) XXX-XXXX
-    let formatted = cleaned;
-    if (cleaned.length > 0) {
-      if (cleaned.length <= 3) {
-        formatted = `(${cleaned}`;
-      } else if (cleaned.length <= 6) {
-        formatted = `(${cleaned.substring(0, 3)}) ${cleaned.substring(3)}`;
-      } else {
-        formatted = `(${cleaned.substring(0, 3)}) ${cleaned.substring(3, 6)}-${cleaned.substring(6)}`;
-      }
-    }
-    
-    return formatted;
-  };
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Validate state (2 capital letters)
     if (name === 'state') {
       const upperCaseValue = value.toUpperCase();
@@ -47,74 +29,42 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
         ...formData,
         [name]: upperCaseValue
       });
-      
+
       if (value && (upperCaseValue.length > 2 || !/^[A-Z]*$/.test(upperCaseValue))) {
         setValidationErrors({
           ...validationErrors,
           state: 'State must be 2 capital letters'
         });
       } else {
-        const newErrors = {...validationErrors};
+        const newErrors = { ...validationErrors };
         delete newErrors.state;
         setValidationErrors(newErrors);
       }
-    } 
+    }
     // Validate zip (5 numbers only)
     else if (name === 'zip') {
-      if (value && !/^\d*$/.test(value)) {
-        return; // Don't update if not a number
-      }
-      
+      const numericValue = validateZipCodeInput(value);
       setFormData({
         ...formData,
-        [name]: value
+        [name]: numericValue
       });
-      
-      if (value && value.length > 5) {
+
+      if (numericValue && numericValue.length > 5) {
         setValidationErrors({
           ...validationErrors,
           zip: 'Zip must be 5 digits'
         });
       } else {
-        const newErrors = {...validationErrors};
+        const newErrors = { ...validationErrors };
         delete newErrors.zip;
         setValidationErrors(newErrors);
       }
     }
     // Validate phone number (format: xxx-xxx-xxxx)
     else if (name === 'phone') {
-    
-    const formattedPhone = formatPhoneNumber(e.target.value);
-    setFormData({ ...formData, phone: formattedPhone });
-    
-    // Validate
-  
-    //   // Allow only numbers and hyphens
-    //   let newValue = value.replace(/[^\d-]/g, '');
-      
-    //   // Auto-format as user types
-    //   if (newValue.length > 0) {
-    //     // Remove all hyphens first
-    //     newValue = newValue.replace(/-/g, '');
-        
-    //     // Re-add hyphens in correct positions
-    //     if (newValue.length > 3) {
-    //       newValue = newValue.slice(0, 3) + '-' + newValue.slice(3);
-    //     }
-    //     if (newValue.length > 7) {
-    //       newValue = newValue.slice(0, 7) + '-' + newValue.slice(7);
-    //     }
-    //     // Truncate if too long
-    //     if (newValue.length > 12) {
-    //       newValue = newValue.slice(0, 12);
-    //     }
-    //   }
-      
-      setFormData({
-        ...formData,
-        [name]: formattedPhone
-      });
-      
+      const formattedPhone = formatPhoneNumber(value);
+      setFormData({ ...formData, phone: formattedPhone });
+
       // Validate the format
       if (formattedPhone && formattedPhone.replace(/\D/g, '').length !== 10) {
         setValidationErrors({
@@ -122,7 +72,7 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
           phone: 'Phone must be in format: (123) 456-7890'
         });
       } else {
-        const newErrors = {...validationErrors};
+        const newErrors = { ...validationErrors };
         delete newErrors.phone;
         setValidationErrors(newErrors);
       }
@@ -133,14 +83,14 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
         ...formData,
         [name]: value
       });
-      
+
       if (value && !value.match(/^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\.[a-zA-Z]{2,})?([\/\?\#].*)?$/)) {
         setValidationErrors({
           ...validationErrors,
           webAddress: 'Please enter a valid web address'
         });
       } else {
-        const newErrors = {...validationErrors};
+        const newErrors = { ...validationErrors };
         delete newErrors.webAddress;
         setValidationErrors(newErrors);
       }
@@ -155,12 +105,12 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Check for validation errors
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-    
+
     setLoading(true);
     setError('');
 
@@ -287,7 +237,7 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
                   required
                   placeholder="(123) 456-7890"
                   className={`w-full px-2 py-1 border border-black ${validationErrors.phone ? 'border-red-500' : ''}`}
-                />                
+                />
                 {validationErrors.phone && (
                   <p className="text-red-500 text-xs absolute">{validationErrors.phone}</p>
                 )}
@@ -344,4 +294,4 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
   );
 };
 
-export default ProgramOwnerForm; 
+export default ProgramOwnerForm;

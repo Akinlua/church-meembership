@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 import Modal from '../../common/Modal';
+import { validateZipCodeInput, formatPhoneNumber } from '../../utils/formValidation';
 
 const VendorForm = ({ vendor, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
     account_number: vendor?.accountNumber || '',
     profile_image: vendor?.profileImage || ''
   });
-  
+
   const fileInputRef = useRef();
   const [phoneError, setPhoneError] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -41,34 +42,11 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
     setFormLoading(false);
   }, [vendor]);
 
-  // Function to format phone number
-  const formatPhoneNumber = (phoneNumber) => {
-    // Remove all non-digit characters
-    let cleaned = ('' + phoneNumber).replace(/\D/g, '');
-    
-    // Limit to 10 digits
-    cleaned = cleaned.substring(0, 10);
-    
-    // Format as (XXX) XXX-XXXX
-    let formatted = cleaned;
-    if (cleaned.length > 0) {
-      if (cleaned.length <= 3) {
-        formatted = `(${cleaned}`;
-      } else if (cleaned.length <= 6) {
-        formatted = `(${cleaned.substring(0, 3)}) ${cleaned.substring(3)}`;
-      } else {
-        formatted = `(${cleaned.substring(0, 3)}) ${cleaned.substring(3, 6)}-${cleaned.substring(6)}`;
-      }
-    }
-    
-    return formatted;
-  };
-
   // Handle phone input change
   const handlePhoneChange = (e) => {
     const formattedPhone = formatPhoneNumber(e.target.value);
     setFormData({ ...formData, phone: formattedPhone });
-    
+
     // Validate
     if (formattedPhone && formattedPhone.replace(/\D/g, '').length !== 10) {
       setPhoneError('Please enter a valid 10-digit phone number');
@@ -89,28 +67,28 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate phone number if provided
     if (formData.phone && formData.phone.replace(/\D/g, '').length !== 10) {
       setPhoneError('Please enter a valid 10-digit phone number');
       return;
     }
-    
+
     try {
       setLoading(true);
-      
+
       const formPayload = new FormData();
       Object.keys(formData).forEach(key => {
         if (key !== 'profile_image' || (key === 'profile_image' && formData[key] && !formData[key].startsWith('http'))) {
           formPayload.append(key, formData[key]);
         }
       });
-      
+
       // Handle file upload if a file is selected
       if (fileInputRef.current && fileInputRef.current.files[0]) {
         formPayload.append('profile_image', fileInputRef.current.files[0]);
       }
-      
+
       let response;
       if (vendor) {
         // Update existing vendor
@@ -137,7 +115,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
           }
         );
       }
-      
+
       if (onSubmit) {
         onSubmit(response.data.id);
       }
@@ -205,7 +183,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
               className="w-full px-2 py-1 border border-gray-600"
             />
           </div>
-          
+
           <div className="col-span-3 flex items-center">
             <label className="block text-sm font-medium text-gray-700">City</label>
           </div>
@@ -252,18 +230,18 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
             <label className="block text-sm font-medium text-gray-700">Zip</label>
           </div>
           <div className="col-span-4">
-          <input
-            type="text"
-            className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
-            value={formData.zip_code}
-            onChange={(e) => {
-              const numericValue = e.target.value.replace(/\D/g, '').slice(0, 5);
-              setFormData({ ...formData, zip_code: numericValue });
-            }}
-            maxLength={5}
-            pattern="[0-9]{5}"
-            placeholder="12345"
-          />
+            <input
+              type="text"
+              className="w-20 border border-gray-600 px-2 py-1 text-sm h-8"
+              value={formData.zip_code}
+              onChange={(e) => {
+                const numericValue = validateZipCodeInput(e.target.value);
+                setFormData({ ...formData, zip_code: numericValue });
+              }}
+              maxLength={5}
+              pattern="[0-9]{5}"
+              placeholder="12345"
+            />
           </div>
 
           <div className="col-span-3 flex items-center">
@@ -290,7 +268,7 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
             />
           </div>
         </div>
-        
+
         <div className="flex justify-end mt-6 space-x-3">
           <button
             type="button"
@@ -327,4 +305,4 @@ const VendorForm = ({ vendor, onClose, onSubmit }) => {
   );
 };
 
-export default VendorForm; 
+export default VendorForm;

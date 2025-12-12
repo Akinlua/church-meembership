@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 import Modal from '../../common/Modal';
+import { validateZipCodeInput, formatPhoneNumber } from '../../utils/formValidation';
 
 const BankForm = ({ bank, onClose, onSubmit }) => {
   console.log("bank")
@@ -22,28 +23,11 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
   const [showModal, setShowModal] = useState(false);
   const [phoneError, setPhoneError] = useState('');
 
-  // Function to format phone number
-  const formatPhoneNumber = (phoneNumber) => {
-    let cleaned = ('' + phoneNumber).replace(/\D/g, '');
-    cleaned = cleaned.substring(0, 10);
-    let formatted = cleaned;
-    if (cleaned.length > 0) {
-      if (cleaned.length <= 3) {
-        formatted = `(${cleaned}`;
-      } else if (cleaned.length <= 6) {
-        formatted = `(${cleaned.substring(0, 3)}) ${cleaned.substring(3)}`;
-      } else {
-        formatted = `(${cleaned.substring(0, 3)}) ${cleaned.substring(3, 6)}-${cleaned.substring(6)}`;
-      }
-    }
-    return formatted;
-  };
-
   // Handle phone input change
   const handlePhoneChange = (e) => {
     const formattedPhone = formatPhoneNumber(e.target.value);
     setFormData({ ...formData, phone: formattedPhone });
-    
+
     if (formattedPhone && formattedPhone.replace(/\D/g, '').length !== 10) {
       setPhoneError('Please enter a valid 10-digit phone number');
     } else {
@@ -60,7 +44,12 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
     }
 
     // Validation for zip: only numbers, max 5 digits
-    if (name === 'zip' && !/^\d{0,5}$/.test(value)) {
+    if (name === 'zipCode') {
+      const numericValue = validateZipCodeInput(value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: numericValue,
+      }));
       return;
     }
 
@@ -77,7 +66,7 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
     try {
       const url = `${process.env.REACT_APP_API_URL}/banks${bank ? `/${bank.id}` : ''}`;
       const method = bank ? 'put' : 'post';
-      
+
       const response = await axios[method](url, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
@@ -171,7 +160,7 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
                 className="w-full px-2 py-1 border border-black"
               />
             </div>
-            
+
             <div className="col-span-1 flex items-center">
               <label className="text-sm font-medium text-gray-700 ml-2">State</label>
             </div>
@@ -184,7 +173,7 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
                 className="w-full px-2 py-1 border border-black"
               />
             </div>
-            
+
             <div className="col-span-1 flex items-center">
               <label className="text-sm font-medium text-gray-700 ml-2">Zip</label>
               <input
@@ -193,6 +182,7 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
                 value={formData.zipCode}
                 onChange={handleChange}
                 className="w-full ml-1 px-2 py-1 border border-black"
+                maxLength={5}
               />
             </div>
 
@@ -293,4 +283,4 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
   );
 };
 
-export default BankForm; 
+export default BankForm;
