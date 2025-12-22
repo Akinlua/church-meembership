@@ -22,6 +22,7 @@ const VisitorForm = ({ visitor, onClose, onSubmit, isPublicForm = false }) => {
   });
 
   const fileInputRef = useRef();
+  const firstNameRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -132,6 +133,11 @@ const VisitorForm = ({ visitor, onClose, onSubmit, isPublicForm = false }) => {
       profile_image: ''
     });
     setShowModal(false);
+    setTimeout(() => {
+      if (firstNameRef.current) {
+        firstNameRef.current.focus();
+      }
+    }, 0);
   };
 
   const handleCloseModal = () => {
@@ -165,6 +171,7 @@ const VisitorForm = ({ visitor, onClose, onSubmit, isPublicForm = false }) => {
                   type="text"
                   required
                   value={formData.first_name}
+                  ref={firstNameRef}
                   onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                   className="w-full px-2 py-1 border border-gray-600"
                 />
@@ -198,57 +205,63 @@ const VisitorForm = ({ visitor, onClose, onSubmit, isPublicForm = false }) => {
               <div className="col-span-12 md:col-span-3 flex items-center">
                 <label className="block text-sm font-medium text-gray-700">City</label>
               </div>
-              <div className="col-span-12 md:col-span-9 flex items-center flex-wrap gap-2">
+              <div className="col-span-12 md:col-span-9 flex flex-col md:flex-row md:items-center gap-2">
                 <input
                   type="text"
-                  className="flex-grow border border-gray-600 px-2 py-1"
+                  className="flex-grow border border-gray-600 px-2 py-1 w-full md:w-auto"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 />
-                <span className="text-sm font-medium">State</span>
-                <input
-                  type="text"
-                  className="w-12 border border-gray-600 px-2 py-1"
-                  value={formData.state}
-                  onChange={(e) => {
-                    const value = e.target.value.toUpperCase().slice(0, 2);
-                    setFormData({ ...formData, state: value });
-                  }}
-                  maxLength={2}
-                />
-                <span className="text-sm font-medium">Zip</span>
-                <input
-                  type="text"
-                  className="w-20 border border-gray-600 px-2 py-1"
-                  value={formData.zip_code}
-                  onChange={(e) => {
-                    const numericValue = validateZipCodeInput(e.target.value);
-                    setFormData({ ...formData, zip_code: numericValue });
-                  }}
-                  maxLength={5}
-                  pattern="[0-9]{5}"
-                  placeholder="12345"
-                />
+                <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto">
+                  <span className="text-sm font-medium md:mr-2 mb-1 md:mb-0">State</span>
+                  <input
+                    type="text"
+                    className="w-full md:w-12 border border-gray-600 px-2 py-1"
+                    value={formData.state}
+                    onChange={(e) => {
+                      const value = e.target.value.toUpperCase().slice(0, 2);
+                      setFormData({ ...formData, state: value });
+                    }}
+                    maxLength={2}
+                  />
+                </div>
+                <div className="flex flex-col md:flex-row md:items-center w-full md:w-auto">
+                  <span className="text-sm font-medium md:mr-2 mb-1 md:mb-0">Zip</span>
+                  <input
+                    type="text"
+                    className="w-full md:w-20 border border-gray-600 px-2 py-1"
+                    value={formData.zip_code}
+                    onChange={(e) => {
+                      const numericValue = validateZipCodeInput(e.target.value);
+                      setFormData({ ...formData, zip_code: numericValue });
+                    }}
+                    maxLength={5}
+                    pattern="[0-9]{5}"
+                    placeholder="12345"
+                  />
+                </div>
               </div>
 
               <div className="col-span-12 md:col-span-3 flex items-center">
                 <label className="block text-sm font-medium text-gray-700">Phone</label>
               </div>
-              <div className="col-span-12 md:col-span-9 flex items-center flex-wrap gap-2">
+              <div className="col-span-12 md:col-span-9 flex flex-col md:flex-row md:items-center gap-2">
                 <input
                   type="text"
-                  className="w-40 border border-gray-600 px-2 py-1"
+                  className="w-full md:w-40 border border-gray-600 px-2 py-1 mb-2 md:mb-0"
                   value={formData.phone}
                   onChange={handlePhoneChange}
                   placeholder="(123) 456-7890"
                 />
-                <span className="text-sm font-medium">Email</span>
-                <input
-                  type="email"
-                  className="flex-grow border border-gray-600 px-2 py-1"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
+                <div className="flex flex-col md:flex-row md:items-center flex-grow w-full md:w-auto">
+                  <span className="text-sm font-medium md:mr-2 mb-1 md:mb-0">Email</span>
+                  <input
+                    type="email"
+                    className="w-full md:w-auto flex-grow border border-gray-600 px-2 py-1"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
               </div>
 
               <div className="col-span-12 md:col-span-3 flex items-center">
