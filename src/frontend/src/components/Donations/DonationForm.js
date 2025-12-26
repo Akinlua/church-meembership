@@ -27,7 +27,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
     member_id: '',
     amount: '',
     donation_type: '',
-    donation_date: null,
+    donation_date: new Date(),
     notes: ''
   });
   const [showModal, setShowModal] = useState(false);
@@ -80,7 +80,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     // Check if member_id is valid
     if (!formData.member_id || !formData.member_id.value) {
       alert('Please select a valid member.');
@@ -91,7 +91,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
     try {
       const url = `${process.env.REACT_APP_API_URL}/donations${donation ? `/${donation.id}` : ''}`;
       const method = donation ? 'put' : 'post';
-      
+
       const donationData = {
         ...formData,
         member_id: formData.member_id.value,
@@ -102,14 +102,14 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       await axios[method](url, donationData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      
+
       // Show modal only when adding a new donation
       if (!donation) {
         setShowModal(true);
       } else {
         onClose(); // Close the form if updating
       }
-      
+
     } catch (error) {
       console.error('Error saving donation:', error);
       alert('Error saving donation. Please try again.');
@@ -123,7 +123,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       member_id: '',
       amount: '',
       donation_type: '',
-      donation_date: null,
+      donation_date: new Date(),
       notes: ''
     });
     setShowModal(false);
@@ -217,11 +217,11 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
               />
             </div> */}
             <div className="col-span-9">
-               <MaskedDateInput
+              <MaskedDateInput
                 value={formData.donation_date}
                 onChange={(date) => setFormData({ ...formData, donation_date: date })}
                 required
-                className="w-full px-2 py-1 pl-7 border border-gray-600"
+                inputClassName="w-full px-2 py-1 pl-7 border border-gray-600"
               />
             </div>
 
