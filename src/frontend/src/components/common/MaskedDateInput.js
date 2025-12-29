@@ -8,10 +8,10 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
   const getDateParts = () => {
     // Use current date as default when no value is provided and useCurrentDateAsDefault is true
     const dateToFormat = value ? new Date(value) : (useCurrentDateAsDefault ? new Date() : null);
-    
+
     try {
       if (!dateToFormat) return { month: '', day: '', year: '' };
-      
+
       return {
         month: format(dateToFormat, 'MM'),
         day: format(dateToFormat, 'dd'),
@@ -25,7 +25,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
   const [dateParts, setDateParts] = useState(getDateParts());
   const [errors, setErrors] = useState({ month: false, day: false, year: false });
   const [showDatePicker, setShowDatePicker] = useState(false);
-  
+
   const monthRef = useRef(null);
   const dayRef = useRef(null);
   const yearRef = useRef(null);
@@ -33,7 +33,39 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
 
   // Update date parts when value changes
   React.useEffect(() => {
-    setDateParts(getDateParts());
+    const newParts = getDateParts();
+
+    setDateParts(currentParts => {
+      // Helper to check if two parts are semantically equivalent (e.g. "2" equals "02")
+      const isEquivalent = (part1, part2) => {
+        if (part1 === part2) return true;
+        // If one is empty and other is undefined/null, treat as same (though here we expect strings)
+        if (!part1 && !part2) return true;
+
+        // Parse numbers to compare values
+        const n1 = parseInt(part1, 10);
+        const n2 = parseInt(part2, 10);
+
+        // If both are numbers, compare them
+        if (!isNaN(n1) && !isNaN(n2)) {
+          return n1 === n2;
+        }
+
+        return part1 === part2;
+      };
+
+      // If all parts are semantically equivalent, preserve the user's current input (e.g. "2")
+      // instead of overwriting with the formatted version (e.g. "02")
+      if (
+        isEquivalent(newParts.month, currentParts.month) &&
+        isEquivalent(newParts.day, currentParts.day) &&
+        isEquivalent(newParts.year, currentParts.year)
+      ) {
+        return currentParts;
+      }
+
+      return newParts;
+    });
   }, [value]);
 
   // Hide date picker when clicking outside
@@ -52,49 +84,49 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
 
   const handleMonthChange = (e) => {
     let val = e.target.value.replace(/\D/g, '').slice(0, 2);
-    
+
     const newDateParts = { ...dateParts, month: val };
     setDateParts(newDateParts);
-    
+
     const isValid = validateMonth(val);
     setErrors(prev => ({ ...prev, month: !isValid }));
-    
+
     if (val.length === 2 && isValid) {
       dayRef.current.focus();
     }
-    
+
     if (isValid) {
       tryToCreateDate(newDateParts);
     }
   };
-  
+
   const handleDayChange = (e) => {
     let val = e.target.value.replace(/\D/g, '').slice(0, 2);
-    
+
     const newDateParts = { ...dateParts, day: val };
     setDateParts(newDateParts);
-    
+
     const isValid = validateDay(val, dateParts.month, dateParts.year);
     setErrors(prev => ({ ...prev, day: !isValid }));
-    
+
     if (val.length === 2 && isValid) {
       yearRef.current.focus();
     }
-    
+
     if (isValid) {
       tryToCreateDate(newDateParts);
     }
   };
-  
+
   const handleYearChange = (e) => {
     const val = e.target.value.replace(/\D/g, '').slice(0, 4);
-    
+
     const newDateParts = { ...dateParts, year: val };
     setDateParts(newDateParts);
-    
+
     const isValid = validateYear(val);
     setErrors(prev => ({ ...prev, year: !isValid }));
-    
+
     if (isValid) {
       tryToCreateDate(newDateParts);
     }
@@ -109,7 +141,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
       }
     }
   };
-  
+
   // Attempt to create a date from the parts
   const tryToCreateDate = (parts) => {
     // Only try to create a date if we have complete valid data
@@ -119,7 +151,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
           const month = parseInt(parts.month, 10);
           const day = parseInt(parts.day, 10);
           const year = parseInt(parts.year, 10);
-          
+
           const newDate = new Date(year, month - 1, day);
           if (!isNaN(newDate.getTime())) {
             onChange(newDate);
@@ -141,7 +173,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
     if (!day) return true;
     const dayNum = parseInt(day, 10);
     if (dayNum < 1 || dayNum > 31) return false;
-    
+
     // Check days in month if we have a month
     if (month) {
       const monthNum = parseInt(month, 10);
@@ -151,7 +183,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
         return dayNum <= lastDayOfMonth;
       }
     }
-    
+
     return true;
   };
 
