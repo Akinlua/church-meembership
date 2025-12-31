@@ -202,8 +202,8 @@ const MemberDropdown = () => {
     <div className="container mx-auto px-4 py-8">
       {notification.show && (
         <div className={`fixed top-5 right-5 px-6 py-4 rounded-lg shadow-lg z-50 transition-all duration-500 transform translate-x-0 ${notification.type === 'success' ? 'bg-green-100 border-l-4 border-green-500 text-green-700' :
-            notification.type === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
-              'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
+          notification.type === 'warning' ? 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700' :
+            'bg-blue-100 border-l-4 border-blue-500 text-blue-700'
           }`}>
           <div className="flex items-center">
             {notification.type === 'success' && (
@@ -346,7 +346,7 @@ const MemberDropdown = () => {
                         </p>
                         <p className="mb-1">
                           <span className="font-medium">Birth Date:</span>{' '}
-                          {selectedMember.membershipDate ? new Date(selectedMember.birthday).toLocaleDateString() : 'N/A'}
+                          {selectedMember.birthday ? new Date(selectedMember.birthday).toLocaleDateString() : 'N/A'}
                         </p>
                       </div>
 
