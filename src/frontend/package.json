@@ -54,8 +54,11 @@
     "electron": "^33.2.0",
     "electron-builder": "^25.0.5"
   },
+  "author": "Church Membership",
+  "description": "Church Membership Management Application",
   "build": {
-    "appId": "com.church.membership",
+    "extends": null,
+    "appId": "com.plugin.churchmembership",
     "productName": "ChurchMembership",
     "files": [
       "build/**/*",
@@ -65,7 +68,16 @@
       "output": "dist"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Church Membership",
+      "deleteAppDataOnUninstall": true
     }
   }
 }
