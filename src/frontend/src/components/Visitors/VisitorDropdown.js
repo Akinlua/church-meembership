@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import defaultImage from '../../assets/default.jpg';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import VisitorForm from './VisitorForm';
@@ -275,7 +276,7 @@ const VisitorDropdown = () => {
                           <div className="flex-shrink-0 h-8 w-8 mr-3">
                             <img
                               className="h-8 w-8 rounded-full object-cover"
-                              src={visitor.profileImage || './default.jpg'}
+                              src={visitor.profileImage || defaultImage}
                               alt=""
                             />
                           </div>
@@ -297,7 +298,7 @@ const VisitorDropdown = () => {
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-1/3 mb-6 md:mb-0 flex justify-center">
                     <img
-                      src={selectedVisitor.profileImage || './default.jpg'}
+                      src={selectedVisitor.profileImage || defaultImage}
                       alt={`${selectedVisitor.lastName} ${selectedVisitor.firstName}`}
                       className="h-48 w-48 rounded-full object-cover"
                     />

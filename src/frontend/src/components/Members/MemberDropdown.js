@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import defaultImage from '../../assets/default.jpg';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import MemberForm from './MemberForm';
@@ -297,7 +298,7 @@ const MemberDropdown = () => {
                           <div className="flex-shrink-0 h-8 w-8 mr-3">
                             <img
                               className="h-8 w-8 rounded-full object-cover"
-                              src={member.profileImage || './default.jpg'}
+                              src={member.profileImage || defaultImage}
                               alt=""
                             />
                           </div>
@@ -319,7 +320,7 @@ const MemberDropdown = () => {
                 <div className="flex flex-col md:flex-row">
                   <div className="md:w-1/3 mb-6 md:mb-0 flex justify-center">
                     <img
-                      src={selectedMember.profileImage || './default.jpg'}
+                      src={selectedMember.profileImage || defaultImage}
                       alt={`${selectedMember.lastName} ${selectedMember.firstName}`}
                       className="h-48 w-48 rounded-full object-cover"
                     />

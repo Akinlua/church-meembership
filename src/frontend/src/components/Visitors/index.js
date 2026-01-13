@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import defaultImage from '../../assets/default.jpg';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import VisitorForm from './VisitorForm';
@@ -151,7 +152,7 @@ const Visitors = () => {
                           <div className="flex-shrink-0 h-10 w-10">
                             <img
                               className="h-10 w-10 rounded-full object-cover"
-                              src={visitor.profileImage || './default.jpg'}
+                              src={visitor.profileImage || defaultImage}
                               alt=""
                             />
                           </div>

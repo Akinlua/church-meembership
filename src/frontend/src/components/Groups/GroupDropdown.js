@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import defaultImage from '../../assets/default.jpg';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
 import GroupForm from './GroupForm';
@@ -298,7 +299,7 @@ const GroupDropdown = () => {
                                 <div className="flex-shrink-0 h-8 w-8 mr-3">
                                   <img
                                     className="h-8 w-8 rounded-full object-cover"
-                                    src={member.profileImage || './default.jpg'}
+                                    src={member.profileImage || defaultImage}
                                     alt=""
                                   />
                                 </div>
