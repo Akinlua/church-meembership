@@ -62,10 +62,10 @@ const Vendors = () => {
     const vendorNumber = vendor.vendorNumber ? vendor.vendorNumber.toString() : '';
     const accountNumber = vendor.accountNumber ? vendor.accountNumber.toLowerCase() : '';
     const query = searchTerm.toLowerCase();
-    
-    return vendorName.includes(query) || 
-           vendorNumber.includes(query) || 
-           accountNumber.includes(query);
+
+    return vendorName.includes(query) ||
+      vendorNumber.includes(query) ||
+      accountNumber.includes(query);
   });
 
   return (
@@ -81,7 +81,7 @@ const Vendors = () => {
               Add Vendor
             </button>
           </div>
-          
+
           <div className="mb-6">
             <input
               type="text"
@@ -133,19 +133,8 @@ const Vendors = () => {
                           {vendor.vendorNumber || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <img
-                                className="h-10 w-10 rounded-full object-cover"
-                                src={vendor.profileImage || '/default.jpg'}
-                                alt=""
-                              />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {vendor.lastName}
-                              </div>
-                            </div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {vendor.lastName}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

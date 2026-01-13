@@ -18,14 +18,14 @@ const VendorDropdown = () => {
 
   useEffect(() => {
     fetchVendors();
-    
+
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -60,9 +60,9 @@ const VendorDropdown = () => {
     // const vendorId = vendor.id ? vendor.id.toString() : '';
     // const accountNumber = vendor.accountNumber ? vendor.accountNumber.toString() : '';
     const query = searchTerm.toLowerCase();
-    
-    return vendorName.includes(query) || 
-           vendorNumber.includes(query)
+
+    return vendorName.includes(query) ||
+      vendorNumber.includes(query)
   });
 
   const handleSelectVendor = (vendor) => {
@@ -92,14 +92,14 @@ const VendorDropdown = () => {
         await axios.delete(`${process.env.REACT_APP_API_URL}/vendors/${selectedVendor.id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        
+
         // Show success notification
         setNotification({
           show: true,
           message: `${selectedVendor.lastName} was successfully deleted!`,
           type: 'success'
         });
-        
+
         // Clear selection and refresh list
         setSelectedVendor(null);
         setSearchTerm('');
@@ -119,25 +119,25 @@ const VendorDropdown = () => {
     try {
       // Refresh the vendors list
       await fetchVendors();
-      
+
       // Get the newly added vendor details
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/vendors/${vendorId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      
+
       const newVendor = response.data;
-      
+
       // Select the new vendor
       setSelectedVendor(newVendor);
       setSearchTerm(newVendor.lastName);
-      
+
       // Show success notification
       setNotification({
         show: true,
         message: `${newVendor.lastName} was successfully ${isEditing ? 'updated' : 'added'}!`,
         type: 'success'
       });
-      
+
       // Close the form
       // setShowForm(false);
       // setIsEditing(false);
@@ -199,7 +199,7 @@ const VendorDropdown = () => {
 
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Vendor Lookup</h1>
-        
+
         {loading ? (
           <PageLoader />
         ) : (
@@ -242,7 +242,7 @@ const VendorDropdown = () => {
                     </button>
                   )}
                 </div>
-                
+
                 {showDropdown && (
                   <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
                     {filteredVendors.length > 0 ? (
@@ -252,13 +252,6 @@ const VendorDropdown = () => {
                           className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
                           onClick={() => handleSelectVendor(vendor)}
                         >
-                          <div className="flex-shrink-0 h-8 w-8 mr-3">
-                            <img
-                              className="h-8 w-8 rounded-full object-cover"
-                              src={vendor.profileImage || '/default.jpg'}
-                              alt=""
-                            />
-                          </div>
                           <div>
                             {vendor.lastName}
                             {vendor.accountNumber && ` (Account: ${vendor.accountNumber})`}
@@ -276,20 +269,12 @@ const VendorDropdown = () => {
             {selectedVendor && (
               <div className="bg-gray-50 p-6 rounded-lg">
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-1/3 mb-6 md:mb-0 flex justify-center">
-                    <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                      <img
-                        src={selectedVendor.profileImage || '/default.jpg'}
-                        alt={selectedVendor.lastName}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </div>
-                  <div className="md:w-2/3">
+                  {/* Image column removed */}
+                  <div className="w-full">
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-2xl font-bold">{selectedVendor.lastName}</h2>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Contact Information</h3>
@@ -305,7 +290,7 @@ const VendorDropdown = () => {
                           ].filter(Boolean).join(', ') || 'N/A'}
                         </p>
                       </div>
-                      
+
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Vendor Details</h3>
                         {/* <p className="mb-1"><span className="font-medium">Vendor #:</span> {selectedVendor.vendorNumber || 'N/A'}</p> */}
@@ -315,19 +300,19 @@ const VendorDropdown = () => {
 
                     <div className="flex space-x-3 mt-6">
                       {hasAddAccess('vendor') && (
-                      <button 
-                        onClick={handleEditVendor}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                        Edit
-                      </button>
+                        <button
+                          onClick={handleEditVendor}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                          Edit
+                        </button>
                       )}
-                      
+
                       {hasDeleteAccess('vendor') && (
-                        <button 
+                        <button
                           onClick={handleDeleteVendor}
                           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
                         >
