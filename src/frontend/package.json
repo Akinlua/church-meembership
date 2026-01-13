@@ -26,7 +26,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "electron": "electron .",
-    "electron:build": "npm run build && electron-builder"
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win --x64"
   },
   "eslintConfig": {
     "extends": [
@@ -62,6 +63,9 @@
     ],
     "directories": {
       "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
     }
   }
 }
