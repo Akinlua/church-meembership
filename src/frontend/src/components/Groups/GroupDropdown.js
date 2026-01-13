@@ -18,14 +18,14 @@ const GroupDropdown = () => {
 
   useEffect(() => {
     fetchGroups();
-    
+
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -70,7 +70,7 @@ const GroupDropdown = () => {
     const groupName = group.name.toLowerCase();
     const groupId = group.id ? group.id.toString() : '';
     const query = searchTerm.toLowerCase();
-    
+
     return groupName.includes(query) || groupId.includes(query);
   });
 
@@ -115,20 +115,20 @@ const GroupDropdown = () => {
       });
       return;
     }
-    
+
     if (window.confirm('Are you sure you want to delete this group?')) {
       try {
         await axios.delete(`${process.env.REACT_APP_API_URL}/groups/${selectedGroup.id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
-        
+
         // Show success notification
         setNotification({
           show: true,
           message: `${selectedGroup.name} was successfully deleted!`,
           type: 'success'
         });
-        
+
         // Clear selection and refresh list
         setSelectedGroup(null);
         setSearchTerm('');
@@ -146,20 +146,20 @@ const GroupDropdown = () => {
 
   const handleFormSubmit = async (groupId) => {
     setShowForm(false);
-    
+
     try {
       // Refresh the groups list
       await fetchGroups();
-      
+
       if (groupId) {
         // Get the complete group details including members
         const group = await fetchGroupDetails(groupId);
-        
+
         if (group) {
           // Select the group
           setSelectedGroup(group);
           setSearchTerm(group.name);
-          
+
           // Show success notification
           setNotification({
             show: true,
@@ -177,7 +177,7 @@ const GroupDropdown = () => {
       });
       await fetchGroups();
     }
-    
+
     setIsEditing(false);
   };
 
@@ -197,7 +197,7 @@ const GroupDropdown = () => {
 
       <div className="bg-white rounded-lg shadow-lg p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Group Lookup</h1>
-        
+
         {loading ? (
           <PageLoader />
         ) : (
@@ -240,7 +240,7 @@ const GroupDropdown = () => {
                     </button>
                   )}
                 </div>
-                
+
                 {showDropdown && (
                   <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto focus:outline-none sm:text-sm">
                     {filteredGroups.length > 0 ? (
@@ -269,7 +269,7 @@ const GroupDropdown = () => {
                 )}
               </div>
             </div>
-            
+
             {selectedGroup && (
               <div className="bg-gray-50 p-6 rounded-lg">
                 <div className="flex flex-col">
@@ -277,7 +277,7 @@ const GroupDropdown = () => {
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-2xl font-bold">{selectedGroup.name}</h2>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 gap-6">
                       <div>
                         <h3 className="text-lg font-semibold mb-2">Group Information</h3>
@@ -285,20 +285,20 @@ const GroupDropdown = () => {
                           <span className="font-medium">Description:</span> {selectedGroup.description || 'No description provided'}
                         </p>
                       </div>
-                      
+
                       {selectedGroup.members && selectedGroup.members.length > 0 && (
                         <div>
                           <h3 className="text-lg font-semibold mb-2">Members</h3>
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                             {selectedGroup.members.map((member) => (
-                              <div 
-                                key={member.id} 
+                              <div
+                                key={member.id}
                                 className="flex items-center p-2 bg-white rounded-md shadow-sm"
                               >
                                 <div className="flex-shrink-0 h-8 w-8 mr-3">
                                   <img
                                     className="h-8 w-8 rounded-full object-cover"
-                                    src={member.profileImage || '/default.jpg'}
+                                    src={member.profileImage || './default.jpg'}
                                     alt=""
                                   />
                                 </div>
@@ -313,19 +313,19 @@ const GroupDropdown = () => {
 
                       <div className="flex space-x-3 mt-2">
                         {hasAddAccess('group') && (
-                        <button 
-                          onClick={handleEditGroup}
-                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                          Edit
-                        </button>
+                          <button
+                            onClick={handleEditGroup}
+                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            Edit
+                          </button>
                         )}
-                        
+
                         {hasDeleteAccess('group') && (
-                          <button 
+                          <button
                             onClick={handleDeleteGroup}
                             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
                           >

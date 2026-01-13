@@ -151,7 +151,7 @@ const Visitors = () => {
                           <div className="flex-shrink-0 h-10 w-10">
                             <img
                               className="h-10 w-10 rounded-full object-cover"
-                              src={visitor.profileImage || '/default.jpg'}
+                              src={visitor.profileImage || './default.jpg'}
                               alt=""
                             />
                           </div>
