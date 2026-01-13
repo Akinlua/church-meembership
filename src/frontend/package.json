@@ -1,7 +1,9 @@
 {
   "name": "church-management-frontend",
   "version": "1.0.0",
+  "homepage": ".",
   "private": true,
+  "main": "main.js",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -22,7 +24,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron:build": "npm run build && electron-builder"
   },
   "eslintConfig": {
     "extends": [
@@ -45,6 +49,19 @@
   "devDependencies": {
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.2",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.0.5"
+  },
+  "build": {
+    "appId": "com.church.membership",
+    "productName": "ChurchMembership",
+    "files": [
+      "build/**/*",
+      "main.js"
+    ],
+    "directories": {
+      "output": "dist"
+    }
   }
 }
