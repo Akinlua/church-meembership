@@ -1,84 +1,173 @@
-.check-template {
-  font-family: 'Arial', sans-serif;
-  max-width: 800px;
+@page {
+  size: letter;
+  margin: 0mm;
+}
+
+.check-template-container {
+  width: 100%;
+  max-width: 8.5in;
+  /* Standard letter width approximation on screen? */
   margin: 0 auto;
+  border: 4px #60a5fa;
 }
 
-.check-wrapper {
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.check-generator-wrapper {
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #f8fafc;
+  /* Hide overflow on screen */
+  border: 1px solid #e5e7eb;
 }
 
-.check-main {
+.check-canvas {
   position: relative;
-  min-height: 250px;
+  width: 8.5in;
+  /* Fixed print width */
+  min-width: 8.5in;
+  height: 1056px;
+  /* 11in @ 96dpi */
+  min-height: 11in;
   background-color: #fff;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  /* Check boundaries */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
-.signature-image-container {
-  display: flex;
-  justify-content: flex-end;
-  height: 60px;
-  position: relative;
+.separator-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: transparent;
+  border-top: 2px dashed #999;
+  cursor: row-resize;
+  z-index: 50;
+  /* Above normal items */
 }
 
-.signature-image {
-  max-width: 100%;
-  object-fit: contain;
+.separator-line:hover {
+  border-top-color: #000;
+  height: 10px;
+  /* Larger hit area */
+  top: -4px;
+  /* Center hit area */
 }
 
-.micr-line {
-  font-family: "MICR", Courier, monospace;
-  letter-spacing: 1px;
+.check-page-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Let clicks pass through to draggable items */
+  z-index: 0;
 }
 
-.micr-text {
-  font-size: 16px;
+.stub-background {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 350px;
+  /* Approx 3.6in */
+  background-color: #eff6ff;
+  /* blue-50 */
+  border-top: 1px dashed #ccc;
+  border-bottom: 1px dashed #ccc;
 }
 
-.payee-line {
-  min-height: 24px;
-  padding: 0 4px;
+.draggable-item {
+  position: absolute;
+  cursor: move;
+  padding: 2px;
+  /* border: 1px dashed transparent; */
+  white-space: pre-wrap;
+  user-select: none;
+}
+
+.draggable-item:hover {
+  border: 1px dashed #bbb;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.draggable-item.selected {
+  border: 1px solid #2563eb;
+  /* Blue border for selected */
+  z-index: 10;
+}
+
+.stubs-static-container {
+  border-top: 2px dashed #ccc;
 }
 
 @media print {
+  @page {
+    size: auto;
+    margin: 0;
+  }
+
   body * {
     visibility: hidden;
   }
-  
-  .check-template, 
-  .check-template * {
+
+  /* Show only check */
+  .check-template-container,
+  .check-template-container * {
     visibility: visible !important;
-    -webkit-print-color-adjust: exact !important;
   }
-  
-  .check-template {
+
+  .check-template-container {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    transform: none !important;
+    /* Reset container transform if any */
   }
-  
-  .check-wrapper {
+
+  .check-generator-wrapper {
+    overflow: visible !important;
+    border: none !important;
+  }
+
+  /* Force canvas to exact print dimensions and reset all scaling */
+  .check-canvas {
+    border: none;
     box-shadow: none;
-    border: 1px solid #000;
-    page-break-inside: avoid;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    /* Force Letter Size */
+    width: 8.5in !important;
+    height: 11in !important;
+    min-width: 8.5in !important;
+    min-height: 11in !important;
+
+    /* Scaled fit for printers with hardware margins */
+    transform: scale(0.94) !important;
+    transform-origin: top left !important;
+    zoom: 1 !important;
+
+    top: 0 !important;
+    left: 0 !important;
   }
-  
-  .check-stub, .check-top {
-    background-color: #f0f4f8 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+
+  .draggable-item {
+    border: none !important;
+    /* Clean look on print */
+    background-color: transparent !important;
   }
-  
-  .signature-image {
-    max-height: 60px !important;
-    position: relative !important;
-    top: -30px !important;
+
+  .stub-background {
+    border-style: solid;
+    /* Make dashed lines solid or invisible if preferred, keeping dashed for now */
+    border-color: #eee;
   }
-  .check-template { line-height: 1 !important; }
-  .check-template p, .check-template div, .check-template span { line-height: 1 !important; }
+
+  .separator-line {
+    display: none !important;
+    /* Hide drag handles on print */
+  }
 }
