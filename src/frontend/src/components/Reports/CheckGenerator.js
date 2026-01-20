@@ -454,8 +454,7 @@ const CheckGenerator = () => {
                   name="routingNumber"
                   value={checkData.routingNumber}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
 
@@ -468,8 +467,7 @@ const CheckGenerator = () => {
                   name="accountNumber"
                   value={checkData.accountNumber}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
               </div>
             </div>
@@ -483,8 +481,7 @@ const CheckGenerator = () => {
                 name="companyName"
                 value={checkData.companyName}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                readOnly={programOwner !== null}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
               {!programOwner && (
                 <p className="text-sm text-yellow-600 mt-1">
@@ -502,8 +499,7 @@ const CheckGenerator = () => {
                 name="companyAddress"
                 value={checkData.companyAddress}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-                readOnly={programOwner !== null}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
 
