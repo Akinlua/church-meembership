@@ -1,9 +1,10 @@
 import React from 'react';
 import Draggable from 'react-draggable';
 import { format } from 'date-fns';
+import ResizeHandles from './ResizeHandles';
 import './CheckTemplate.css';
 
-const CheckTemplate = ({ checkData, layout, onLayoutChange, onElementSelect, selectedElement, separators, onSeparatorChange, scale = 1 }) => {
+const CheckTemplate = ({ checkData, layout, onLayoutChange, onElementSelect, selectedElement, separators, onSeparatorChange, onElementResize, scale = 1 }) => {
   const {
     checkNumber,
     date,
@@ -145,6 +146,7 @@ const CheckTemplate = ({ checkData, layout, onLayoutChange, onElementSelect, sel
         </Draggable>
 
 
+
         {/* Content Layer */}
         {layout.map((element) => {
           let content = null;
@@ -156,6 +158,16 @@ const CheckTemplate = ({ checkData, layout, onLayoutChange, onElementSelect, sel
             }
           } else if (element.type === 'static') {
             content = element.text;
+          } else if (element.type === 'line') {
+            // Render line element
+            const isHorizontal = element.orientation === 'horizontal';
+            content = (
+              <div style={{
+                width: isHorizontal ? '100%' : `${element.thickness || 2}px`,
+                height: isHorizontal ? `${element.thickness || 2}px` : '100%',
+                backgroundColor: element.color || '#000',
+              }} />
+            );
           }
 
           const isSelected = selectedElement === element.id;
@@ -179,10 +191,18 @@ const CheckTemplate = ({ checkData, layout, onLayoutChange, onElementSelect, sel
             >
               <div className={itemClass} style={elStyle}>
                 {content}
+                {isSelected && onElementResize && (
+                  <ResizeHandles
+                    width={element.width}
+                    height={element.height}
+                    onResize={(newDimensions) => onElementResize(element.id, newDimensions)}
+                  />
+                )}
               </div>
             </Draggable>
           );
         })}
+
       </div>
     </div>
   );

@@ -150,6 +150,175 @@ const CheckGenerator = () => {
   // Helper to get selected element object
   const getSelectedElementObj = () => layout.find(el => el.id === selectedElement);
 
+  // NEW FEATURES
+
+  // Copy/Paste functionality
+  const [copiedElement, setCopiedElement] = useState(null);
+
+  const copyElement = () => {
+    if (!selectedElement) return;
+    const elementToCopy = layout.find(el => el.id === selectedElement);
+    if (elementToCopy) {
+      setCopiedElement(elementToCopy);
+    }
+  };
+
+  const pasteElement = () => {
+    if (!copiedElement) return;
+    const newElement = {
+      ...copiedElement,
+      id: `${copiedElement.type}-${Date.now()}`,
+      x: copiedElement.x + 20,
+      y: copiedElement.y + 20
+    };
+    setLayout([...layout, newElement]);
+    setSelectedElement(newElement.id);
+  };
+
+  // Line drawing
+  const addLine = (orientation = 'horizontal') => {
+    const newLine = {
+      id: `line-${Date.now()}`,
+      type: 'line',
+      orientation: orientation,
+      x: 50,
+      y: 50,
+      width: orientation === 'horizontal' ? 200 : 2,
+      height: orientation === 'horizontal' ? 2 : 100,
+      thickness: 2,
+      color: '#000',
+      style: {}
+    };
+    setLayout([...layout, newLine]);
+    setSelectedElement(newLine.id);
+  };
+
+  // Element resizing
+  const handleElementResize = (id, newDimensions) => {
+    setLayout(prevLayout => prevLayout.map(el =>
+      el.id === id ? { ...el, width: newDimensions.width, height: newDimensions.height } : el
+    ));
+  };
+
+  // Update element dimensions
+  const updateElementDimension = (key, value) => {
+    if (!selectedElement) return;
+    setLayout(prevLayout => prevLayout.map(el =>
+      el.id === selectedElement ? { ...el, [key]: value } : el
+    ));
+  };
+
+  // Save/Load layouts
+  const [savedLayouts, setSavedLayouts] = useState([]);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [layoutName, setLayoutName] = useState('');
+
+  // Load saved layouts from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('checkLayouts');
+    if (stored) {
+      try {
+        setSavedLayouts(JSON.parse(stored));
+      } catch (e) {
+        console.error('Error loading layouts:', e);
+      }
+    }
+
+    // Load default layout if set
+    const defaultLayoutName = localStorage.getItem('defaultCheckLayout');
+    if (defaultLayoutName) {
+      loadLayoutByName(defaultLayoutName);
+    }
+  }, []);
+
+  const saveLayout = () => {
+    if (!layoutName.trim()) {
+      alert('Please enter a layout name');
+      return;
+    }
+
+    const layoutData = {
+      name: layoutName,
+      layout: layout,
+      separators: separators,
+      version: '1.0',
+      createdAt: new Date().toISOString()
+    };
+
+    const existingIndex = savedLayouts.findIndex(l => l.name === layoutName);
+    let newLayouts;
+
+    if (existingIndex >= 0) {
+      // Update existing
+      newLayouts = [...savedLayouts];
+      newLayouts[existingIndex] = layoutData;
+    } else {
+      // Add new
+      newLayouts = [...savedLayouts, layoutData];
+    }
+
+    setSavedLayouts(newLayouts);
+    localStorage.setItem('checkLayouts', JSON.stringify(newLayouts));
+    setShowSaveModal(false);
+    setLayoutName('');
+    alert(`Layout "${layoutData.name}" saved successfully!`);
+  };
+
+  const loadLayoutByName = (name) => {
+    const layoutData = savedLayouts.find(l => l.name === name);
+    if (layoutData) {
+      setLayout(layoutData.layout);
+      setSeparators(layoutData.separators);
+      setSelectedElement(null);
+    }
+  };
+
+  const setAsDefaultLayout = () => {
+    if (!layoutName.trim()) {
+      alert('Please enter and save a layout first');
+      return;
+    }
+    localStorage.setItem('defaultCheckLayout', layoutName);
+    alert(`"${layoutName}" set as default layout`);
+  };
+
+  const deleteLayout = (name) => {
+    if (window.confirm(`Delete layout "${name}"?`)) {
+      const newLayouts = savedLayouts.filter(l => l.name !== name);
+      setSavedLayouts(newLayouts);
+      localStorage.setItem('checkLayouts', JSON.stringify(newLayouts));
+
+      // Clear default if deleting it
+      if (localStorage.getItem('defaultCheckLayout') === name) {
+        localStorage.removeItem('defaultCheckLayout');
+      }
+    }
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Copy (Ctrl/Cmd + C)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && selectedElement) {
+        e.preventDefault();
+        copyElement();
+      }
+      // Paste (Ctrl/Cmd + V)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && copiedElement) {
+        e.preventDefault();
+        pasteElement();
+      }
+      // Delete
+      if (e.key === 'Delete' && selectedElement) {
+        deleteElement();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedElement, copiedElement]);
+
+
   // Fetch vendors, banks, and program owner on component mount
   useEffect(() => {
     fetchVendors();
@@ -524,34 +693,79 @@ const CheckGenerator = () => {
               </div>
             </div>
 
-            <div className="pt-4">
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-              >
-                Print Check
-              </button>
-              <button
-                type="button"
-                onClick={resetLayout}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Reset Layout
-              </button>
-              <button
-                type="button"
-                onClick={addTextElement}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded ml-2"
-              >
-                Add Text
-              </button>
-              {/* <button
-                type="submit"
-                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Save Check
-              </button> */}
+            <div className="pt-4 space-y-2">
+              {/* Action Buttons Row 1 */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Print Check
+                </button>
+                <button
+                  type="button"
+                  onClick={resetLayout}
+                  className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Reset Layout
+                </button>
+              </div>
+
+              {/* Action Buttons Row 2 - Add Elements */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={addTextElement}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  + Text
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addLine('horizontal')}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  ─ H-Line
+                </button>
+                <button
+                  type="button"
+                  onClick={() => addLine('vertical')}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  │ V-Line
+                </button>
+              </div>
+
+              {/* Action Buttons Row 3 - Layout Management */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSaveModal(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  💾 Save Layout
+                </button>
+                {savedLayouts.length > 0 && (
+                  <select
+                    onChange={(e) => loadLayoutByName(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-md font-medium"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Load Layout...</option>
+                    {savedLayouts.map((saved) => (
+                      <option key={saved.name} value={saved.name}>
+                        {saved.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {/* Keyboard Shortcuts Info */}
+              <div className="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">
+                <strong>Shortcuts:</strong> Ctrl+C (Copy) | Ctrl+V (Paste) | Delete (Remove)
+              </div>
             </div>
           </form>
         </div>
@@ -581,18 +795,34 @@ const CheckGenerator = () => {
               onLayoutChange={handleLayoutChange}
               onElementSelect={setSelectedElement}
               selectedElement={selectedElement}
+              onElementResize={handleElementResize}
             />
           </div>
           {selectedElement && (
             <div className="mt-4 p-4 bg-gray-100 rounded-md border border-gray-300">
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-3">
                 <h3 className="font-bold">Element Properties</h3>
-                <button
-                  onClick={deleteElement}
-                  className="text-red-600 text-sm hover:text-red-800"
-                >
-                  Delete Element
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={copyElement}
+                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded"
+                  >
+                    📋 Copy
+                  </button>
+                  <button
+                    onClick={pasteElement}
+                    disabled={!copiedElement}
+                    className="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    📄 Paste
+                  </button>
+                  <button
+                    onClick={deleteElement}
+                    className="bg-red-600 hover:bg-red-700 text-white text-xs px-3 py-1 rounded"
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -608,7 +838,41 @@ const CheckGenerator = () => {
                   </div>
                 )}
 
-
+                {getSelectedElementObj()?.type === 'line' && (
+                  <>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-gray-700">Line Orientation</label>
+                      <select
+                        value={getSelectedElementObj()?.orientation || 'horizontal'}
+                        onChange={(e) => updateElementDimension('orientation', e.target.value)}
+                        className="w-full px-2 py-1 border rounded text-sm"
+                      >
+                        <option value="horizontal">Horizontal ─</option>
+                        <option value="vertical">Vertical │</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700">Thickness (px)</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={getSelectedElementObj()?.thickness || 2}
+                        onChange={(e) => updateElementDimension('thickness', parseInt(e.target.value))}
+                        className="w-full px-2 py-1 border rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700">Color</label>
+                      <input
+                        type="color"
+                        value={getSelectedElementObj()?.color || '#000000'}
+                        onChange={(e) => updateElementDimension('color', e.target.value)}
+                        className="w-full px-2 py-1 border rounded text-sm h-8"
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div>
                   <label className="block text-xs font-medium text-gray-700">Font Size</label>
@@ -638,14 +902,30 @@ const CheckGenerator = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700">Width (approx px)</label>
+                  <label className="block text-xs font-medium text-gray-700">Line Height</label>
+                  <div className="flex gap-1">
+                    <button onClick={() => updateElementStyle('lineHeight', '1')} className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs">1.0x</button>
+                    <button onClick={() => updateElementStyle('lineHeight', '1.5')} className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs">1.5x</button>
+                    <button onClick={() => updateElementStyle('lineHeight', '2')} className="px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-xs">2.0x</button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700">Width (px)</label>
                   <input
                     type="number"
                     value={parseInt(getSelectedElementObj()?.width || 100)}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setLayout(prev => prev.map(el => el.id === selectedElement ? { ...el, width: val } : el));
-                    }}
+                    onChange={(e) => updateElementDimension('width', parseInt(e.target.value))}
+                    className="w-full px-2 py-1 border rounded text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700">Height (px)</label>
+                  <input
+                    type="number"
+                    value={parseInt(getSelectedElementObj()?.height || 0)}
+                    onChange={(e) => updateElementDimension('height', parseInt(e.target.value))}
                     className="w-full px-2 py-1 border rounded text-sm"
                   />
                 </div>
@@ -654,6 +934,75 @@ const CheckGenerator = () => {
           )}
         </div>
       </div>
+
+      {/* Save Layout Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold mb-4">Save Layout</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Layout Name
+              </label>
+              <input
+                type="text"
+                value={layoutName}
+                onChange={(e) => setLayoutName(e.target.value)}
+                placeholder="My Custom Check Layout"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                autoFocus
+              />
+            </div>
+
+            {savedLayouts.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Saved Layouts
+                </label>
+                <div className="max-h-32 overflow-y-auto border rounded p-2">
+                  {savedLayouts.map((saved) => (
+                    <div key={saved.name} className="flex justify-between items-center py-1">
+                      <span className="text-sm">{saved.name}</span>
+                      <button
+                        onClick={() => deleteLayout(saved.name)}
+                        className="text-red-600 hover:text-red-800 text-xs"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowSaveModal(false);
+                  setLayoutName('');
+                }}
+                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveLayout}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
+              >
+                Save
+              </button>
+              {layoutName && (
+                <button
+                  onClick={setAsDefaultLayout}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                >
+                  Set as Default
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div >
   );
 };
