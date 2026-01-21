@@ -76,7 +76,22 @@
       "output": "dist"
     },
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
       "icon": "build/favicon.ico",
       "category": "public.app-category.productivity"
     },

@@ -48,9 +48,11 @@ npm run electron:build:win
 - Go to your GitHub repository
 - Create a new release with tag `v1.0.2`
 - Upload from `dist/` folder:
-  - `ChurchMembership-Setup-1.0.2.exe`
-  - `latest.yml`
+  - **Windows**: `ChurchMembership-Setup-1.0.2.exe` + `latest.yml`
+  - **Mac**: `ChurchMembership-1.0.2-mac.zip` + `ChurchMembership-1.0.2.dmg` + `latest-mac.yml`
 - Publish the release
+
+> **Important for Mac**: You need both the `.zip` (for auto-updates) AND `.dmg` (for manual downloads). The auto-updater uses the zip file!
 
 ### 4. Test
 - Install the old version
