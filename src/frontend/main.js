@@ -21,6 +21,15 @@ if (!gotTheLock) {
 autoUpdater.autoDownload = false; // Don't auto-download, ask user first
 autoUpdater.autoInstallOnAppQuit = true; // Auto-install when app quits
 
+// IMPORTANT: Disable signature validation on Mac for unsigned apps
+// Remove this in production with proper code signing!
+if (process.platform === 'darwin') {
+  autoUpdater.forceDevUpdateConfig = true;
+
+  // Additional Mac-specific configuration
+  app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+}
+
 // Auto-updater event handlers
 autoUpdater.on("checking-for-update", () => {
   console.log("Checking for updates...");
