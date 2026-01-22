@@ -95,6 +95,9 @@ const CheckGenerator = () => {
   const [layout, setLayout] = useState(defaultLayout);
   const [selectedElement, setSelectedElement] = useState(null);
 
+  // Collapsible form state
+  const [isFormCollapsed, setIsFormCollapsed] = useState(false);
+
   const checkRef = useRef(null);
 
   const handleLayoutChange = (id, newPosition) => {
@@ -518,258 +521,270 @@ const CheckGenerator = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Checks Generator</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Check Generator</h1>
+        <button
+          onClick={() => setIsFormCollapsed(!isFormCollapsed)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+        >
+          {isFormCollapsed ? '→ Show Form' : '← Hide Form'}
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Check Information</h2>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Check Number
-                </label>
-                <input
-                  type="text"
-                  name="checkNumber"
-                  value={checkData.checkNumber}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
-                <MaskedDateInput
-                  value={checkData.date}
-                  onChange={handleDateChange}
-                  inputClassName="w-full"
-                />
-              </div>
+      <div className={`grid gap-8 ${isFormCollapsed ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
+        {/* Form Section - Collapsible */}
+        {!isFormCollapsed && (
+          <div className="bg-white p-6 rounded-lg shadow-md max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Check Information</h2>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Pay To
-              </label>
-              <Select
-                options={vendors}
-                onChange={handleVendorChange}
-                placeholder="Select a vendor..."
-                isSearchable
-                styles={customStyles}
-                className="w-full"
-              />
-              {checkData.payToAddress && (
-                <div className="mt-1 text-sm text-gray-500">
-                  {checkData.payToAddress}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Check Number
+                  </label>
+                  <input
+                    type="text"
+                    name="checkNumber"
+                    value={checkData.checkNumber}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
                 </div>
-              )}
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Amount
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="amount"
-                value={checkData.amount}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Memo
-              </label>
-              <input
-                type="text"
-                name="memo"
-                value={checkData.memo}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bank
-              </label>
-              <Select
-                options={banks}
-                onChange={handleBankChange}
-                placeholder="Select a bank..."
-                isSearchable
-                styles={customStyles}
-                className="w-full"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Routing Number
-                </label>
-                <input
-                  type="text"
-                  name="routingNumber"
-                  value={checkData.routingNumber}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date
+                  </label>
+                  <MaskedDateInput
+                    value={checkData.date}
+                    onChange={handleDateChange}
+                    inputClassName="w-full"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Account Number
+                  Pay To
                 </label>
-                <input
-                  type="text"
-                  name="accountNumber"
-                  value={checkData.accountNumber}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                <Select
+                  options={vendors}
+                  onChange={handleVendorChange}
+                  placeholder="Select a vendor..."
+                  isSearchable
+                  styles={customStyles}
+                  className="w-full"
                 />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Church Name
-              </label>
-              <input
-                type="text"
-                name="companyName"
-                value={checkData.companyName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-              {!programOwner && (
-                <p className="text-sm text-yellow-600 mt-1">
-                  No program owner information found. Please add program owner details in Dashboard.
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Church Address
-              </label>
-              <input
-                type="text"
-                name="companyAddress"
-                value={checkData.companyAddress}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Signature
-              </label>
-              <div className="border border-gray-300 rounded-md p-2">
-                <SignaturePad
-                  value={checkData.signature}
-                  onChange={handleSignatureChange}
-                  width={300}
-                  height={100}
-                />
-                <button
-                  type="button"
-                  onClick={clearSignature}
-                  className="mt-2 text-sm text-red-600 hover:text-red-800"
-                >
-                  Clear Signature
-                </button>
-              </div>
-            </div>
-
-            <div className="pt-4 space-y-2">
-              {/* Action Buttons Row 1 */}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Print Check
-                </button>
-                <button
-                  type="button"
-                  onClick={resetLayout}
-                  className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  Reset Layout
-                </button>
-              </div>
-
-              {/* Action Buttons Row 2 - Add Elements */}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={addTextElement}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  + Text
-                </button>
-                <button
-                  type="button"
-                  onClick={() => addLine('horizontal')}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  ─ H-Line
-                </button>
-                <button
-                  type="button"
-                  onClick={() => addLine('vertical')}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  │ V-Line
-                </button>
-              </div>
-
-              {/* Action Buttons Row 3 - Layout Management */}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowSaveModal(true)}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  💾 Save Layout
-                </button>
-                {savedLayouts.length > 0 && (
-                  <select
-                    onChange={(e) => loadLayoutByName(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md font-medium"
-                    defaultValue=""
-                  >
-                    <option value="" disabled>Load Layout...</option>
-                    {savedLayouts.map((saved) => (
-                      <option key={saved.name} value={saved.name}>
-                        {saved.name}
-                      </option>
-                    ))}
-                  </select>
+                {checkData.payToAddress && (
+                  <div className="mt-1 text-sm text-gray-500">
+                    {checkData.payToAddress}
+                  </div>
                 )}
               </div>
 
-              {/* Keyboard Shortcuts Info */}
-              <div className="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">
-                <strong>Shortcuts:</strong> Ctrl+C (Copy) | Ctrl+V (Paste) | Delete (Remove)
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Amount
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  name="amount"
+                  value={checkData.amount}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
               </div>
-            </div>
-          </form>
-        </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Memo
+                </label>
+                <input
+                  type="text"
+                  name="memo"
+                  value={checkData.memo}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bank
+                </label>
+                <Select
+                  options={banks}
+                  onChange={handleBankChange}
+                  placeholder="Select a bank..."
+                  isSearchable
+                  styles={customStyles}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Routing Number
+                  </label>
+                  <input
+                    type="text"
+                    name="routingNumber"
+                    value={checkData.routingNumber}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Account Number
+                  </label>
+                  <input
+                    type="text"
+                    name="accountNumber"
+                    value={checkData.accountNumber}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Church Name
+                </label>
+                <input
+                  type="text"
+                  name="companyName"
+                  value={checkData.companyName}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                {!programOwner && (
+                  <p className="text-sm text-yellow-600 mt-1">
+                    No program owner information found. Please add program owner details in Dashboard.
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Church Address
+                </label>
+                <input
+                  type="text"
+                  name="companyAddress"
+                  value={checkData.companyAddress}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Signature
+                </label>
+                <div className="border border-gray-300 rounded-md p-2">
+                  <SignaturePad
+                    value={checkData.signature}
+                    onChange={handleSignatureChange}
+                    width={300}
+                    height={100}
+                  />
+                  <button
+                    type="button"
+                    onClick={clearSignature}
+                    className="mt-2 text-sm text-red-600 hover:text-red-800"
+                  >
+                    Clear Signature
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-4 space-y-2">
+                {/* Action Buttons Row 1 */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={handlePrint}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Print Check
+                  </button>
+                  <button
+                    type="button"
+                    onClick={resetLayout}
+                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Reset Layout
+                  </button>
+                </div>
+
+                {/* Action Buttons Row 2 - Add Elements */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={addTextElement}
+                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    + Text
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addLine('horizontal')}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    ─ H-Line
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addLine('vertical')}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    │ V-Line
+                  </button>
+                </div>
+
+                {/* Action Buttons Row 3 - Layout Management */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowSaveModal(true)}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    💾 Save Layout
+                  </button>
+                  {savedLayouts.length > 0 && (
+                    <select
+                      onChange={(e) => loadLayoutByName(e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-md font-medium"
+                      defaultValue=""
+                    >
+                      <option value="" disabled>Load Layout...</option>
+                      {savedLayouts.map((saved) => (
+                        <option key={saved.name} value={saved.name}>
+                          {saved.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* Keyboard Shortcuts Info */}
+                <div className="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">
+                  <strong>Shortcuts:</strong> Ctrl+C (Copy) | Ctrl+V (Paste) | Delete (Remove)
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Check Preview Section - Always Visible */}
         <div>
           {/* Zoom Control */}
           <div className="mb-4 flex items-center justify-end space-x-2">
