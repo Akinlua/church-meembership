@@ -518,7 +518,7 @@ const CheckGenerator = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Check Generator</h1>
+      <h1 className="text-2xl font-bold mb-6">Checks Generator</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
