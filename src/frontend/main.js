@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog } = require("electron");
+const { app, BrowserWindow, Menu, dialog, ipcMain } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const path = require("path");
 
@@ -37,34 +37,23 @@ autoUpdater.on("checking-for-update", () => {
 
 autoUpdater.on("update-available", (info) => {
   console.log("Update available:", info.version);
-
-  dialog.showMessageBox(mainWindow, {
-    type: "info",
-    title: "Update Available",
-    message: `A new version (${info.version}) is available!`,
-    detail: "Would you like to download it now?",
-    buttons: ["Download", "Later"],
-    defaultId: 0,
-    cancelId: 1
-  }).then((result) => {
-    if (result.response === 0) {
-      autoUpdater.downloadUpdate();
-    }
-  });
+  if (mainWindow) {
+    mainWindow.webContents.send('update-available', info);
+  }
 });
 
 autoUpdater.on("update-not-available", (info) => {
   console.log("Update not available. Current version:", info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send('update-not-available', info);
+  }
 });
 
 autoUpdater.on("error", (err) => {
   console.error("Error in auto-updater:", err);
-  dialog.showMessageBox(mainWindow, {
-    type: "error",
-    title: "Update Error",
-    message: "An error occurred while checking for updates.",
-    detail: err.message
-  });
+  if (mainWindow) {
+    mainWindow.webContents.send('update-error', err.message);
+  }
 });
 
 autoUpdater.on("download-progress", (progressObj) => {
@@ -76,6 +65,7 @@ autoUpdater.on("download-progress", (progressObj) => {
   // Update window title with progress
   if (mainWindow) {
     mainWindow.setTitle(`Church Membership - Downloading Update ${Math.floor(progressObj.percent)}%`);
+    mainWindow.webContents.send('download-progress', progressObj);
   }
 });
 
@@ -85,21 +75,21 @@ autoUpdater.on("update-downloaded", (info) => {
   // Restore original title
   if (mainWindow) {
     mainWindow.setTitle("Church Membership");
+    mainWindow.webContents.send('update-downloaded', info);
   }
+});
 
-  dialog.showMessageBox(mainWindow, {
-    type: "info",
-    title: "Update Ready",
-    message: "Update downloaded successfully!",
-    detail: "The application will restart to install the update.",
-    buttons: ["Restart Now", "Later"],
-    defaultId: 0,
-    cancelId: 1
-  }).then((result) => {
-    if (result.response === 0) {
-      autoUpdater.quitAndInstall(false, true);
-    }
-  });
+// IPC Handlers
+ipcMain.on('check-for-updates', () => {
+  autoUpdater.checkForUpdates();
+});
+
+ipcMain.on('download-update', () => {
+  autoUpdater.downloadUpdate();
+});
+
+ipcMain.on('quit-and-install', () => {
+  autoUpdater.quitAndInstall(false, true);
 });
 
 function createWindow() {
@@ -108,7 +98,9 @@ function createWindow() {
     height: 800,
     title: "Church Membership",
     webPreferences: {
-      nodeIntegration: false
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload.js")
     }
   });
 
@@ -117,15 +109,7 @@ function createWindow() {
   // Create menu with update option
   createMenu();
 
-  // Check for updates when window is ready (only in production)
-  // if (!process.env.NODE_ENV || process.env.NODE_ENV === "production") {
-  mainWindow.webContents.on("did-finish-load", () => {
-    // Check for updates 3 seconds after app starts
-    setTimeout(() => {
-      autoUpdater.checkForUpdates();
-    }, 3000);
-  });
-  // }
+  // Removed automatic check on startup
 }
 
 function createMenu() {
@@ -183,4 +167,3 @@ app.on("activate", () => {
     createWindow();
   }
 });
-

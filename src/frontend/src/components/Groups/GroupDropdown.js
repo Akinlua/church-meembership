@@ -255,9 +255,7 @@ const GroupDropdown = () => {
                             <div className="text-sm font-medium text-gray-900">
                               {group.name}
                             </div>
-                            <div className="text-sm text-gray-500">
-                              ID: {group.id}
-                            </div>
+
                           </div>
                         </div>
                       ))

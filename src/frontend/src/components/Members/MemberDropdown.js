@@ -303,7 +303,7 @@ const MemberDropdown = () => {
                             />
                           </div>
                           <div>
-                            {member.memberNumber} {member.lastName}, {member.firstName}
+                            {member.lastName}, {member.firstName}
                           </div>
                         </div>
                       ))

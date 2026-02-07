@@ -281,7 +281,7 @@ const VisitorDropdown = () => {
                             />
                           </div>
                           <div>
-                            {visitor.visitorNumber} {visitor.lastName}, {visitor.firstName}
+                            {visitor.lastName}, {visitor.firstName}
                           </div>
                         </div>
                       ))
