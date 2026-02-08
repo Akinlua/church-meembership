@@ -5,18 +5,6 @@ const path = require("path");
 let mainWindow;
 const gotTheLock = app.requestSingleInstanceLock();
 
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on("second-instance", (event, argv, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-  });
-}
-
 // Configure auto-updater
 autoUpdater.autoDownload = false; // Don't auto-download, ask user first
 autoUpdater.autoInstallOnAppQuit = true; // Auto-install when app quits
@@ -25,7 +13,6 @@ autoUpdater.autoInstallOnAppQuit = true; // Auto-install when app quits
 // Remove this in production with proper code signing!
 if (process.platform === 'darwin') {
   autoUpdater.forceDevUpdateConfig = true;
-
   // Additional Mac-specific configuration
   app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 }
@@ -108,8 +95,6 @@ function createWindow() {
 
   // Create menu with update option
   createMenu();
-
-  // Removed automatic check on startup
 }
 
 function createMenu() {
@@ -154,16 +139,31 @@ function createMenu() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(createWindow);
+// Main App Logic
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (event, argv, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
-
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
+  app.whenReady().then(() => {
     createWindow();
-  }
-});
+
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
+  });
+
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+      app.quit();
+    }
+  });
+}
