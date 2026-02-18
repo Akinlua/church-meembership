@@ -6,22 +6,19 @@ const { checkAccess, checkDeleteAccess } = require('../middleware/accessControl'
 module.exports = (app) => {
   const prisma = app.get('prisma');
 
-  // Get all donations with member details
+  // Get all donations with member/visitor details
   app.get('/donations', async (req, res) => {
     try {
       const donations = await prisma.donation.findMany({
         include: {
           member: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true
-            }
+            select: { id: true, firstName: true, lastName: true }
+          },
+          visitor: {
+            select: { id: true, firstName: true, lastName: true }
           }
         },
-        orderBy: {
-          donationDate: 'desc'
-        }
+        orderBy: { donationDate: 'desc' }
       });
       res.json(donations);
     } catch (error) {
@@ -29,14 +26,19 @@ module.exports = (app) => {
     }
   });
 
-  // Create donation
+  // Create donation (member or visitor)
   app.post('/donations', async (req, res) => {
-    const { member_id, amount, donation_type, donation_date, notes } = req.body;
+    const { member_id, visitor_id, amount, donation_type, donation_date, notes } = req.body;
+
+    if (!member_id && !visitor_id) {
+      return res.status(400).json({ message: 'Either member_id or visitor_id is required' });
+    }
 
     try {
       const donation = await prisma.donation.create({
         data: {
-          memberId: parseInt(member_id),
+          memberId: member_id ? parseInt(member_id) : null,
+          visitorId: visitor_id ? parseInt(visitor_id) : null,
           amount: parseFloat(amount),
           donationType: donation_type,
           donationDate: new Date(donation_date),
@@ -50,17 +52,24 @@ module.exports = (app) => {
     }
   });
 
-  // Update donation
+  // Update donation (member or visitor)
   app.put('/donations/:id', async (req, res) => {
+    const { member_id, visitor_id, amount, donation_date, donation_type, notes } = req.body;
+
+    if (!member_id && !visitor_id) {
+      return res.status(400).json({ message: 'Either member_id or visitor_id is required' });
+    }
+
     try {
       await prisma.donation.update({
         where: { id: parseInt(req.params.id) },
         data: {
-          memberId: parseInt(req.body.member_id),
-          amount: parseFloat(req.body.amount),
-          donationDate: new Date(req.body.donation_date),
-          donationType: req.body.donation_type,
-          notes: req.body.notes
+          memberId: member_id ? parseInt(member_id) : null,
+          visitorId: visitor_id ? parseInt(visitor_id) : null,
+          amount: parseFloat(amount),
+          donationDate: new Date(donation_date),
+          donationType: donation_type,
+          notes: notes
         }
       });
       res.json({ message: 'Donation updated successfully' });
@@ -210,11 +219,10 @@ module.exports = (app) => {
         where: { id: parseInt(req.params.id) },
         include: {
           member: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true
-            }
+            select: { id: true, firstName: true, lastName: true }
+          },
+          visitor: {
+            select: { id: true, firstName: true, lastName: true }
           }
         }
       });

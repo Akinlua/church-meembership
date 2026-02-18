@@ -70,6 +70,16 @@ function App() {
           <Route path="/donations" element={<PrivateRoute><Layout><Donations /></Layout></PrivateRoute>} />
           <Route path="/donation-lookup" element={<PrivateRoute><Layout><DonationDropdown /></Layout></PrivateRoute>} />
           <Route path="/reports" element={<PrivateRoute><Layout><Reports /></Layout></PrivateRoute>} />
+          <Route path="/reports/member-donations"  element={<PrivateRoute><Layout><Reports initialReport="memberDonations" /></Layout></PrivateRoute>} />
+          <Route path="/reports/visitor-donations" element={<PrivateRoute><Layout><Reports initialReport="visitorDonations" /></Layout></PrivateRoute>} />
+          <Route path="/reports/donations"         element={<PrivateRoute><Layout><Reports initialReport="donations" /></Layout></PrivateRoute>} />
+          <Route path="/reports/membership"        element={<PrivateRoute><Layout><Reports initialReport="membership" /></Layout></PrivateRoute>} />
+          <Route path="/reports/groups"            element={<PrivateRoute><Layout><Reports initialReport="groups" /></Layout></PrivateRoute>} />
+          <Route path="/reports/type-summary"      element={<PrivateRoute><Layout><Reports initialReport="donationTypeSummary" /></Layout></PrivateRoute>} />
+          <Route path="/reports/vendors"           element={<PrivateRoute><Layout><Reports initialReport="vendors" /></Layout></PrivateRoute>} />
+          <Route path="/reports/expenses"          element={<PrivateRoute><Layout><Reports initialReport="expenses" /></Layout></PrivateRoute>} />
+          <Route path="/reports/charges"           element={<PrivateRoute><Layout><Reports initialReport="charges" /></Layout></PrivateRoute>} />
+          <Route path="/reports/deposits"          element={<PrivateRoute><Layout><Reports initialReport="deposits" /></Layout></PrivateRoute>} />
           <Route path="/reports/check-generator" element={
             <PrivateRoute>
               <Layout><CheckGenerator /></Layout>

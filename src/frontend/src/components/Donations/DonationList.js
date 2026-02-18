@@ -23,7 +23,10 @@ const DonationList = ({ donations, onEdit, onDelete, loading, selectedDonation, 
         <thead className="bg-gray-50">
           <tr>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Member Name
+              Donor
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Donor Type
             </th>
             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Type
@@ -51,8 +54,21 @@ const DonationList = ({ donations, onEdit, onDelete, loading, selectedDonation, 
             >
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm font-medium text-gray-900">
-                  {`${donation.member?.firstName} ${donation.member?.lastName}`}
+                  {donation.member
+                    ? `${donation.member.firstName} ${donation.member.lastName}`
+                    : donation.visitor
+                    ? `${donation.visitor.firstName} ${donation.visitor.lastName}`
+                    : '—'}
                 </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                  donation.visitorId
+                    ? 'bg-purple-100 text-purple-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {donation.visitorId ? 'Visitor' : 'Member'}
+                </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-gray-900">
