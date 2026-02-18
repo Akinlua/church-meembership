@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
-import DatePickerField from '../common/DatePickerField';
 import MaskedDateInput from '../common/MaskedDateInput';
 import { ButtonLoader, PageLoader } from '../common/Loader';
 import Modal from '../../common/Modal';
@@ -11,9 +10,7 @@ const customStyles = {
     ...provided,
     borderColor: 'black',
     boxShadow: 'none',
-    '&:hover': {
-      borderColor: 'black',
-    },
+    '&:hover': { borderColor: 'black' },
     width: '250px',
   }),
 };
@@ -21,10 +18,13 @@ const customStyles = {
 const DonationForm = ({ donation, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
+  const [donorType, setDonorType] = useState('member'); // 'member' | 'visitor'
   const [members, setMembers] = useState([]);
+  const [visitors, setVisitors] = useState([]);
   const [donationTypes, setDonationTypes] = useState([]);
   const [formData, setFormData] = useState({
     member_id: '',
+    visitor_id: '',
     amount: '',
     donation_type: '',
     donation_date: new Date(),
@@ -35,11 +35,17 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   useEffect(() => {
     const loadFormData = async () => {
       try {
-        await fetchMembers();
-        await fetchDonationTypes();
+        await Promise.all([fetchMembers(), fetchVisitors(), fetchDonationTypes()]);
         if (donation) {
+          const isVisitor = !!donation.visitorId;
+          setDonorType(isVisitor ? 'visitor' : 'member');
           setFormData({
-            member_id: donation.memberId ? { value: donation.memberId, label: `${donation.member.lastName}, ${donation.member.firstName}` } : '',
+            member_id: !isVisitor && donation.memberId
+              ? { value: donation.memberId, label: `${donation.member.lastName}, ${donation.member.firstName}` }
+              : '',
+            visitor_id: isVisitor && donation.visitorId
+              ? { value: donation.visitorId, label: `${donation.visitor.lastName}, ${donation.visitor.firstName}` }
+              : '',
             amount: donation.amount || '',
             donation_type: donation.donationType ? { value: donation.donationType, label: donation.donationType } : '',
             donation_date: donation.donationDate ? new Date(donation.donationDate) : null,
@@ -60,9 +66,20 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setMembers(response.data.map(member => ({ value: member.id, label: `${member.memberNumber} ${member.lastName}, ${member.firstName}` })));
+      setMembers(response.data.map(m => ({ value: m.id, label: `${m.memberNumber} ${m.lastName}, ${m.firstName}` })));
     } catch (error) {
       console.error('Error fetching members:', error);
+    }
+  };
+
+  const fetchVisitors = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/visitors`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setVisitors(response.data.map(v => ({ value: v.id, label: `${v.visitorNumber} ${v.lastName}, ${v.firstName}` })));
+    } catch (error) {
+      console.error('Error fetching visitors:', error);
     }
   };
 
@@ -71,19 +88,28 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/donation-types`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setDonationTypes(response.data.map(type => ({ value: type.name, label: type.name })));
+      setDonationTypes(response.data.map(t => ({ value: t.name, label: t.name })));
     } catch (error) {
       console.error('Error fetching donation types:', error);
     }
+  };
+
+  const handleDonorTypeChange = (type) => {
+    setDonorType(type);
+    setFormData(prev => ({ ...prev, member_id: '', visitor_id: '' }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Check if member_id is valid
-    if (!formData.member_id || !formData.member_id.value) {
+    if (donorType === 'member' && (!formData.member_id || !formData.member_id.value)) {
       alert('Please select a valid member.');
+      setLoading(false);
+      return;
+    }
+    if (donorType === 'visitor' && (!formData.visitor_id || !formData.visitor_id.value)) {
+      alert('Please select a valid visitor.');
       setLoading(false);
       return;
     }
@@ -93,23 +119,23 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       const method = donation ? 'put' : 'post';
 
       const donationData = {
-        ...formData,
-        member_id: formData.member_id.value,
+        amount: formData.amount,
         donation_type: formData.donation_type.value.toString(),
         donation_date: formData.donation_date,
+        notes: formData.notes,
+        member_id: donorType === 'member' ? formData.member_id.value : null,
+        visitor_id: donorType === 'visitor' ? formData.visitor_id.value : null,
       };
 
       await axios[method](url, donationData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      // Show modal only when adding a new donation
       if (!donation) {
         setShowModal(true);
       } else {
-        onClose(); // Close the form if updating
+        onClose();
       }
-
     } catch (error) {
       console.error('Error saving donation:', error);
       alert('Error saving donation. Please try again.');
@@ -119,13 +145,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   };
 
   const handleContinueAdding = () => {
-    setFormData({
-      member_id: '',
-      amount: '',
-      donation_type: '',
-      donation_date: new Date(),
-      notes: ''
-    });
+    setFormData({ member_id: '', visitor_id: '', amount: '', donation_type: '', donation_date: new Date(), notes: '' });
     setShowModal(false);
   };
 
@@ -153,19 +173,64 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       ) : (
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-12 gap-x-4 gap-y-2">
+
+            {/* Donor Type Toggle */}
             <div className="col-span-3 flex items-center">
-              <label className="block text-sm font-medium text-gray-700">Member</label>
+              <label className="block text-sm font-medium text-gray-700">Donor Type</label>
+            </div>
+            <div className="col-span-9 flex gap-2">
+              <button
+                type="button"
+                onClick={() => handleDonorTypeChange('member')}
+                className={`px-4 py-1 rounded border text-sm font-medium transition-colors ${
+                  donorType === 'member'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-400 hover:bg-gray-100'
+                }`}
+              >
+                Member
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDonorTypeChange('visitor')}
+                className={`px-4 py-1 rounded border text-sm font-medium transition-colors ${
+                  donorType === 'visitor'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-400 hover:bg-gray-100'
+                }`}
+              >
+                Visitor
+              </button>
+            </div>
+
+            {/* Member / Visitor selector */}
+            <div className="col-span-3 flex items-center">
+              <label className="block text-sm font-medium text-gray-700">
+                {donorType === 'member' ? 'Member' : 'Visitor'}
+              </label>
             </div>
             <div className="col-span-9">
-              <Select
-                options={members}
-                value={formData.member_id}
-                onChange={(selected) => setFormData({ ...formData, member_id: selected })}
-                placeholder="Select Member"
-                isSearchable
-                styles={customStyles}
-                required
-              />
+              {donorType === 'member' ? (
+                <Select
+                  options={members}
+                  value={formData.member_id}
+                  onChange={(selected) => setFormData({ ...formData, member_id: selected })}
+                  placeholder="Select Member"
+                  isSearchable
+                  styles={customStyles}
+                  required
+                />
+              ) : (
+                <Select
+                  options={visitors}
+                  value={formData.visitor_id}
+                  onChange={(selected) => setFormData({ ...formData, visitor_id: selected })}
+                  placeholder="Select Visitor"
+                  isSearchable
+                  styles={customStyles}
+                  required
+                />
+              )}
             </div>
 
             <div className="col-span-3 flex items-center">
@@ -207,15 +272,6 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
             <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">Donation Date</label>
             </div>
-            {/* <div className="col-span-9">
-              <DatePickerField
-                value={formData.donation_date}
-                onChange={(date) => setFormData({ ...formData, donation_date: date })}
-                required
-                containerClassName="w-full"
-                inputClassName="w-full px-2 py-1 border border-gray-300 rounded"
-              />
-            </div> */}
             <div className="col-span-9">
               <MaskedDateInput
                 value={formData.donation_date}
@@ -257,7 +313,6 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
         </form>
       )}
 
-      {/* Modal for confirmation */}
       {showModal && (
         <Modal onClose={handleCloseModal}>
           <h2 className="text-lg font-bold">Success!</h2>
@@ -276,4 +331,4 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   );
 };
 
-export default DonationForm; 
+export default DonationForm;
