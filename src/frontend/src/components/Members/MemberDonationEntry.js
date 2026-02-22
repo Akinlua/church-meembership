@@ -176,6 +176,24 @@ const MemberDonationEntry = () => {
             <div className="space-y-3">
               {donationRows.map((row, index) => (
                 <div key={index} className="flex items-center gap-3">
+                  {/* Amount */}
+                  <div className="flex-1">
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500">$</span>
+                      </div>
+                      <input
+                        type="number"
+                        value={row.amount}
+                        onChange={(e) => updateDonationRow(index, 'amount', e.target.value)}
+                        placeholder="0.00"
+                        step="0.01"
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md"
+                        required
+                      />
+                    </div>
+                  </div>
+
                   {/* Plus/Minus Button */}
                   <button
                     type="button"
@@ -194,24 +212,6 @@ const MemberDonationEntry = () => {
                   >
                     {index === donationRows.length - 1 ? '+' : '−'}
                   </button>
-
-                  {/* Amount */}
-                  <div className="flex-1">
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500">$</span>
-                      </div>
-                      <input
-                        type="number"
-                        value={row.amount}
-                        onChange={(e) => updateDonationRow(index, 'amount', e.target.value)}
-                        placeholder="0.00"
-                        step="0.01"
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md"
-                        required
-                      />
-                    </div>
-                  </div>
 
                   {/* Type */}
                   <div className="flex-1">

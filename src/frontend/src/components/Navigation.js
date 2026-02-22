@@ -116,8 +116,7 @@ const Navigation = () => {
                 {openMenus.member && (
                   <ul className="mt-1 mb-1">
                     <li><Link to="/member-lookup" className={subLinkClass('/member-lookup')} onClick={closeMobileMenu}>Member Profile</Link></li>
-                    <li><Link to="/member-donation-entry" className={subLinkClass('/member-donation-entry')} onClick={closeMobileMenu}>Add Member Donation</Link></li>
-                    <li><Link to="/reports/member-donations" className={subLinkClass('/reports/member-donations')} onClick={closeMobileMenu}>Member Donation Report</Link></li>
+                    <li><Link to="/member-donation-entry" className={subLinkClass('/member-donation-entry')} onClick={closeMobileMenu}>Member Donation</Link></li>
                   </ul>
                 )}
               </li>
@@ -136,8 +135,7 @@ const Navigation = () => {
                 {openMenus.visitor && (
                   <ul className="mt-1 mb-1">
                     <li><Link to="/visitor-lookup" className={subLinkClass('/visitor-lookup')} onClick={closeMobileMenu}>Visitor Profile</Link></li>
-                    <li><Link to="/visitor-donation-entry" className={subLinkClass('/visitor-donation-entry')} onClick={closeMobileMenu}>Add Visitor Donation</Link></li>
-                    <li><Link to="/reports/visitor-donations" className={subLinkClass('/reports/visitor-donations')} onClick={closeMobileMenu}>Visitor Donation Report</Link></li>
+                    <li><Link to="/visitor-donation-entry" className={subLinkClass('/visitor-donation-entry')} onClick={closeMobileMenu}>Visitor Donation</Link></li>
                   </ul>
                 )}
               </li>
