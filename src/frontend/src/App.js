@@ -30,6 +30,8 @@ import UserManagement from './components/UserManagement';
 import CheckGenerator from './components/Reports/CheckGenerator';
 import MemberFormPage from './components/Forms/MemberFormPage';
 import VisitorFormPage from './components/Forms/VisitorFormPage';
+import VisitorDonationEntry from './components/Visitors/VisitorDonationEntry';
+import MemberDonationEntry from './components/Members/MemberDonationEntry';
 
 // Layout component with left sidebar navigation
 const Layout = ({ children }) => {
@@ -65,6 +67,7 @@ function App() {
           <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
           <Route path="/members" element={<PrivateRoute><Layout><Members /></Layout></PrivateRoute>} />
           <Route path="/member-lookup" element={<PrivateRoute><Layout><MemberDropdown /></Layout></PrivateRoute>} />
+          <Route path="/member-donation-entry" element={<PrivateRoute><Layout><MemberDonationEntry /></Layout></PrivateRoute>} />
           <Route path="/groups" element={<PrivateRoute><Layout><Groups /></Layout></PrivateRoute>} />
           <Route path="/group-lookup" element={<PrivateRoute><Layout><GroupDropdown /></Layout></PrivateRoute>} />
           <Route path="/donations" element={<PrivateRoute><Layout><Donations /></Layout></PrivateRoute>} />
@@ -87,6 +90,7 @@ function App() {
           } />
           <Route path="/visitors" element={<PrivateRoute><Layout><Visitors /></Layout></PrivateRoute>} />
           <Route path="/visitor-lookup" element={<PrivateRoute><Layout><VisitorDropdown /></Layout></PrivateRoute>} />
+          <Route path="/visitor-donation-entry" element={<PrivateRoute><Layout><VisitorDonationEntry /></Layout></PrivateRoute>} />
           <Route path="/vendor" element={<PrivateRoute><Layout><VendorDropdown /></Layout></PrivateRoute>} />
           <Route path="/donation-types" element={<PrivateRoute><Layout><DonationTypeList /></Layout></PrivateRoute>} />
           <Route path="/expense-categories" element={<PrivateRoute><Layout><ExpenseCategoryDropdown /></Layout></PrivateRoute>} />

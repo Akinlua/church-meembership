@@ -105,17 +105,41 @@ const Navigation = () => {
 
             {hasAccess('member') && (
               <li>
-                <Link to="/member-lookup" className={linkClass('/member-lookup')} onClick={closeMobileMenu}>
-                  Member
-                </Link>
+                <button
+                  onClick={() => toggleMenu('member')}
+                  className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition-colors text-left"
+                >
+                  <span>Member</span>
+                  <ChevronIcon open={openMenus.member} />
+                </button>
+
+                {openMenus.member && (
+                  <ul className="mt-1 mb-1">
+                    <li><Link to="/member-lookup" className={subLinkClass('/member-lookup')} onClick={closeMobileMenu}>Member Profile</Link></li>
+                    <li><Link to="/member-donation-entry" className={subLinkClass('/member-donation-entry')} onClick={closeMobileMenu}>Add Member Donation</Link></li>
+                    <li><Link to="/reports/member-donations" className={subLinkClass('/reports/member-donations')} onClick={closeMobileMenu}>Member Donation Report</Link></li>
+                  </ul>
+                )}
               </li>
             )}
 
             {hasAccess('visitor') && (
               <li>
-                <Link to="/visitor-lookup" className={linkClass('/visitor-lookup')} onClick={closeMobileMenu}>
-                  Visitor
-                </Link>
+                <button
+                  onClick={() => toggleMenu('visitor')}
+                  className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition-colors text-left"
+                >
+                  <span>Visitor</span>
+                  <ChevronIcon open={openMenus.visitor} />
+                </button>
+
+                {openMenus.visitor && (
+                  <ul className="mt-1 mb-1">
+                    <li><Link to="/visitor-lookup" className={subLinkClass('/visitor-lookup')} onClick={closeMobileMenu}>Visitor Profile</Link></li>
+                    <li><Link to="/visitor-donation-entry" className={subLinkClass('/visitor-donation-entry')} onClick={closeMobileMenu}>Add Visitor Donation</Link></li>
+                    <li><Link to="/reports/visitor-donations" className={subLinkClass('/reports/visitor-donations')} onClick={closeMobileMenu}>Visitor Donation Report</Link></li>
+                  </ul>
+                )}
               </li>
             )}
 
