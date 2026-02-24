@@ -1601,5 +1601,195 @@ module.exports = (app) => {
     }
   });
 
+  // ─── Member Donations Report ──────────────────────────────────────────────
+
+  app.get('/reports/memberDonations', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate, memberId } = req.query;
+
+      let whereClause = { memberId: { not: null } };
+
+      if (startDate && endDate) {
+        whereClause.donationDate = { gte: new Date(startDate), lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      } else if (startDate) {
+        whereClause.donationDate = { gte: new Date(startDate) };
+      } else if (endDate) {
+        whereClause.donationDate = { lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      }
+
+      if (memberId) whereClause.memberId = parseInt(memberId);
+
+      const donations = await prisma.donation.findMany({
+        where: whereClause,
+        include: { member: { select: { firstName: true, lastName: true } } },
+        orderBy: { donationDate: 'desc' }
+      });
+
+      const total = donations.reduce((sum, d) => sum + parseFloat(d.amount), 0);
+      res.json({ donations, total });
+    } catch (error) {
+      console.error('Error generating member donations report:', error);
+      res.status(500).json({ message: 'Error generating member donations report' });
+    }
+  });
+
+  app.post('/reports/memberDonations/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate, memberId } = req.body;
+
+      let whereClause = { memberId: { not: null } };
+      if (startDate && endDate) {
+        whereClause.donationDate = { gte: new Date(startDate), lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      } else if (startDate) {
+        whereClause.donationDate = { gte: new Date(startDate) };
+      } else if (endDate) {
+        whereClause.donationDate = { lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      }
+      if (memberId) whereClause.memberId = parseInt(memberId);
+
+      const donations = await prisma.donation.findMany({
+        where: whereClause,
+        include: { member: { select: { firstName: true, lastName: true } } },
+        orderBy: { donationDate: 'desc' }
+      });
+
+      const total = donations.reduce((sum, d) => sum + parseFloat(d.amount), 0);
+
+      const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=member-donations-report.pdf');
+      doc.pipe(res);
+
+      doc.fontSize(18).font('Helvetica-Bold').text('Member Donations Report', { align: 'center' });
+      doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleDateString()}`, { align: 'center' });
+      doc.moveDown();
+
+      const cols = { date: 50, member: 130, type: 310, amount: 460 };
+      doc.font('Helvetica-Bold').fontSize(10)
+        .text('Date', cols.date, doc.y)
+        .text('Member', cols.member, doc.y - doc.currentLineHeight())
+        .text('Type', cols.type, doc.y - doc.currentLineHeight())
+        .text('Amount', cols.amount, doc.y - doc.currentLineHeight());
+
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+      doc.moveDown(0.3);
+
+      donations.forEach((d, i) => {
+        if (doc.y > 700) { doc.addPage(); }
+        const y = doc.y;
+        if (i % 2 === 0) doc.rect(50, y - 3, 500, 16).fill('#f9fafb');
+        doc.fillColor('#000000').font('Helvetica').fontSize(9)
+          .text(new Date(d.donationDate).toLocaleDateString(), cols.date, y)
+          .text(`${d.member?.lastName || ''}, ${d.member?.firstName || ''}`, cols.member, y)
+          .text(d.donationType, cols.type, y)
+          .text(formatCurrency(d.amount), cols.amount, y);
+        doc.moveDown(0.2);
+      });
+
+      doc.moveDown().font('Helvetica-Bold').fontSize(11)
+        .text(`Total: ${formatCurrency(total)}`, { align: 'right' });
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating member donations PDF:', error);
+      res.status(500).json({ message: 'Error generating member donations PDF' });
+    }
+  });
+
+  // ─── Visitor Donations Report ─────────────────────────────────────────────
+
+  app.get('/reports/visitorDonations', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate, visitorId } = req.query;
+
+      let whereClause = { visitorId: { not: null } };
+
+      if (startDate && endDate) {
+        whereClause.donationDate = { gte: new Date(startDate), lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      } else if (startDate) {
+        whereClause.donationDate = { gte: new Date(startDate) };
+      } else if (endDate) {
+        whereClause.donationDate = { lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      }
+
+      if (visitorId) whereClause.visitorId = parseInt(visitorId);
+
+      const donations = await prisma.donation.findMany({
+        where: whereClause,
+        include: { visitor: { select: { firstName: true, lastName: true } } },
+        orderBy: { donationDate: 'desc' }
+      });
+
+      const total = donations.reduce((sum, d) => sum + parseFloat(d.amount), 0);
+      res.json({ donations, total });
+    } catch (error) {
+      console.error('Error generating visitor donations report:', error);
+      res.status(500).json({ message: 'Error generating visitor donations report' });
+    }
+  });
+
+  app.post('/reports/visitorDonations/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { startDate, endDate, visitorId } = req.body;
+
+      let whereClause = { visitorId: { not: null } };
+      if (startDate && endDate) {
+        whereClause.donationDate = { gte: new Date(startDate), lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      } else if (startDate) {
+        whereClause.donationDate = { gte: new Date(startDate) };
+      } else if (endDate) {
+        whereClause.donationDate = { lte: new Date(new Date(endDate).setHours(23, 59, 59)) };
+      }
+      if (visitorId) whereClause.visitorId = parseInt(visitorId);
+
+      const donations = await prisma.donation.findMany({
+        where: whereClause,
+        include: { visitor: { select: { firstName: true, lastName: true } } },
+        orderBy: { donationDate: 'desc' }
+      });
+
+      const total = donations.reduce((sum, d) => sum + parseFloat(d.amount), 0);
+
+      const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=visitor-donations-report.pdf');
+      doc.pipe(res);
+
+      doc.fontSize(18).font('Helvetica-Bold').text('Visitor Donations Report', { align: 'center' });
+      doc.fontSize(10).font('Helvetica').text(`Generated: ${new Date().toLocaleDateString()}`, { align: 'center' });
+      doc.moveDown();
+
+      const cols = { date: 50, visitor: 130, type: 310, amount: 460 };
+      doc.font('Helvetica-Bold').fontSize(10)
+        .text('Date', cols.date, doc.y)
+        .text('Visitor', cols.visitor, doc.y - doc.currentLineHeight())
+        .text('Type', cols.type, doc.y - doc.currentLineHeight())
+        .text('Amount', cols.amount, doc.y - doc.currentLineHeight());
+
+      doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+      doc.moveDown(0.3);
+
+      donations.forEach((d, i) => {
+        if (doc.y > 700) { doc.addPage(); }
+        const y = doc.y;
+        if (i % 2 === 0) doc.rect(50, y - 3, 500, 16).fill('#f9fafb');
+        doc.fillColor('#000000').font('Helvetica').fontSize(9)
+          .text(new Date(d.donationDate).toLocaleDateString(), cols.date, y)
+          .text(`${d.visitor?.lastName || ''}, ${d.visitor?.firstName || ''}`, cols.visitor, y)
+          .text(d.donationType, cols.type, y)
+          .text(formatCurrency(d.amount), cols.amount, y);
+        doc.moveDown(0.2);
+      });
+
+      doc.moveDown().font('Helvetica-Bold').fontSize(11)
+        .text(`Total: ${formatCurrency(total)}`, { align: 'right' });
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating visitor donations PDF:', error);
+      res.status(500).json({ message: 'Error generating visitor donations PDF' });
+    }
+  });
+
   return router;
-}; 
+};

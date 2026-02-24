@@ -5,6 +5,7 @@ import MembershipReport from './MembershipReport';
 import GroupReport from './GroupReport';
 import TotalDonationReport from './TotalDonationReport';
 import DonationTypeSummaryReport from './DonationTypeSummaryReport';
+import VisitorDonationReport from './VisitorDonationReport';
 import MaskedDateInput from '../common/MaskedDateInput';
 import { PageLoader } from '../common/Loader';
 import VendorsReport from './VendorsReport';
@@ -13,8 +14,8 @@ import ChargesReport from './ChargesReport';
 import DepositReport from './DepositReport';
 import Select from 'react-select';
 
-const Reports = () => {
-  const [activeReport, setActiveReport] = useState('donations');
+const Reports = ({ initialReport }) => {
+  const [activeReport, setActiveReport] = useState(initialReport || 'donations');
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: null,
@@ -28,12 +29,16 @@ const Reports = () => {
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [loadingVendors, setLoadingVendors] = useState(false);
+  const [visitors, setVisitors] = useState([]);
+  const [selectedVisitor, setSelectedVisitor] = useState(null);
+  const [loadingVisitors, setLoadingVisitors] = useState(false);
 
   const reportOptions = [
-    { value: 'donations', label: 'Donations', hasMemberFilter: true },
+    { value: 'memberDonations', label: 'Member Donations', hasMemberFilter: true },
+    { value: 'visitorDonations', label: 'Visitor Donations', hasVisitorFilter: true },
+    { value: 'donations', label: 'All Donations', hasMemberFilter: true },
     { value: 'membership', label: 'Membership', hasMemberFilter: false },
     { value: 'groups', label: 'Groups', hasMemberFilter: false },
-    // { value: 'totalDonations', label: 'Total Donations', hasMemberFilter: true },
     { value: 'donationTypeSummary', label: 'Donation Type Summary', hasMemberFilter: false },
     { value: 'vendors', label: 'Vendors', hasVendorFilter: true },
     { value: 'expenses', label: 'Expenses', hasMemberFilter: false },
@@ -41,15 +46,27 @@ const Reports = () => {
     { value: 'deposits', label: 'Deposits', hasMemberFilter: false }
   ];
 
-  // Check if current report type supports member filtering
+  // Sync when initialReport prop changes (navigation)
+  useEffect(() => {
+    if (initialReport && initialReport !== activeReport) {
+      setActiveReport(initialReport);
+      setSelectedMember(null);
+      setSelectedVisitor(null);
+      setSelectedVendor(null);
+    }
+  }, [initialReport]);
+
+  // Check if current report type supports filters
   const currentReportType = reportOptions.find(option => option.value === activeReport);
   const showMemberFilter = currentReportType?.hasMemberFilter || false;
   const showVendorFilter = currentReportType?.hasVendorFilter || false;
+  const showVisitorFilter = currentReportType?.hasVisitorFilter || false;
 
   const handleReportChange = (e) => {
     setActiveReport(e.target.value);
-    setSelectedMember(null); // Reset member selection when report type changes
-    setSelectedVendor(null); // Reset vendor selection when report type changes
+    setSelectedMember(null);
+    setSelectedVendor(null);
+    setSelectedVisitor(null);
   };
 
   const handleDateChange = (type, date) => {
@@ -125,6 +142,30 @@ const Reports = () => {
     }
   }, [showVendorFilter]);
 
+  const fetchVisitors = async () => {
+    if (visitors.length > 0) return;
+    try {
+      setLoadingVisitors(true);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/visitors`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setVisitors(response.data.map(v => ({
+        value: v.id,
+        label: `${v.lastName}, ${v.firstName}`
+      })));
+    } catch (error) {
+      console.error('Error fetching visitors:', error);
+    } finally {
+      setLoadingVisitors(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showVisitorFilter) {
+      fetchVisitors();
+    }
+  }, [showVisitorFilter]);
+
   const generateReport = async () => {
     setLoading(true);
     try {
@@ -137,6 +178,7 @@ const Reports = () => {
       if (dateRange.endDate) params.append('endDate', dateRange.endDate);
       if (selectedMember) params.append('memberId', selectedMember.value);
       if (selectedVendor) params.append('vendorId', selectedVendor.value);
+      if (selectedVisitor) params.append('visitorId', selectedVisitor.value);
       
       // Add member status for membership reports
       if (activeReport === 'membership') {
@@ -175,7 +217,11 @@ const Reports = () => {
       if (selectedVendor) {
         requestData.vendorId = selectedVendor.value;
       }
-      
+
+      if (selectedVisitor) {
+        requestData.visitorId = selectedVisitor.value;
+      }
+
       // Add member status for membership reports
       if (activeReport === 'membership') {
         requestData.memberStatus = memberStatus;
@@ -213,6 +259,10 @@ const Reports = () => {
 
   const renderReportContent = () => {
     switch (activeReport) {
+      case 'memberDonations':
+        return <DonationReport reportData={reportData} />;
+      case 'visitorDonations':
+        return <VisitorDonationReport reportData={reportData} />;
       case 'donations':
         return <DonationReport reportData={reportData} />;
       case 'membership':
@@ -349,6 +399,29 @@ const Reports = () => {
                 isClearable
                 isSearchable
                 isLoading={loadingVendors}
+                className="w-64"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    height: '40px',
+                    minHeight: '40px'
+                  })
+                }}
+              />
+            </div>
+          )}
+
+          {showVisitorFilter && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Visitor (Optional)</label>
+              <Select
+                options={visitors}
+                value={selectedVisitor}
+                onChange={setSelectedVisitor}
+                placeholder="Select Visitor"
+                isClearable
+                isSearchable
+                isLoading={loadingVisitors}
                 className="w-64"
                 styles={{
                   control: (base) => ({

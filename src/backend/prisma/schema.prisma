@@ -170,14 +170,16 @@ model GroupMember {
 }
 
 model Donation {
-  id           Int      @id @default(autoincrement())
-  member       Member   @relation(fields: [memberId], references: [id])
-  memberId     Int      @map("member_id")
-  amount       Decimal  @db.Decimal(10, 2)
-  donationType String   @map("donation_type")
-  donationDate DateTime @map("donation_date")
+  id           Int       @id @default(autoincrement())
+  member       Member?   @relation(fields: [memberId], references: [id])
+  memberId     Int?      @map("member_id")
+  visitor      Visitor?  @relation(fields: [visitorId], references: [id])
+  visitorId    Int?      @map("visitor_id")
+  amount       Decimal   @db.Decimal(10, 2)
+  donationType String    @map("donation_type")
+  donationDate DateTime  @map("donation_date")
   notes        String?
-  createdAt    DateTime @default(now()) @map("created_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
 
   @@map("donations")
   DonationType DonationType[]
@@ -207,6 +209,7 @@ model Visitor {
   visitDate      DateTime  @default(now()) @map("visit_date")
   createdAt      DateTime  @default(now()) @map("created_at")
   users          User[]
+  donations      Donation[]
 
   @@map("visitors")
 }

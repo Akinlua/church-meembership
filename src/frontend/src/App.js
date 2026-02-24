@@ -30,6 +30,8 @@ import UserManagement from './components/UserManagement';
 import CheckGenerator from './components/Reports/CheckGenerator';
 import MemberFormPage from './components/Forms/MemberFormPage';
 import VisitorFormPage from './components/Forms/VisitorFormPage';
+import VisitorDonationEntry from './components/Visitors/VisitorDonationEntry';
+import MemberDonationEntry from './components/Members/MemberDonationEntry';
 
 // Layout component with left sidebar navigation
 const Layout = ({ children }) => {
@@ -65,11 +67,22 @@ function App() {
           <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
           <Route path="/members" element={<PrivateRoute><Layout><Members /></Layout></PrivateRoute>} />
           <Route path="/member-lookup" element={<PrivateRoute><Layout><MemberDropdown /></Layout></PrivateRoute>} />
+          <Route path="/member-donation-entry" element={<PrivateRoute><Layout><MemberDonationEntry /></Layout></PrivateRoute>} />
           <Route path="/groups" element={<PrivateRoute><Layout><Groups /></Layout></PrivateRoute>} />
           <Route path="/group-lookup" element={<PrivateRoute><Layout><GroupDropdown /></Layout></PrivateRoute>} />
           <Route path="/donations" element={<PrivateRoute><Layout><Donations /></Layout></PrivateRoute>} />
           <Route path="/donation-lookup" element={<PrivateRoute><Layout><DonationDropdown /></Layout></PrivateRoute>} />
           <Route path="/reports" element={<PrivateRoute><Layout><Reports /></Layout></PrivateRoute>} />
+          <Route path="/reports/member-donations"  element={<PrivateRoute><Layout><Reports initialReport="memberDonations" /></Layout></PrivateRoute>} />
+          <Route path="/reports/visitor-donations" element={<PrivateRoute><Layout><Reports initialReport="visitorDonations" /></Layout></PrivateRoute>} />
+          <Route path="/reports/donations"         element={<PrivateRoute><Layout><Reports initialReport="donations" /></Layout></PrivateRoute>} />
+          <Route path="/reports/membership"        element={<PrivateRoute><Layout><Reports initialReport="membership" /></Layout></PrivateRoute>} />
+          <Route path="/reports/groups"            element={<PrivateRoute><Layout><Reports initialReport="groups" /></Layout></PrivateRoute>} />
+          <Route path="/reports/type-summary"      element={<PrivateRoute><Layout><Reports initialReport="donationTypeSummary" /></Layout></PrivateRoute>} />
+          <Route path="/reports/vendors"           element={<PrivateRoute><Layout><Reports initialReport="vendors" /></Layout></PrivateRoute>} />
+          <Route path="/reports/expenses"          element={<PrivateRoute><Layout><Reports initialReport="expenses" /></Layout></PrivateRoute>} />
+          <Route path="/reports/charges"           element={<PrivateRoute><Layout><Reports initialReport="charges" /></Layout></PrivateRoute>} />
+          <Route path="/reports/deposits"          element={<PrivateRoute><Layout><Reports initialReport="deposits" /></Layout></PrivateRoute>} />
           <Route path="/reports/check-generator" element={
             <PrivateRoute>
               <Layout><CheckGenerator /></Layout>
@@ -77,6 +90,7 @@ function App() {
           } />
           <Route path="/visitors" element={<PrivateRoute><Layout><Visitors /></Layout></PrivateRoute>} />
           <Route path="/visitor-lookup" element={<PrivateRoute><Layout><VisitorDropdown /></Layout></PrivateRoute>} />
+          <Route path="/visitor-donation-entry" element={<PrivateRoute><Layout><VisitorDonationEntry /></Layout></PrivateRoute>} />
           <Route path="/vendor" element={<PrivateRoute><Layout><VendorDropdown /></Layout></PrivateRoute>} />
           <Route path="/donation-types" element={<PrivateRoute><Layout><DonationTypeList /></Layout></PrivateRoute>} />
           <Route path="/expense-categories" element={<PrivateRoute><Layout><ExpenseCategoryDropdown /></Layout></PrivateRoute>} />
