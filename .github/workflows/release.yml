@@ -28,17 +28,12 @@ jobs:
         working-directory: src/frontend
         run: npm ci
 
-      - name: Build React app
-        working-directory: src/frontend
-        run: npm run build
-        env:
-          CI: false
-
       - name: Build Electron app (macOS)
         if: matrix.os == 'macos-latest'
         working-directory: src/frontend
         run: npm run electron:build:mac
         env:
+          CI: false
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Electron app (Windows)
@@ -46,6 +41,7 @@ jobs:
         working-directory: src/frontend
         run: npm run electron:build:win
         env:
+          CI: false
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload macOS artifacts
