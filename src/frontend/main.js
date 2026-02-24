@@ -76,7 +76,8 @@ ipcMain.on('download-update', () => {
 });
 
 ipcMain.on('quit-and-install', () => {
-  autoUpdater.quitAndInstall(false, true);
+  console.log("Quit and install requested from renderer");
+  autoUpdater.quitAndInstall();
 });
 
 function createWindow() {
