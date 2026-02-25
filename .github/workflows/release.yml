@@ -37,6 +37,7 @@ jobs:
         run: npm run electron:build:mac
         env:
           CI: false
+          REACT_APP_API_URL: https://api.newlightxyz.com
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Electron app (Windows)
@@ -45,6 +46,7 @@ jobs:
         run: npm run electron:build:win
         env:
           CI: false
+          REACT_APP_API_URL: https://api.newlightxyz.com
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload macOS artifacts
