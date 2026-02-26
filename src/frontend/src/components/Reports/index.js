@@ -289,9 +289,9 @@ const Reports = ({ initialReport }) => {
   return (
     <div className="container reports-container mx-auto px-4 py-6">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Reports</h1>
-      
-      {/* Compact layout with dates and buttons in a single row */}
-      <div className="mb-6">
+
+      {/* Compact layout with dates and buttons in a single row - Made sticky */}
+      <div className="sticky top-0 z-10 bg-gray-100 pb-4 mb-6">
         <div className="flex flex-wrap items-end gap-2 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
