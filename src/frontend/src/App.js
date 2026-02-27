@@ -36,9 +36,11 @@ import MemberDonationEntry from './components/Members/MemberDonationEntry';
 // Layout component with left sidebar navigation
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="h-screen flex bg-gray-100 overflow-hidden">
       <Navigation />
-      <main className="flex-1 p-6 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto md:ml-64">
+        <div className="p-6">{children}</div>
+      </main>
     </div>
   );
 };

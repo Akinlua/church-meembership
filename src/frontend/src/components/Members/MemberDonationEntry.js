@@ -42,7 +42,7 @@ const MemberDonationEntry = () => {
       });
       setMembers(response.data.map(m => ({
         value: m.id,
-        label: `${m.memberNumber} - ${m.lastName}, ${m.firstName}`
+        label: `${m.lastName}, ${m.firstName}`
       })));
     } catch (error) {
       console.error('Error fetching members:', error);

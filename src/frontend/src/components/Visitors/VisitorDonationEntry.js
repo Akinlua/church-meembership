@@ -42,7 +42,7 @@ const VisitorDonationEntry = () => {
       });
       setVisitors(response.data.map(v => ({
         value: v.id,
-        label: `${v.visitorNumber} - ${v.lastName}, ${v.firstName}`
+        label: `${v.lastName}, ${v.firstName}`
       })));
     } catch (error) {
       console.error('Error fetching visitors:', error);

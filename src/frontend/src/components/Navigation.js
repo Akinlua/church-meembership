@@ -90,8 +90,8 @@ const Navigation = () => {
 
       {/* Sidebar */}
       <aside className={`
-        w-64 bg-gray-800 text-white min-h-screen flex flex-col
-        fixed md:relative z-50 transition-transform duration-300 ease-in-out
+        w-64 bg-gray-800 text-white h-screen flex flex-col flex-shrink-0
+        fixed z-50 transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="p-4 border-b border-gray-700">
@@ -100,7 +100,7 @@ const Navigation = () => {
           </Link>
         </div>
 
-        <nav className="flex-1 overflow-y-auto">
+        <nav className="flex-1 overflow-y-auto sidebar-scroll">
           <ul className="py-2">
 
             {hasAccess('member') && (

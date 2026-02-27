@@ -287,11 +287,11 @@ const Reports = ({ initialReport }) => {
   };
 
   return (
-    <div className="container reports-container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Reports</h1>
-
-      {/* Compact layout with dates and buttons in a single row - Made sticky */}
-      <div className="sticky top-0 z-10 bg-gray-100 pb-4 mb-6">
+    <div className="reports-container">
+      {/* Sticky header section with controls */}
+      <div className="sticky top-0 z-10 bg-white shadow-md border-b border-gray-200">
+        <div className="container mx-auto px-4 py-4">
+          <h1 className="text-3xl font-bold mb-4 text-gray-800">Reports</h1>
         <div className="flex flex-wrap items-end gap-2 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
@@ -433,11 +433,13 @@ const Reports = ({ initialReport }) => {
               />
             </div>
           )}
-          
+
+        </div>
         </div>
       </div>
-      
-      {/* Report Content */}
+
+      {/* Report Content - Full width */}
+      <div className="container mx-auto px-4 py-6">
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">
@@ -452,6 +454,7 @@ const Reports = ({ initialReport }) => {
         ) : (
           renderReportContent()
         )}
+      </div>
       </div>
     </div>
   );
