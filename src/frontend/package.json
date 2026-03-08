@@ -1,6 +1,6 @@
 {
   "name": "church-management-frontend",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "homepage": ".",
   "private": true,
   "main": "main.js",
