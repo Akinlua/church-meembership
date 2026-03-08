@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onDownloadProgress: (callback) => ipcRenderer.on('download-progress', (event, ...args) => callback(...args)),
     onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', (event, ...args) => callback(...args)),
     onUpdateError: (callback) => ipcRenderer.on('update-error', (event, ...args) => callback(...args)),
+    onNavigate: (callback) => ipcRenderer.on('navigate', (event, route) => callback(route)),
+    removeNavigateListener: () => ipcRenderer.removeAllListeners('navigate'),
     removeListeners: () => {
         ipcRenderer.removeAllListeners('update-available');
         ipcRenderer.removeAllListeners('update-not-available');

@@ -37,19 +37,19 @@ const Navigation = () => {
     if (!currentUser) return false;
     if (currentUser.role === 'admin') return true;
     switch (accessType) {
-      case 'member':      return currentUser.memberAccess;
-      case 'visitor':     return currentUser.visitorAccess;
-      case 'vendor':      return currentUser.vendorAccess;
-      case 'group':       return currentUser.groupAccess;
-      case 'donation':    return currentUser.donationAccess;
-      case 'admin':       return currentUser.adminAccess;
-      case 'expense':     return currentUser.expenseAccess;
-      case 'charges':     return currentUser.chargesAccess;
-      case 'reports':     return currentUser.reportsAccess;
-      case 'deposit':     return currentUser.depositAccess;
-      case 'bank':        return currentUser.bankAccess;
-      case 'checks':      return currentUser.checksAccess;
-      default:            return false;
+      case 'member': return currentUser.memberAccess;
+      case 'visitor': return currentUser.visitorAccess;
+      case 'vendor': return currentUser.vendorAccess;
+      case 'group': return currentUser.groupAccess;
+      case 'donation': return currentUser.donationAccess;
+      case 'admin': return currentUser.adminAccess;
+      case 'expense': return currentUser.expenseAccess;
+      case 'charges': return currentUser.chargesAccess;
+      case 'reports': return currentUser.reportsAccess;
+      case 'deposit': return currentUser.depositAccess;
+      case 'bank': return currentUser.bankAccess;
+      case 'checks': return currentUser.checksAccess;
+      default: return false;
     }
   };
 
@@ -151,9 +151,20 @@ const Navigation = () => {
 
             {hasAccess('group') && (
               <li>
-                <Link to="/group-lookup" className={linkClass('/group-lookup')} onClick={closeMobileMenu}>
-                  Group
-                </Link>
+                <button
+                  onClick={() => toggleMenu('group')}
+                  className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition-colors text-left"
+                >
+                  <span>Group</span>
+                  <ChevronIcon open={openMenus.group} />
+                </button>
+
+                {openMenus.group && (
+                  <ul className="mt-1 mb-1">
+                    <li><Link to="/group-lookup" className={subLinkClass('/group-lookup')} onClick={closeMobileMenu}>Group Lookup</Link></li>
+                    <li><Link to="/group-membership-form" className={subLinkClass('/group-membership-form')} onClick={closeMobileMenu}>Group Member Form</Link></li>
+                  </ul>
+                )}
               </li>
             )}
 
@@ -246,19 +257,36 @@ const Navigation = () => {
                       </button>
                       {openMenus['reports-donations'] && (
                         <ul className="mt-0.5 mb-1">
-                          <li><Link to="/reports/member-donations"  className={deepLinkClass('/reports/member-donations')}  onClick={closeMobileMenu}>Member Donations</Link></li>
+                          <li><Link to="/reports/member-donations" className={deepLinkClass('/reports/member-donations')} onClick={closeMobileMenu}>Member Donations</Link></li>
                           <li><Link to="/reports/visitor-donations" className={deepLinkClass('/reports/visitor-donations')} onClick={closeMobileMenu}>Visitor Donations</Link></li>
                         </ul>
                       )}
                     </li>
 
-                    <li><Link to="/reports/membership"   className={subLinkClass('/reports/membership')}   onClick={closeMobileMenu}>Membership</Link></li>
-                    <li><Link to="/reports/groups"       className={subLinkClass('/reports/groups')}       onClick={closeMobileMenu}>Groups</Link></li>
+                    <li><Link to="/reports/membership" className={subLinkClass('/reports/membership')} onClick={closeMobileMenu}>Membership</Link></li>
+
+                    {/* Groups sub-tree */}
+                    <li>
+                      <button
+                        onClick={() => toggleMenu('reports-groups')}
+                        className="w-full flex items-center justify-between pl-8 pr-4 py-2 text-sm hover:bg-gray-600 rounded transition-colors text-left"
+                      >
+                        <span>Groups</span>
+                        <ChevronIcon open={openMenus['reports-groups']} />
+                      </button>
+                      {openMenus['reports-groups'] && (
+                        <ul className="mt-0.5 mb-1">
+                          <li><Link to="/reports/groups" className={deepLinkClass('/reports/groups')} onClick={closeMobileMenu}>Groups</Link></li>
+                          <li><Link to="/reports/groupMembership" className={deepLinkClass('/reports/groupMembership')} onClick={closeMobileMenu}>Group Membership Report</Link></li>
+                        </ul>
+                      )}
+                    </li>
+
                     <li><Link to="/reports/type-summary" className={subLinkClass('/reports/type-summary')} onClick={closeMobileMenu}>Type Summary</Link></li>
-                    <li><Link to="/reports/vendors"      className={subLinkClass('/reports/vendors')}      onClick={closeMobileMenu}>Vendors</Link></li>
-                    <li><Link to="/reports/expenses"     className={subLinkClass('/reports/expenses')}     onClick={closeMobileMenu}>Expenses</Link></li>
-                    <li><Link to="/reports/charges"      className={subLinkClass('/reports/charges')}      onClick={closeMobileMenu}>Charges</Link></li>
-                    <li><Link to="/reports/deposits"     className={subLinkClass('/reports/deposits')}     onClick={closeMobileMenu}>Deposits</Link></li>
+                    <li><Link to="/reports/vendors" className={subLinkClass('/reports/vendors')} onClick={closeMobileMenu}>Vendors</Link></li>
+                    <li><Link to="/reports/expenses" className={subLinkClass('/reports/expenses')} onClick={closeMobileMenu}>Expenses</Link></li>
+                    <li><Link to="/reports/charges" className={subLinkClass('/reports/charges')} onClick={closeMobileMenu}>Charges</Link></li>
+                    <li><Link to="/reports/deposits" className={subLinkClass('/reports/deposits')} onClick={closeMobileMenu}>Deposits</Link></li>
                   </ul>
                 )}
               </li>

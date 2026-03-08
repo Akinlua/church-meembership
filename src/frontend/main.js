@@ -99,30 +99,106 @@ function createWindow() {
 }
 
 function createMenu() {
+  const isMac = process.platform === 'darwin';
+
+  const navigate = (route) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('navigate', route);
+    }
+  };
+
   const template = [
+    // { role: 'appMenu' } on macOS
+    ...(isMac ? [{
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    }] : []),
     {
-      label: "File",
+      label: 'File',
       submenu: [
         {
-          label: "Check for Updates",
-          click: () => {
-            autoUpdater.checkForUpdates();
+          label: 'Check for Updates',
+          click: () => autoUpdater.checkForUpdates()
+        },
+        { type: 'separator' },
+        isMac ? { role: 'close' } : { role: 'quit' }
+      ]
+    },
+    {
+      label: 'Profile',
+      submenu: [
+        { label: 'Member Profile', click: () => navigate('/member-lookup') },
+        { label: 'Visitor Profile', click: () => navigate('/visitor-lookup') }
+      ]
+    },
+    {
+      label: 'Groups',
+      submenu: [
+        { label: 'Group Lookup', click: () => navigate('/group-lookup') },
+        { label: 'Group Member Form', click: () => navigate('/group-membership-form') }
+      ]
+    },
+    {
+      label: 'Donation',
+      submenu: [
+        { label: 'Member Donation', click: () => navigate('/member-donation-entry') },
+        { label: 'Visitor Donation', click: () => navigate('/visitor-donation-entry') },
+        { label: 'Donation Lookup', click: () => navigate('/donation-lookup') },
+        { label: 'Donation Types', click: () => navigate('/donation-types-dropdown') }
+      ]
+    },
+    {
+      label: 'Accounting',
+      submenu: [
+        { label: 'Charges', click: () => navigate('/charges') },
+        { label: 'Deposits', click: () => navigate('/deposit-dropdown') },
+        { label: 'Expenses', click: () => navigate('/expense-categories') },
+        { label: 'Vendors', click: () => navigate('/vendor') },
+        { label: 'Checks', click: () => navigate('/reports/check-generator') },
+        { label: 'Banks', click: () => navigate('/bank-dropdown') }
+      ]
+    },
+    {
+      label: 'Administration',
+      submenu: [
+        { label: 'Users', click: () => navigate('/admin/users') }
+      ]
+    },
+    {
+      label: 'Reports',
+      submenu: [
+        { label: 'All Reports Dashboard', click: () => navigate('/reports') }
+      ]
+    },
+    {
+      label: 'Email',
+      submenu: [
+        { label: 'Send Email', enabled: false } // Placeholder based on old structure
+      ]
+    },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'Learn More',
+          click: async () => {
+            const { shell } = require('electron')
+            await shell.openExternal('https://electronjs.org')
           }
         },
         { type: "separator" },
         {
-          label: "Exit",
-          click: () => {
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: "Help",
-      submenu: [
-        {
-          label: "About",
+          label: "About Church Membership",
           click: () => {
             dialog.showMessageBox(mainWindow, {
               type: "info",

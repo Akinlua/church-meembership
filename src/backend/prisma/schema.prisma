@@ -8,63 +8,63 @@ datasource db {
 }
 
 model User {
-  id                    Int       @id @default(autoincrement())
-  name                  String    @default("")
-  username              String    @unique
-  password              String
-  role                  String    @default("user")
-  passwordChangeRequired Boolean   @default(false) @map("password_change_required")
-  createdAt             DateTime  @default(now()) @map("created_at")
+  id                     Int      @id @default(autoincrement())
+  name                   String   @default("")
+  username               String   @unique
+  password               String
+  role                   String   @default("user")
+  passwordChangeRequired Boolean  @default(false) @map("password_change_required")
+  createdAt              DateTime @default(now()) @map("created_at")
   // Member relation
-  memberId              Int?      @map("member_id")
-  member                Member?   @relation(fields: [memberId], references: [id])
+  memberId               Int?     @map("member_id")
+  member                 Member?  @relation(fields: [memberId], references: [id])
   // Visitor relation
-  visitorId             Int?      @map("visitor_id")
-  visitor               Visitor?  @relation(fields: [visitorId], references: [id])
-  
+  visitorId              Int?     @map("visitor_id")
+  visitor                Visitor? @relation(fields: [visitorId], references: [id])
+
   // Direct permission access fields
-  memberAccess Boolean @default(false) @map("member_access")
-  visitorAccess Boolean @default(false) @map("visitor_access")
-  vendorAccess Boolean @default(false) @map("vendor_access")
-  groupAccess Boolean @default(false) @map("group_access")
+  memberAccess   Boolean @default(false) @map("member_access")
+  visitorAccess  Boolean @default(false) @map("visitor_access")
+  vendorAccess   Boolean @default(false) @map("vendor_access")
+  groupAccess    Boolean @default(false) @map("group_access")
   donationAccess Boolean @default(false) @map("donation_access")
-  adminAccess Boolean @default(false) @map("admin_access")
-  expenseAccess Boolean @default(false) @map("expense_access")
-  chargesAccess Boolean @default(false) @map("charges_access")
-  checksAccess Boolean @default(false) @map("checks_access")
-  reportsAccess Boolean @default(false) @map("reports_access")
-  depositAccess Boolean @default(false) @map("deposit_access")
-  bankAccess Boolean @default(false) @map("bank_access")
-  
+  adminAccess    Boolean @default(false) @map("admin_access")
+  expenseAccess  Boolean @default(false) @map("expense_access")
+  chargesAccess  Boolean @default(false) @map("charges_access")
+  checksAccess   Boolean @default(false) @map("checks_access")
+  reportsAccess  Boolean @default(false) @map("reports_access")
+  depositAccess  Boolean @default(false) @map("deposit_access")
+  bankAccess     Boolean @default(false) @map("bank_access")
+
   // Data restriction fields
-  memberOnlyOwnData Boolean @default(false) @map("member_only_own_data")
+  memberOnlyOwnData  Boolean @default(false) @map("member_only_own_data")
   visitorOnlyOwnData Boolean @default(false) @map("visitor_only_own_data")
-  
+
   // Delete permissions
-  cannotDeleteMember Boolean @default(true) @map("cannot_delete_member")
-  cannotDeleteVisitor Boolean @default(true) @map("cannot_delete_visitor")
-  cannotDeleteVendor Boolean @default(true) @map("cannot_delete_vendor")
-  cannotDeleteGroup Boolean @default(true) @map("cannot_delete_group") 
+  cannotDeleteMember   Boolean @default(true) @map("cannot_delete_member")
+  cannotDeleteVisitor  Boolean @default(true) @map("cannot_delete_visitor")
+  cannotDeleteVendor   Boolean @default(true) @map("cannot_delete_vendor")
+  cannotDeleteGroup    Boolean @default(true) @map("cannot_delete_group")
   cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
-  cannotDeleteExpense Boolean @default(true) @map("cannot_delete_expense")
-  cannotDeleteCharges Boolean @default(true) @map("cannot_delete_charges")
-  cannotDeleteChecks Boolean @default(true) @map("cannot_delete_checks")
-  cannotDeleteReports Boolean @default(true) @map("cannot_delete_reports")
-  cannotDeleteDeposit Boolean @default(true) @map("cannot_delete_deposit")
-  cannotDeleteBank Boolean @default(true) @map("cannot_delete_bank")
+  cannotDeleteExpense  Boolean @default(true) @map("cannot_delete_expense")
+  cannotDeleteCharges  Boolean @default(true) @map("cannot_delete_charges")
+  cannotDeleteChecks   Boolean @default(true) @map("cannot_delete_checks")
+  cannotDeleteReports  Boolean @default(true) @map("cannot_delete_reports")
+  cannotDeleteDeposit  Boolean @default(true) @map("cannot_delete_deposit")
+  cannotDeleteBank     Boolean @default(true) @map("cannot_delete_bank")
 
   // Add permissions
-  canAddMember          Boolean  @default(false) @map("can_add_member")
-  canAddVisitor         Boolean  @default(false) @map("can_add_visitor")
-  canAddVendor          Boolean  @default(false) @map("can_add_vendor")
-  canAddGroup           Boolean  @default(false) @map("can_add_group")
-  canAddDonation        Boolean  @default(false) @map("can_add_donation")
-  canAddExpense         Boolean  @default(false) @map("can_add_expense")
-  canAddCharges         Boolean  @default(false) @map("can_add_charges")
-  canAddChecks          Boolean  @default(false) @map("can_add_checks")
-  canAddReports         Boolean  @default(false) @map("can_add_reports")
-  canAddDeposit         Boolean  @default(false) @map("can_add_deposit")
-  canAddBank            Boolean  @default(false) @map("can_add_bank")
+  canAddMember   Boolean @default(false) @map("can_add_member")
+  canAddVisitor  Boolean @default(false) @map("can_add_visitor")
+  canAddVendor   Boolean @default(false) @map("can_add_vendor")
+  canAddGroup    Boolean @default(false) @map("can_add_group")
+  canAddDonation Boolean @default(false) @map("can_add_donation")
+  canAddExpense  Boolean @default(false) @map("can_add_expense")
+  canAddCharges  Boolean @default(false) @map("can_add_charges")
+  canAddChecks   Boolean @default(false) @map("can_add_checks")
+  canAddReports  Boolean @default(false) @map("can_add_reports")
+  canAddDeposit  Boolean @default(false) @map("can_add_deposit")
+  canAddBank     Boolean @default(false) @map("can_add_bank")
 
   @@map("users")
 }
@@ -73,74 +73,74 @@ model User {
 // Will eventually be removed once migration is complete
 /// @deprecated Use permissions directly on User model instead
 model UserLevel {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
+  id             Int      @id @default(autoincrement())
+  name           String   @unique
+  description    String?
+  createdAt      DateTime @default(now()) @map("created_at")
   // Removing users relation as it's no longer used
   // users       User[]
-  memberAccess Boolean @default(false) @map("member_access")
-  visitorAccess Boolean @default(false) @map("visitor_access")
-  vendorAccess Boolean @default(false) @map("vendor_access")
-  groupAccess Boolean @default(false) @map("group_access")
-  donationAccess Boolean @default(false) @map("donation_access")
-  adminAccess Boolean @default(false) @map("admin_access")
-  expenseAccess Boolean @default(false) @map("expense_access")
-  chargesAccess Boolean @default(false) @map("charges_access")
-  checksAccess Boolean @default(false) @map("checks_access")
-  reportsAccess Boolean @default(false) @map("reports_access")
-  depositAccess Boolean @default(false) @map("deposit_access")
-  bankAccess Boolean @default(false) @map("bank_access")
-  
+  memberAccess   Boolean  @default(false) @map("member_access")
+  visitorAccess  Boolean  @default(false) @map("visitor_access")
+  vendorAccess   Boolean  @default(false) @map("vendor_access")
+  groupAccess    Boolean  @default(false) @map("group_access")
+  donationAccess Boolean  @default(false) @map("donation_access")
+  adminAccess    Boolean  @default(false) @map("admin_access")
+  expenseAccess  Boolean  @default(false) @map("expense_access")
+  chargesAccess  Boolean  @default(false) @map("charges_access")
+  checksAccess   Boolean  @default(false) @map("checks_access")
+  reportsAccess  Boolean  @default(false) @map("reports_access")
+  depositAccess  Boolean  @default(false) @map("deposit_access")
+  bankAccess     Boolean  @default(false) @map("bank_access")
+
   // New cannot delete permissions
-  cannotDeleteMember Boolean @default(true) @map("cannot_delete_member")
-  cannotDeleteVisitor Boolean @default(true) @map("cannot_delete_visitor")
-  cannotDeleteVendor Boolean @default(true) @map("cannot_delete_vendor")
-  cannotDeleteGroup Boolean @default(true) @map("cannot_delete_group")
+  cannotDeleteMember   Boolean @default(true) @map("cannot_delete_member")
+  cannotDeleteVisitor  Boolean @default(true) @map("cannot_delete_visitor")
+  cannotDeleteVendor   Boolean @default(true) @map("cannot_delete_vendor")
+  cannotDeleteGroup    Boolean @default(true) @map("cannot_delete_group")
   cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
-  cannotDeleteExpense Boolean @default(true) @map("cannot_delete_expense")
-  cannotDeleteCharges Boolean @default(true) @map("cannot_delete_charges")
-  cannotDeleteChecks Boolean @default(true) @map("cannot_delete_checks")
-  cannotDeleteReports Boolean @default(true) @map("cannot_delete_reports")
-  cannotDeleteDeposit Boolean @default(true) @map("cannot_delete_deposit")
-  cannotDeleteBank Boolean @default(true) @map("cannot_delete_bank")
+  cannotDeleteExpense  Boolean @default(true) @map("cannot_delete_expense")
+  cannotDeleteCharges  Boolean @default(true) @map("cannot_delete_charges")
+  cannotDeleteChecks   Boolean @default(true) @map("cannot_delete_checks")
+  cannotDeleteReports  Boolean @default(true) @map("cannot_delete_reports")
+  cannotDeleteDeposit  Boolean @default(true) @map("cannot_delete_deposit")
+  cannotDeleteBank     Boolean @default(true) @map("cannot_delete_bank")
 
   // Add permissions - new fields
-  canAddMember          Boolean  @default(false)
-  canAddVisitor         Boolean  @default(false)
-  canAddVendor          Boolean  @default(false)
-  canAddGroup           Boolean  @default(false)
-  canAddDonation        Boolean  @default(false)
-  canAddExpense         Boolean  @default(false)
-  canAddCharges         Boolean  @default(false)
-  canAddChecks          Boolean  @default(false)
-  canAddReports         Boolean  @default(false)
-  canAddDeposit         Boolean  @default(false)
-  canAddBank            Boolean  @default(false)
+  canAddMember   Boolean @default(false)
+  canAddVisitor  Boolean @default(false)
+  canAddVendor   Boolean @default(false)
+  canAddGroup    Boolean @default(false)
+  canAddDonation Boolean @default(false)
+  canAddExpense  Boolean @default(false)
+  canAddCharges  Boolean @default(false)
+  canAddChecks   Boolean @default(false)
+  canAddReports  Boolean @default(false)
+  canAddDeposit  Boolean @default(false)
+  canAddBank     Boolean @default(false)
 
   @@map("user_levels")
 }
 
 model Member {
-  id             Int        @id @default(autoincrement())
-  firstName      String     @map("first_name")
-  middleName     String?    @map("middle_name")
-  lastName       String     @map("last_name")
-  memberNumber   String     @unique @map("member_number")
-  isActive       Boolean    @default(true) @map("is_active")
+  id             Int           @id @default(autoincrement())
+  firstName      String        @map("first_name")
+  middleName     String?       @map("middle_name")
+  lastName       String        @map("last_name")
+  memberNumber   String        @unique @map("member_number")
+  isActive       Boolean       @default(true) @map("is_active")
   address        String?
   city           String?
   state          String?
-  zipCode        String?    @map("zip_code")
+  zipCode        String?       @map("zip_code")
   birthday       DateTime?
   gender         String?
-  cellPhone      String?    @map("cell_phone")
+  cellPhone      String?       @map("cell_phone")
   email          String?
-  membershipDate DateTime?  @map("membership_date")
-  baptismalDate  DateTime?  @map("baptismal_date")
-  profileImage   String?    @map("profile_image")
-  pastChurch     String?    @map("past_church")
-  createdAt      DateTime   @default(now()) @map("created_at")
+  membershipDate DateTime?     @map("membership_date")
+  baptismalDate  DateTime?     @map("baptismal_date")
+  profileImage   String?       @map("profile_image")
+  pastChurch     String?       @map("past_church")
+  createdAt      DateTime      @default(now()) @map("created_at")
   donations      Donation[]
   groups         GroupMember[]
   users          User[]
@@ -159,75 +159,76 @@ model Group {
 }
 
 model GroupMember {
-  group     Group    @relation(fields: [groupId], references: [id])
-  groupId   Int      @map("group_id")
-  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId  Int      @map("member_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  group      Group     @relation(fields: [groupId], references: [id])
+  groupId    Int       @map("group_id")
+  member     Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId   Int       @map("member_id")
+  joinedDate DateTime? @map("joined_date")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   @@id([groupId, memberId])
   @@map("group_members")
 }
 
 model Donation {
-  id           Int       @id @default(autoincrement())
-  member       Member?   @relation(fields: [memberId], references: [id])
-  memberId     Int?      @map("member_id")
-  visitor      Visitor?  @relation(fields: [visitorId], references: [id])
-  visitorId    Int?      @map("visitor_id")
-  amount       Decimal   @db.Decimal(10, 2)
-  donationType String    @map("donation_type")
-  donationDate DateTime  @map("donation_date")
+  id           Int            @id @default(autoincrement())
+  member       Member?        @relation(fields: [memberId], references: [id])
+  memberId     Int?           @map("member_id")
+  visitor      Visitor?       @relation(fields: [visitorId], references: [id])
+  visitorId    Int?           @map("visitor_id")
+  amount       Decimal        @db.Decimal(10, 2)
+  donationType String         @map("donation_type")
+  donationDate DateTime       @map("donation_date")
   notes        String?
-  createdAt    DateTime  @default(now()) @map("created_at")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  DonationType DonationType[]
 
   @@map("donations")
-  DonationType DonationType[]
 }
 
 model DonationType {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
   description String?
   donations   Donation[]
 }
 
 model Visitor {
-  id             Int       @id @default(autoincrement())
-  firstName      String    @map("first_name")
-  lastName       String    @map("last_name")
-  middleInitial  String?   @map("middle_initial")
-  visitorNumber  String    @unique @map("visitor_number")
-  address        String?
-  city           String?
-  state          String?
-  zipCode        String?   @map("zip_code")
-  cellPhone      String?   @map("cell_phone")
-  email          String?
-  homeChurch     String?   @map("home_church")
-  profileImage   String?   @map("profile_image")
-  visitDate      DateTime  @default(now()) @map("visit_date")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  users          User[]
-  donations      Donation[]
+  id            Int        @id @default(autoincrement())
+  firstName     String     @map("first_name")
+  lastName      String     @map("last_name")
+  middleInitial String?    @map("middle_initial")
+  visitorNumber String     @unique @map("visitor_number")
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?    @map("zip_code")
+  cellPhone     String?    @map("cell_phone")
+  email         String?
+  homeChurch    String?    @map("home_church")
+  profileImage  String?    @map("profile_image")
+  visitDate     DateTime   @default(now()) @map("visit_date")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  users         User[]
+  donations     Donation[]
 
   @@map("visitors")
 }
 
 model Vendor {
-  id           Int      @id @default(autoincrement())
-  lastName     String
-  address      String?
-  city         String?
-  state        String?
-  zipCode      String?
-  phone        String?
-  email        String?
+  id            Int      @id @default(autoincrement())
+  lastName      String
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  phone         String?
+  email         String?
   accountNumber String?
-  vendorNumber String?  @unique
+  vendorNumber  String?  @unique
   // profileImage String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   Charge Charge[]
 }
@@ -242,47 +243,47 @@ model ExpenseCategory {
 }
 
 model Charge {
-  id              Int             @id @default(autoincrement())
-  amount          Decimal         @db.Decimal(10, 2)
-  dueDate         DateTime
-  isPaid          Boolean         @default(false)
-  markedForPayment Boolean        @default(false)
-  notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  
+  id               Int      @id @default(autoincrement())
+  amount           Decimal  @db.Decimal(10, 2)
+  dueDate          DateTime
+  isPaid           Boolean  @default(false)
+  markedForPayment Boolean  @default(false)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
   // Relations
-  vendorId        Int
-  vendor          Vendor          @relation(fields: [vendorId], references: [id])
+  vendorId          Int
+  vendor            Vendor          @relation(fields: [vendorId], references: [id])
   expenseCategoryId Int
-  expenseCategory ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
-} 
+  expenseCategory   ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+}
 
 model Bank {
-  id             String     @id @default(cuid())
-  name           String
+  id            String    @id @default(cuid())
+  name          String
   // branch         String?
-  address        String?
-  city           String?
-  state          String?
-  zipCode        String?
-  routingNumber  String?
-  accountNumber   String?
-  contact  String?
-  phone          String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?
+  routingNumber String?
+  accountNumber String?
+  contact       String?
+  phone         String?
   // email          String?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  deposits       Deposit[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deposits      Deposit[]
 }
 
 model Check {
-  id            String    @id @default(cuid())
-  amount        Float
-  depositId     String
-  deposit       Deposit   @relation(fields: [depositId], references: [id], onDelete: Cascade)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  amount    Float
+  depositId String
+  deposit   Deposit  @relation(fields: [depositId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Deposit {
@@ -300,17 +301,17 @@ model Deposit {
 }
 
 model ProgramOwner {
-  id        Int      @id @default(autoincrement())
-  church    String
-  address   String
-  city      String
-  state     String
-  zip       String
-  phone     String
+  id         Int      @id @default(autoincrement())
+  church     String
+  address    String
+  city       String
+  state      String
+  zip        String
+  phone      String
   webAddress String?
-  pastor    String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  pastor     String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("program_owner")
-} 
+}

@@ -173,6 +173,179 @@ module.exports = (app) => {
     }
   });
 
+  // Group Membership Report Route
+  app.get('/reports/groupMembership', authenticateToken, async (req, res) => {
+    try {
+      const { groupId } = req.query;
+
+      let whereClause = {};
+      if (groupId) {
+        whereClause.id = parseInt(groupId);
+      }
+
+      const groups = await prisma.group.findMany({
+        where: whereClause,
+        include: {
+          members: {
+            include: {
+              member: true
+            }
+          }
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      });
+
+      res.json({
+        groups,
+        total: groups.length
+      });
+    } catch (error) {
+      console.error('Error generating group membership report:', error);
+      res.status(500).json({ message: 'Error generating group membership report' });
+    }
+  });
+
+  // Group Membership Report PDF Route
+  app.post('/reports/groupMembership/pdf', authenticateToken, async (req, res) => {
+    try {
+      const { groupId } = req.body;
+
+      let whereClause = {};
+      if (groupId) {
+        whereClause.id = parseInt(groupId);
+      }
+
+      const groups = await prisma.group.findMany({
+        where: whereClause,
+        include: {
+          members: {
+            include: {
+              member: true
+            }
+          }
+        },
+        orderBy: {
+          name: 'asc'
+        }
+      });
+
+      const doc = new PDFDocument({
+        margin: 50,
+        size: 'A4'
+      });
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=group-membership-report.pdf');
+
+      doc.pipe(res);
+
+      doc.moveDown(0.5)
+        .fontSize(18)
+        .font('Helvetica')
+        .text('Group Membership Report', { align: 'center' });
+
+      doc.moveDown(2);
+
+      let yPosition = doc.y;
+
+      const flatMemberships = groups.flatMap((group) => {
+        if (!group.members) return [];
+        return group.members.map((membership) => ({
+          groupName: group.name,
+          member: membership.member || membership
+        }));
+      });
+
+      if (flatMemberships.length === 0) {
+        doc.font('Helvetica')
+          .fontSize(12)
+          .text('No members found in selected groups.', { align: 'center' });
+        doc.end();
+        return;
+      }
+
+      // Draw table headers
+      const columns = {
+        groupName: { x: 50, width: 90 },
+        name: { x: 140, width: 100 },
+        address: { x: 240, width: 130 },
+        phone: { x: 370, width: 85 },
+        email: { x: 455, width: 90 }
+      };
+
+      // Header background
+      doc.rect(50, yPosition - 5, 495, 20).fill('#f3f4f6');
+
+      // Header text
+      doc.fillColor('#000000') // text-black
+        .fontSize(10)
+        .font('Helvetica-Bold')
+        .text('Group Name', columns.groupName.x, yPosition, { align: 'center', width: columns.groupName.width })
+        .text('Name', columns.name.x, yPosition, { align: 'center', width: columns.name.width })
+        .text('Address', columns.address.x, yPosition, { align: 'center', width: columns.address.width })
+        .text('Phone Number', columns.phone.x, yPosition, { align: 'center', width: columns.phone.width })
+        .text('Email', columns.email.x, yPosition, { align: 'center', width: columns.email.width });
+
+      yPosition += 20;
+
+      doc.font('Helvetica').fontSize(9);
+
+      flatMemberships.forEach((item, i) => {
+        const { groupName, member } = item;
+
+        if (yPosition > 750) {
+          doc.addPage();
+          yPosition = 50;
+
+          // Redraw headers on new page
+          doc.rect(50, yPosition - 5, 495, 20).fill('#f3f4f6');
+          doc.fillColor('#000000')
+            .fontSize(10)
+            .font('Helvetica-Bold')
+            .text('Group Name', columns.groupName.x, yPosition, { align: 'center', width: columns.groupName.width })
+            .text('Name', columns.name.x, yPosition, { align: 'center', width: columns.name.width })
+            .text('Address', columns.address.x, yPosition, { align: 'center', width: columns.address.width })
+            .text('Phone Number', columns.phone.x, yPosition, { align: 'center', width: columns.phone.width })
+            .text('Email', columns.email.x, yPosition, { align: 'center', width: columns.email.width });
+
+          yPosition += 20;
+          doc.font('Helvetica').fontSize(9);
+        }
+
+        // Alternate row background
+        if (i % 2 === 0) {
+          doc.rect(50, yPosition - 5, 495, 16).fill('#f9fafb');
+        }
+
+        const name = `${member.firstName} ${member.middleName ? member.middleName[0] + '.' : ''} ${member.lastName}`.trim();
+        const address = member.address ? `${member.address}, ${member.city}, ${member.state} ${member.zipCode}` : '';
+
+        doc.fillColor('#1f2937') // gray-800
+          .text(groupName, columns.groupName.x, yPosition, { align: 'center', width: columns.groupName.width })
+          .text(name, columns.name.x, yPosition, { align: 'center', width: columns.name.width })
+          .text(address, columns.address.x, yPosition, { align: 'center', width: columns.address.width })
+          .text(member.cellPhone || '', columns.phone.x, yPosition, { align: 'center', width: columns.phone.width })
+          .fillColor('#3b82f6') // blue-500
+          .text(member.email || '', columns.email.x, yPosition, { align: 'center', width: columns.email.width, link: `mailto:${member.email}` });
+
+        const rowHeight = Math.max(
+          doc.heightOfString(groupName, { width: columns.groupName.width }),
+          doc.heightOfString(name, { width: columns.name.width }),
+          doc.heightOfString(address, { width: columns.address.width })
+        );
+
+        yPosition += rowHeight + 10;
+      });
+
+      doc.end();
+    } catch (error) {
+      console.error('Error generating group membership PDF report:', error);
+      res.status(500).json({ message: 'Error generating group membership PDF report' });
+    }
+  });
+
   // Total Donation Report Route
   app.get('/reports/totalDonations', authenticateToken, async (req, res) => {
     try {
