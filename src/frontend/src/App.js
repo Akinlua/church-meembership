@@ -49,20 +49,21 @@ function AppContent() {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    // Listen for navigation events from the native Electron menu
+    let unlisten = null;
+
     if (window.electronAPI && window.electronAPI.onNavigate) {
-      window.electronAPI.onNavigate((route) => {
+      unlisten = window.electronAPI.onNavigate((route) => {
         if (route && isAuthenticated) {
           navigate(route);
         }
       });
-      // Optionally clean up listeners if a teardown method exists
-      return () => {
-        if (window.electronAPI.removeNavigateListener) {
-          window.electronAPI.removeNavigateListener();
-        }
-      };
     }
+
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
   }, [isAuthenticated, navigate]);
 
   return (
