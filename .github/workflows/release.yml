@@ -12,7 +12,7 @@ jobs:
   release:
     runs-on: ${{ matrix.os }}
 
-    strategy:
+    strategy: 
       matrix:
         os: [macos-latest, windows-latest]
 
