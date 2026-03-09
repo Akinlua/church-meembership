@@ -34,8 +34,8 @@ import VisitorFormPage from './components/Forms/VisitorFormPage';
 import VisitorDonationEntry from './components/Visitors/VisitorDonationEntry';
 import MemberDonationEntry from './components/Members/MemberDonationEntry';
 
-// Detect if running inside Electron desktop app (preload.js injects window.electronAPI)
-const isElectron = !!(window.electronAPI);
+// Detect if running inside Electron desktop app — Electron always sets its own user agent
+const isElectron = navigator.userAgent.toLowerCase().includes('electron');
 
 // Layout component with left sidebar navigation
 const Layout = ({ children }) => {
