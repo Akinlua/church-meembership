@@ -103,7 +103,8 @@ function createMenu() {
 
   const navigate = (route) => {
     if (mainWindow) {
-      mainWindow.webContents.send('navigate', route);
+      // Directly set the hash — far more reliable than IPC listener for HashRouter apps
+      mainWindow.webContents.executeJavaScript(`window.location.hash = '#${route}'`);
     }
   };
 

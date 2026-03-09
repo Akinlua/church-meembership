@@ -34,11 +34,15 @@ import VisitorFormPage from './components/Forms/VisitorFormPage';
 import VisitorDonationEntry from './components/Visitors/VisitorDonationEntry';
 import MemberDonationEntry from './components/Members/MemberDonationEntry';
 
+// Detect if running inside Electron desktop app (preload.js injects window.electronAPI)
+const isElectron = !!(window.electronAPI);
+
 // Layout component with left sidebar navigation
 const Layout = ({ children }) => {
   return (
     <div className="min-h-screen flex bg-gray-100">
-      <Navigation />
+      {/* Show left nav on web; on desktop the native OS menu replaces it */}
+      {!isElectron && <Navigation />}
       <main className="flex-1 p-6 overflow-auto">{children}</main>
     </div>
   );
