@@ -56,13 +56,13 @@ const Navigation = () => {
   const isActive = (path) => location.pathname === path;
 
   const linkClass = (path) =>
-    `block px-4 py-2 hover:bg-gray-700 rounded transition-colors ${isActive(path) ? 'bg-gray-700 font-semibold' : ''}`;
+    `block px-4 py-2 hover:bg-blue-600 rounded transition-colors ${isActive(path) ? 'bg-blue-700 font-semibold' : ''}`;
 
   const subLinkClass = (path) =>
-    `block pl-8 pr-4 py-2 text-sm hover:bg-gray-600 rounded transition-colors ${isActive(path) ? 'bg-gray-600 font-semibold' : ''}`;
+    `block pl-8 pr-4 py-2 text-sm hover:bg-blue-500 rounded transition-colors ${isActive(path) ? 'bg-blue-600 font-semibold' : ''}`;
 
   const deepLinkClass = (path) =>
-    `block pl-12 pr-4 py-2 text-sm hover:bg-gray-600 rounded transition-colors ${isActive(path) ? 'bg-gray-600 font-semibold' : ''}`;
+    `block pl-12 pr-4 py-2 text-sm hover:bg-blue-500 rounded transition-colors ${isActive(path) ? 'bg-blue-600 font-semibold' : ''}`;
 
   return (
     <>

@@ -37,13 +37,38 @@ import MemberDonationEntry from './components/Members/MemberDonationEntry';
 // Detect if running inside Electron desktop app — Electron always sets its own user agent
 const isElectron = navigator.userAgent.toLowerCase().includes('electron');
 
+// Top bar shown only in Electron (no sidebar) with logout
+const ElectronTopBar = () => {
+  const { logout, currentUser } = useAuth();
+  const nav = useNavigate();
+  const handleLogout = () => { logout(); nav('/login'); };
+  return (
+    <div style={{ background: '#1f2937', color: '#fff', padding: '6px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <span style={{ fontWeight: 600, fontSize: 14 }}>Church Management</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {currentUser && <span style={{ fontSize: 13, opacity: 0.75 }}>{currentUser.name || currentUser.username}</span>}
+        <button
+          onClick={handleLogout}
+          style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 14px', cursor: 'pointer', fontSize: 13 }}
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Layout component with left sidebar navigation
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen flex bg-gray-100">
-      {/* Show left nav on web; on desktop the native OS menu replaces it */}
-      {!isElectron && <Navigation />}
-      <main className="flex-1 p-6 overflow-auto">{children}</main>
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      {/* Show logout top bar on Electron desktop app */}
+      {isElectron && <ElectronTopBar />}
+      <div className="flex flex-1">
+        {/* Show left nav on web; on desktop the native OS menu replaces it */}
+        {!isElectron && <Navigation />}
+        <main className="flex-1 p-6 overflow-auto">{children}</main>
+      </div>
     </div>
   );
 };

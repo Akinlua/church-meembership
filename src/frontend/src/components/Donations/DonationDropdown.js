@@ -19,14 +19,14 @@ const DonationDropdown = () => {
 
   useEffect(() => {
     fetchDonations();
-    
+
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -73,11 +73,11 @@ const DonationDropdown = () => {
     const donationType = donation.donationType ? donation.donationType.toLowerCase() : '';
     const donationId = donation.id ? donation.id.toString() : '';
     const query = searchTerm.toLowerCase();
-    
-    return memberName.includes(query) || 
-           amount.includes(query) || 
-           donationType.includes(query) || 
-           donationId.includes(query);
+
+    return memberName.includes(query) ||
+      amount.includes(query) ||
+      donationType.includes(query) ||
+      donationId.includes(query);
   });
 
   const handleSelectDonation = async (donation) => {
@@ -103,26 +103,26 @@ const DonationDropdown = () => {
     setIsEditing(false);
     setShowForm(true);
   };
-  
+
   const handleEditDonation = () => {
     setIsEditing(true);
     setShowForm(true);
   };
-  
+
   const handleDeleteDonation = async () => {
     if (!window.confirm('Are you sure you want to delete this donation?')) return;
-    
+
     try {
       await axios.delete(`${process.env.REACT_APP_API_URL}/donations/${selectedDonation.id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      
+
       setNotification({
         show: true,
         message: 'Donation was successfully deleted!',
         type: 'success'
       });
-      
+
       setSelectedDonation(null);
       setSearchTerm('');
       await fetchDonations();
@@ -135,7 +135,7 @@ const DonationDropdown = () => {
       });
     }
   };
-  
+
   const handleFormSubmit = async (donationId) => {
     try {
       await fetchDonations();
@@ -173,13 +173,13 @@ const DonationDropdown = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Member Donation</h1>
-      
+
       {notification.show && (
         <div className={`p-4 mb-4 rounded ${notification.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
           {notification.message}
         </div>
       )}
-      
+
       <div className="relative mb-6" ref={dropdownRef}>
         <div className="flex">
           <input
@@ -214,7 +214,7 @@ const DonationDropdown = () => {
             </button>
           )}
         </div>
-        
+
         {loading ? (
           <PageLoader />
         ) : (
@@ -232,7 +232,7 @@ const DonationDropdown = () => {
                     >
                       <div className="flex justify-between">
                         <div>
-                          <span className="font-medium">{donation.member.lastName} {donation.member.firstName}</span>
+                          <span className="font-medium">{donation.member ? `${donation.member.lastName} ${donation.member.firstName}` : 'Unknown Member'}</span>
                         </div>
                         <div className="text-green-600 font-medium">
                           ${parseFloat(donation.amount).toFixed(2)}
@@ -273,7 +273,7 @@ const DonationDropdown = () => {
                         <p className="font-medium">{format(new Date(selectedDonation.donationDate), 'MM/dd/yyyy')}</p>
                       </div>
                     </div>
-                    
+
                     {selectedDonation.notes && (
                       <div className="mb-4">
                         <p className="text-sm text-gray-500">Notes</p>
@@ -283,27 +283,27 @@ const DonationDropdown = () => {
 
                     <div className="flex space-x-3 mt-4">
                       {hasAddAccess('donation') && (
-                      <button 
-                        onClick={handleEditDonation}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                        Edit
-                      </button>
+                        <button
+                          onClick={handleEditDonation}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                          Edit
+                        </button>
                       )}
-                      
+
                       {hasDeleteAccess('donation') && (
-                        <button 
+                        <button
                           onClick={handleDeleteDonation}
                           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete
-                      </button>
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Delete
+                        </button>
                       )}
                     </div>
                   </div>

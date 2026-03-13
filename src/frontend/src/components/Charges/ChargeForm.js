@@ -39,7 +39,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
           fetchVendors(),
           fetchExpenseCategories()
         ]);
-        
+
         if (charge) {
           setFormData({
             vendorId: charge.vendorId || '',
@@ -54,7 +54,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
         setFormLoading(false);
       }
     };
-    
+
     loadFormData();
   }, [charge]);
 
@@ -94,7 +94,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
     try {
       const url = `${process.env.REACT_APP_API_URL}/charges${charge ? `/${charge.id}` : ''}`;
       const method = charge ? 'put' : 'post';
-      
+
       await axios[method](url, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
@@ -132,7 +132,8 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="px-2 py-4 max-w-4xl mx-auto">
+    <div className="px-2 py-4 max-w-4xl mx-auto relative">
+      <button type="button" onClick={onClose} className="absolute top-0 right-0 m-2 mt-4 p-1 text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-full focus:outline-none z-50" aria-label="Close"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
       <h2 className="text-xl font-bold mb-4 text-center">
         {charge ? 'Edit' : 'Add'} Charge
       </h2>
@@ -151,7 +152,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
               <Select
                 name="vendorId"
                 options={vendors}
-                value={formData.vendorId}
+                value={vendors.find(v => v.value === (formData.vendorId?.value ?? formData.vendorId)) || null}
                 onChange={(selected) => setFormData({ ...formData, vendorId: selected })}
                 placeholder="Select Vendor"
                 isSearchable
@@ -167,7 +168,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
               <Select
                 name="expenseCategoryId"
                 options={expenseCategories}
-                value={formData.expenseCategoryId}
+                value={expenseCategories.find(c => c.value === (formData.expenseCategoryId?.value ?? formData.expenseCategoryId)) || null}
                 onChange={(selected) => setFormData({ ...formData, expenseCategoryId: selected })}
                 placeholder="Select Expense Category"
                 isSearchable
@@ -210,7 +211,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
               />
             </div>
           </div>
-          
+
           <div className="flex justify-end mt-6 space-x-3">
             <button
               type="button"

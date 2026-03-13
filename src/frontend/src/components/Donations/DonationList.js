@@ -47,8 +47,8 @@ const DonationList = ({ donations, onEdit, onDelete, loading, selectedDonation, 
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {donations.map((donation) => (
-            <tr 
-              key={donation.id} 
+            <tr
+              key={donation.id}
               className={`hover:bg-gray-100 transition duration-200 ${selectedDonation && selectedDonation.id === donation.id ? 'bg-gray-200' : ''}`}
               onClick={() => handleSelect(donation)} // Select on row click
             >
@@ -57,16 +57,15 @@ const DonationList = ({ donations, onEdit, onDelete, loading, selectedDonation, 
                   {donation.member
                     ? `${donation.member.firstName} ${donation.member.lastName}`
                     : donation.visitor
-                    ? `${donation.visitor.firstName} ${donation.visitor.lastName}`
-                    : '—'}
+                      ? `${donation.visitor.firstName} ${donation.visitor.lastName}`
+                      : '—'}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
-                  donation.visitorId
+                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${donation.visitorId
                     ? 'bg-purple-100 text-purple-800'
                     : 'bg-blue-100 text-blue-800'
-                }`}>
+                  }`}>
                   {donation.visitorId ? 'Visitor' : 'Member'}
                 </span>
               </td>

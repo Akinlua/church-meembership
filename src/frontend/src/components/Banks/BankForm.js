@@ -106,7 +106,8 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="p-4 max-w-3xl mx-auto bg-white shadow-sm">
+    <div className="p-4 max-w-3xl mx-auto bg-white shadow-sm relative">
+      <button type="button" onClick={onClose} className="absolute top-0 right-0 m-2 mt-4 p-1 text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 rounded-full focus:outline-none z-50" aria-label="Close"><svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg></button>
       <h2 className="text-lg font-semibold mb-3 text-center">
         {bank ? 'Edit Bank' : 'Add Bank Form'}
       </h2>

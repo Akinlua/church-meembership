@@ -16,12 +16,11 @@ import DepositReport from './DepositReport';
 import Select from 'react-select';
 
 const Reports = ({ initialReport }) => {
-  const [activeReport, setActiveReport] = useState(initialReport || 'donations');
+  // ── All state declarations first ──
+  const [activeReport, setActiveReport] = useState('');
+  const [activeReport2, setActiveReport2] = useState('');
   const [loading, setLoading] = useState(false);
-  const [dateRange, setDateRange] = useState({
-    startDate: null,
-    endDate: null
-  });
+  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
   const [reportData, setReportData] = useState(null);
   const [members, setMembers] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -36,20 +35,85 @@ const Reports = ({ initialReport }) => {
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [loadingGroups, setLoadingGroups] = useState(false);
+  const [selectedRightOption, setSelectedRightOption] = useState('');
 
-  const reportOptions = [
-    { value: 'memberDonations', label: 'Member Donations', hasMemberFilter: true },
-    { value: 'visitorDonations', label: 'Visitor Donations', hasVisitorFilter: true },
-    { value: 'donations', label: 'All Donations', hasMemberFilter: true },
-    { value: 'membership', label: 'Membership', hasMemberFilter: false },
-    { value: 'groups', label: 'Groups', hasMemberFilter: false },
-    { value: 'groupMembership', label: 'Group Membership Report', hasGroupFilter: true },
-    { value: 'donationTypeSummary', label: 'Donation Type Summary', hasMemberFilter: false },
-    { value: 'vendors', label: 'Vendors', hasVendorFilter: true },
-    { value: 'expenses', label: 'Expenses', hasMemberFilter: false },
-    { value: 'charges', label: 'Charges', hasMemberFilter: false },
-    { value: 'deposits', label: 'Deposits', hasMemberFilter: false }
+  // ── Static option lists ──
+  // LEFT dropdown: report category
+  const leftOptions = [
+    { value: '', label: '-- Select Report --' },
+    { value: 'donationTypeSummary', label: 'Donation Type' },
+    { value: 'groupMembership', label: 'Group Type' },
+    { value: 'expenses', label: 'Expenses Type' },
+    { value: 'deposits', label: 'Deposits' },
   ];
+
+  // RIGHT dropdown: entity filter
+  const rightOptions = [
+    { value: '', label: '-- Select Filter --' },
+    { value: 'members', label: 'Members', hasMemberFilter: true },
+    { value: 'visitors', label: 'Visitors', hasVisitorFilter: true },
+    { value: 'vendors', label: 'Vendors', hasVendorFilter: true },
+    { value: 'banks', label: 'Banks' },
+  ];
+
+  // Full list used by renderReportContent
+  const reportOptions = [
+    { value: 'donationTypeSummary', label: 'Donation Type' },
+    { value: 'groupMembership', label: 'Group Type' },
+    { value: 'expenses', label: 'Expenses Type' },
+    { value: 'deposits', label: 'Deposits' },
+    { value: 'membership', label: 'Members' },
+    { value: 'visitorDonations', label: 'Visitors' },
+    { value: 'vendors', label: 'Vendors', hasVendorFilter: true },
+    { value: 'memberDonations', label: 'Member Donations', hasMemberFilter: true },
+    { value: 'groups', label: 'Groups', hasMemberFilter: false },
+    { value: 'charges', label: 'Charges', hasMemberFilter: false },
+  ];
+
+  // MIDDLE dropdown: Members/Visitors/Vendors/Banks report types
+  const middleOptions = [
+    { value: '', label: '-- Select Report --' },
+    { value: 'membership', label: 'Members' },
+    { value: 'visitorDonations', label: 'Visitors' },
+    { value: 'vendors', label: 'Vendors' },
+    { value: 'bankReport', label: 'Banks' },
+  ];
+
+  // Resolve active report: prefer whichever dropdown has a selection
+  const effectiveReport = activeReport || activeReport2;
+
+  // Derive filter flags from the right dropdown selection
+  const rightSel = rightOptions.find(o => o.value === selectedRightOption) || {};
+  const showMemberFilter = !!rightSel.hasMemberFilter;
+  const showVendorFilter = !!rightSel.hasVendorFilter;
+  const showVisitorFilter = !!rightSel.hasVisitorFilter;
+  const showGroupFilter = false;
+
+  const handleReportChange = (e) => {
+    setActiveReport(e.target.value);
+    if (e.target.value) setActiveReport2(''); // clear other report type
+    setSelectedMember(null);
+    setSelectedVendor(null);
+    setSelectedVisitor(null);
+    setSelectedGroup(null);
+  };
+
+  const handleReport2Change = (e) => {
+    setActiveReport2(e.target.value);
+    if (e.target.value) setActiveReport(''); // clear other report type
+    setSelectedMember(null);
+    setSelectedVendor(null);
+    setSelectedVisitor(null);
+    setSelectedGroup(null);
+  };
+
+  const handleRightOptionChange = (e) => {
+    setSelectedRightOption(e.target.value);
+    setSelectedMember(null);
+    setSelectedVendor(null);
+    setSelectedVisitor(null);
+    setSelectedGroup(null);
+  };
 
   // Sync when initialReport prop changes (navigation)
   useEffect(() => {
@@ -60,22 +124,12 @@ const Reports = ({ initialReport }) => {
       setSelectedVendor(null);
       setSelectedGroup(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialReport]);
 
-  // Check if current report type supports filters
-  const currentReportType = reportOptions.find(option => option.value === activeReport);
-  const showMemberFilter = currentReportType?.hasMemberFilter || false;
-  const showVendorFilter = currentReportType?.hasVendorFilter || false;
-  const showVisitorFilter = currentReportType?.hasVisitorFilter || false;
-  const showGroupFilter = currentReportType?.hasGroupFilter || false;
-
-  const handleReportChange = (e) => {
-    setActiveReport(e.target.value);
-    setSelectedMember(null);
-    setSelectedVendor(null);
-    setSelectedVisitor(null);
-    setSelectedGroup(null);
-  };
+  // Check if current report type supports filters (kept for renderReportContent)
+  const currentReportType = reportOptions.find(option => option.value === effectiveReport);
+  // filter flags driven by rightSel above
 
   const handleDateChange = (type, date) => {
     setDateRange(prev => ({
@@ -201,10 +255,7 @@ const Reports = ({ initialReport }) => {
   const generateReport = async () => {
     setLoading(true);
     try {
-      // Different API endpoints based on report type
-      const endpoint = `/reports/${activeReport}`;
-
-      // Build query parameters
+      const endpoint = `/reports/${effectiveReport}`;
       const params = new URLSearchParams();
       if (dateRange.startDate) params.append('startDate', dateRange.startDate);
       if (dateRange.endDate) params.append('endDate', dateRange.endDate);
@@ -212,22 +263,16 @@ const Reports = ({ initialReport }) => {
       if (selectedVendor) params.append('vendorId', selectedVendor.value);
       if (selectedVisitor) params.append('visitorId', selectedVisitor.value);
       if (selectedGroup) params.append('groupId', selectedGroup.value);
-
-      // Add member status for membership reports
-      if (activeReport === 'membership') {
+      if (effectiveReport === 'membership') {
         params.append('memberStatus', memberStatus);
       }
-
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}${endpoint}?${params}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
-
       setReportData(response.data);
     } catch (error) {
-      console.error(`Error generating ${activeReport} report:`, error);
+      console.error(`Error generating ${effectiveReport} report:`, error);
     } finally {
       setLoading(false);
     }
@@ -236,66 +281,37 @@ const Reports = ({ initialReport }) => {
   const printReport = async () => {
     try {
       setLoading(true);
-      const endpoint = `/reports/${activeReport}/pdf`;
-
-      const requestData = {
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate
-      };
-
-      if (selectedMember) {
-        requestData.memberId = selectedMember.value;
-      }
-
-      if (selectedVendor) {
-        requestData.vendorId = selectedVendor.value;
-      }
-
-      if (selectedVisitor) {
-        requestData.visitorId = selectedVisitor.value;
-      }
-
-      if (selectedGroup) {
-        requestData.groupId = selectedGroup.value;
-      }
-
-      // Add member status for membership reports
-      if (activeReport === 'membership') {
-        requestData.memberStatus = memberStatus;
-      }
-
+      const endpoint = `/reports/${effectiveReport}/pdf`;
+      const requestData = { startDate: dateRange.startDate, endDate: dateRange.endDate };
+      if (selectedMember) requestData.memberId = selectedMember.value;
+      if (selectedVendor) requestData.vendorId = selectedVendor.value;
+      if (selectedVisitor) requestData.visitorId = selectedVisitor.value;
+      if (selectedGroup) requestData.groupId = selectedGroup.value;
+      if (effectiveReport === 'membership') requestData.memberStatus = memberStatus;
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}${endpoint}`,
         requestData,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          responseType: 'blob'
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }, responseType: 'blob' }
       );
-
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `${activeReport}-report.pdf`);
+      link.setAttribute('download', `${effectiveReport}-report.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (error) {
-      console.error(`Error printing ${activeReport} report:`, error);
+      console.error(`Error printing ${effectiveReport} report:`, error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Clear report data when report type changes
-  useEffect(() => {
-    if (activeReport) {
-      setReportData(null);
-    }
-  }, [activeReport]);
+  // Clear report data when either report type changes
+  useEffect(() => { setReportData(null); }, [activeReport, activeReport2]);
 
   const renderReportContent = () => {
-    switch (activeReport) {
+    switch (effectiveReport) {
       case 'memberDonations':
         return <DonationReport reportData={reportData} />;
       case 'visitorDonations':
@@ -381,7 +397,37 @@ const Reports = ({ initialReport }) => {
               onChange={handleReportChange}
               className="border border-gray-300 rounded-md px-3 py-2 h-10"
             >
-              {reportOptions.map(option => (
+              {leftOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+            <select
+              value={activeReport2}
+              onChange={handleReport2Change}
+              className="border border-gray-300 rounded-md px-3 py-2 h-10"
+            >
+              {middleOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Filter By</label>
+            <select
+              value={selectedRightOption}
+              onChange={handleRightOptionChange}
+              className="border border-gray-300 rounded-md px-3 py-2 h-10"
+            >
+              {rightOptions.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -503,7 +549,7 @@ const Reports = ({ initialReport }) => {
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-800">
-            {reportOptions.find(option => option.value === activeReport)?.label || 'Report'}
+            {reportOptions.find(option => option.value === effectiveReport)?.label || 'Report'}
           </h2>
         </div>
 
