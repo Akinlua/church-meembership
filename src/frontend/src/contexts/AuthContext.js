@@ -130,6 +130,8 @@ export function AuthProvider({ children }) {
         return currentUser.memberAccess;
       case 'visitor':
         return currentUser.visitorAccess;
+      case 'supporter':
+        return currentUser.supporterAccess;
       case 'vendor':
         return currentUser.vendorAccess;
       case 'group':
@@ -168,6 +170,8 @@ export function AuthProvider({ children }) {
         return currentUser.memberAccess && !currentUser.cannotDeleteMember;
       case 'visitor':
         return currentUser.visitorAccess && !currentUser.cannotDeleteVisitor;
+      case 'supporter':
+        return currentUser.supporterAccess && !currentUser.cannotDeleteSupporter;
       case 'vendor':
         return currentUser.vendorAccess && !currentUser.cannotDeleteVendor;
       case 'group':
@@ -204,6 +208,8 @@ export function AuthProvider({ children }) {
         return currentUser.memberAccess && currentUser.canAddMember;
       case 'visitor':
         return currentUser.visitorAccess && currentUser.canAddVisitor;
+      case 'supporter':
+        return currentUser.supporterAccess && currentUser.canAddSupporter;
       case 'vendor':
         return currentUser.vendorAccess && currentUser.canAddVendor;
       case 'group':
@@ -240,6 +246,8 @@ export function AuthProvider({ children }) {
         return currentUser.memberOnlyOwnData || false;
       case 'visitor':
         return currentUser.visitorOnlyOwnData || false;
+      case 'supporter':
+        return currentUser.supporterOnlyOwnData || false;
       default:
         return false;
     }

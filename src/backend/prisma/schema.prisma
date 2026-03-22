@@ -22,9 +22,14 @@ model User {
   visitorId              Int?     @map("visitor_id")
   visitor                Visitor? @relation(fields: [visitorId], references: [id])
 
+  // Supporter relation
+  supporterId            Int?     @map("supporter_id")
+  supporter              Supporter? @relation(fields: [supporterId], references: [id])
+
   // Direct permission access fields
   memberAccess   Boolean @default(false) @map("member_access")
   visitorAccess  Boolean @default(false) @map("visitor_access")
+  supporterAccess Boolean @default(false) @map("supporter_access")
   vendorAccess   Boolean @default(false) @map("vendor_access")
   groupAccess    Boolean @default(false) @map("group_access")
   donationAccess Boolean @default(false) @map("donation_access")
@@ -39,10 +44,12 @@ model User {
   // Data restriction fields
   memberOnlyOwnData  Boolean @default(false) @map("member_only_own_data")
   visitorOnlyOwnData Boolean @default(false) @map("visitor_only_own_data")
+  supporterOnlyOwnData Boolean @default(false) @map("supporter_only_own_data")
 
   // Delete permissions
   cannotDeleteMember   Boolean @default(true) @map("cannot_delete_member")
   cannotDeleteVisitor  Boolean @default(true) @map("cannot_delete_visitor")
+  cannotDeleteSupporter Boolean @default(true) @map("cannot_delete_supporter")
   cannotDeleteVendor   Boolean @default(true) @map("cannot_delete_vendor")
   cannotDeleteGroup    Boolean @default(true) @map("cannot_delete_group")
   cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
@@ -56,6 +63,7 @@ model User {
   // Add permissions
   canAddMember   Boolean @default(false) @map("can_add_member")
   canAddVisitor  Boolean @default(false) @map("can_add_visitor")
+  canAddSupporter Boolean @default(false) @map("can_add_supporter")
   canAddVendor   Boolean @default(false) @map("can_add_vendor")
   canAddGroup    Boolean @default(false) @map("can_add_group")
   canAddDonation Boolean @default(false) @map("can_add_donation")
@@ -77,10 +85,10 @@ model UserLevel {
   name           String   @unique
   description    String?
   createdAt      DateTime @default(now()) @map("created_at")
-  // Removing users relation as it's no longer used
   // users       User[]
   memberAccess   Boolean  @default(false) @map("member_access")
   visitorAccess  Boolean  @default(false) @map("visitor_access")
+  supporterAccess Boolean  @default(false) @map("supporter_access")
   vendorAccess   Boolean  @default(false) @map("vendor_access")
   groupAccess    Boolean  @default(false) @map("group_access")
   donationAccess Boolean  @default(false) @map("donation_access")
@@ -95,6 +103,7 @@ model UserLevel {
   // New cannot delete permissions
   cannotDeleteMember   Boolean @default(true) @map("cannot_delete_member")
   cannotDeleteVisitor  Boolean @default(true) @map("cannot_delete_visitor")
+  cannotDeleteSupporter Boolean @default(true) @map("cannot_delete_supporter")
   cannotDeleteVendor   Boolean @default(true) @map("cannot_delete_vendor")
   cannotDeleteGroup    Boolean @default(true) @map("cannot_delete_group")
   cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
@@ -108,6 +117,7 @@ model UserLevel {
   // Add permissions - new fields
   canAddMember   Boolean @default(false)
   canAddVisitor  Boolean @default(false)
+  canAddSupporter Boolean @default(false)
   canAddVendor   Boolean @default(false)
   canAddGroup    Boolean @default(false)
   canAddDonation Boolean @default(false)
@@ -176,6 +186,8 @@ model Donation {
   memberId     Int?           @map("member_id")
   visitor      Visitor?       @relation(fields: [visitorId], references: [id])
   visitorId    Int?           @map("visitor_id")
+  supporter    Supporter?     @relation(fields: [supporterId], references: [id])
+  supporterId  Int?           @map("supporter_id")
   amount       Decimal        @db.Decimal(10, 2)
   donationType String         @map("donation_type")
   donationDate DateTime       @map("donation_date")
@@ -213,6 +225,24 @@ model Visitor {
   donations     Donation[]
 
   @@map("visitors")
+}
+
+model Supporter {
+  id              Int        @id @default(autoincrement())
+  firstName       String     @map("first_name")
+  lastName        String     @map("last_name")
+  supporterNumber String     @unique @map("supporter_number")
+  address         String?
+  city            String?
+  state           String?
+  zipCode         String?    @map("zip_code")
+  phone           String?
+  email           String?
+  createdAt       DateTime   @default(now()) @map("created_at")
+  users           User[]
+  donations       Donation[]
+
+  @@map("supporters")
 }
 
 model Vendor {

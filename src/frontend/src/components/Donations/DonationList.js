@@ -58,15 +58,19 @@ const DonationList = ({ donations, onEdit, onDelete, loading, selectedDonation, 
                     ? `${donation.member.firstName} ${donation.member.lastName}`
                     : donation.visitor
                       ? `${donation.visitor.firstName} ${donation.visitor.lastName}`
-                      : '—'}
+                      : donation.supporter
+                        ? `${donation.supporter.firstName} ${donation.supporter.lastName}`
+                        : '—'}
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${donation.visitorId
                     ? 'bg-purple-100 text-purple-800'
-                    : 'bg-blue-100 text-blue-800'
+                    : donation.supporterId
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-blue-100 text-blue-800'
                   }`}>
-                  {donation.visitorId ? 'Visitor' : 'Member'}
+                  {donation.visitorId ? 'Visitor' : donation.supporterId ? 'Supporter' : 'Member'}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">

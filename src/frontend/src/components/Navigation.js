@@ -141,6 +141,25 @@ const Navigation = () => {
               </li>
             )}
 
+            {hasAccess('supporter') && (
+              <li>
+                <button
+                  onClick={() => toggleMenu('supporter')}
+                  className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition-colors text-left"
+                >
+                  <span>Supporter</span>
+                  <ChevronIcon open={openMenus.supporter} />
+                </button>
+
+                {openMenus.supporter && (
+                  <ul className="mt-1 mb-1">
+                    <li><Link to="/supporter-lookup" className={subLinkClass('/supporter-lookup')} onClick={closeMobileMenu}>Supporter Profile</Link></li>
+                    <li><Link to="/supporter-donation-entry" className={subLinkClass('/supporter-donation-entry')} onClick={closeMobileMenu}>Supporter Donation</Link></li>
+                  </ul>
+                )}
+              </li>
+            )}
+
             {hasAccess('vendor') && (
               <li>
                 <Link to="/vendor" className={linkClass('/vendor')} onClick={closeMobileMenu}>

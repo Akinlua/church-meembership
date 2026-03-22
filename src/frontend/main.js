@@ -139,7 +139,8 @@ function createMenu() {
       label: 'Profile',
       submenu: [
         { label: 'Member Profile', click: () => navigate('/member-lookup') },
-        { label: 'Visitor Profile', click: () => navigate('/visitor-lookup') }
+        { label: 'Visitor Profile', click: () => navigate('/visitor-lookup') },
+        { label: 'Supporter Profile', click: () => navigate('/supporter-lookup') }
       ]
     },
     {
@@ -154,6 +155,7 @@ function createMenu() {
       submenu: [
         { label: 'Member Donation', click: () => navigate('/member-donation-entry') },
         { label: 'Visitor Donation', click: () => navigate('/visitor-donation-entry') },
+        { label: 'Supporter Donation', click: () => navigate('/supporter-donation-entry') },
         { label: 'Donation Lookup', click: () => navigate('/donation-lookup') },
         { label: 'Donation Types', click: () => navigate('/donation-types-dropdown') }
       ]

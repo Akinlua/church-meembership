@@ -67,14 +67,21 @@ const DonationDropdown = () => {
     }
   };
 
+  const getDisplayName = (record) => {
+    if (record?.member) return `${record.member.lastName} ${record.member.firstName}`;
+    if (record?.visitor) return `${record.visitor.lastName} ${record.visitor.firstName} (Visitor)`;
+    if (record?.supporter) return `${record.supporter.lastName} ${record.supporter.firstName} (Supporter)`;
+    return 'Unknown';
+  };
+
   const filteredDonations = donations.filter(donation => {
-    const memberName = donation.member ? `${donation.member.lastName} ${donation.member.firstName}`.toLowerCase() : '';
+    const personName = getDisplayName(donation).toLowerCase();
     const amount = donation.amount ? donation.amount.toString() : '';
     const donationType = donation.donationType ? donation.donationType.toLowerCase() : '';
     const donationId = donation.id ? donation.id.toString() : '';
     const query = searchTerm.toLowerCase();
 
-    return memberName.includes(query) ||
+    return personName.includes(query) ||
       amount.includes(query) ||
       donationType.includes(query) ||
       donationId.includes(query);
@@ -87,7 +94,7 @@ const DonationDropdown = () => {
       if (fullDonation) {
         setSelectedDonation(fullDonation);
         setShowDropdown(false);
-        setSearchTerm(`${donation.member.lastName} ${donation.member.firstName} - $${parseFloat(donation.amount).toFixed(2)}`);
+        setSearchTerm(`${getDisplayName(fullDonation)} - $${parseFloat(fullDonation.amount).toFixed(2)}`);
       }
     } catch (error) {
       console.error('Error selecting donation:', error);
@@ -143,7 +150,7 @@ const DonationDropdown = () => {
         const donation = await fetchDonationDetails(donationId);
         if (donation) {
           setSelectedDonation(donation);
-          setSearchTerm(`${donation.member.lastName} ${donation.member.firstName} - $${parseFloat(donation.amount).toFixed(2)}`);
+          setSearchTerm(`${getDisplayName(donation)} - $${parseFloat(donation.amount).toFixed(2)}`);
           setNotification({
             show: true,
             message: `Donation was successfully ${isEditing ? 'updated' : 'added'}!`,
@@ -232,7 +239,7 @@ const DonationDropdown = () => {
                     >
                       <div className="flex justify-between">
                         <div>
-                          <span className="font-medium">{donation.member ? `${donation.member.lastName} ${donation.member.firstName}` : 'Unknown Member'}</span>
+                          <span className="font-medium">{getDisplayName(donation)}</span>
                         </div>
                         <div className="text-green-600 font-medium">
                           ${parseFloat(donation.amount).toFixed(2)}
@@ -257,8 +264,8 @@ const DonationDropdown = () => {
                   <div className="p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className="text-sm text-gray-500">Member</p>
-                        <p className="font-medium">{selectedDonation.member.lastName} {selectedDonation.member.firstName}</p>
+                        <p className="text-sm text-gray-500">Person</p>
+                        <p className="font-medium">{getDisplayName(selectedDonation)}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Amount</p>

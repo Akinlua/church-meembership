@@ -20,8 +20,14 @@ const DonationReport = ({ reportData }) => {
     const ad = a.donationDate ? new Date(a.donationDate).getTime() : 0;
     const bd = b.donationDate ? new Date(b.donationDate).getTime() : 0;
     if (bd !== ad) return bd - ad;
-    const an = a.member ? `${a.member.lastName || ''} ${a.member.firstName || ''}`.trim().toLowerCase() : '';
-    const bn = b.member ? `${b.member.lastName || ''} ${b.member.firstName || ''}`.trim().toLowerCase() : '';
+    const getSortName = (d) => {
+      if (d.member) return `${d.member.lastName || ''} ${d.member.firstName || ''}`;
+      if (d.visitor) return `${d.visitor.lastName || ''} ${d.visitor.firstName || ''}`;
+      if (d.supporter) return `${d.supporter.lastName || ''} ${d.supporter.firstName || ''}`;
+      return '';
+    };
+    const an = getSortName(a).trim().toLowerCase();
+    const bn = getSortName(b).trim().toLowerCase();
     if (an !== bn) return an.localeCompare(bn);
     const aa = parseFloat(a.amount || 0);
     const ba = parseFloat(b.amount || 0);
@@ -54,7 +60,7 @@ const DonationReport = ({ reportData }) => {
                 Date
               </th>
               <th scope="col" className="px-6 py-3 w-4/12 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Member
+                Person
               </th>
               <th scope="col" className="px-6 py-3 w-3/12 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Type
@@ -73,7 +79,7 @@ const DonationReport = ({ reportData }) => {
                       {donation.donationDate ? new Date(donation.donationDate).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap w-4/12 text-sm text-gray-500">
-                      {donation.member ? `${donation.member.lastName}, ${donation.member.firstName}` : 'N/A'}
+                      {donation.member ? `${donation.member.lastName}, ${donation.member.firstName}` : donation.visitor ? `${donation.visitor.lastName}, ${donation.visitor.firstName} (Visitor)` : donation.supporter ? `${donation.supporter.lastName}, ${donation.supporter.firstName} (Supporter)` : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap w-3/12 text-sm text-gray-500">
                       {donation.donationType || 'N/A'}

@@ -16,6 +16,9 @@ module.exports = (app) => {
           },
           visitor: {
             select: { id: true, firstName: true, lastName: true }
+          },
+          supporter: {
+            select: { id: true, firstName: true, lastName: true }
           }
         },
         orderBy: { donationDate: 'desc' }
@@ -28,10 +31,10 @@ module.exports = (app) => {
 
   // Create donation (member or visitor)
   app.post('/donations', async (req, res) => {
-    const { member_id, visitor_id, amount, donation_type, donation_date, notes } = req.body;
+    const { member_id, visitor_id, supporter_id, amount, donation_type, donation_date, notes } = req.body;
 
-    if (!member_id && !visitor_id) {
-      return res.status(400).json({ message: 'Either member_id or visitor_id is required' });
+    if (!member_id && !visitor_id && !supporter_id) {
+      return res.status(400).json({ message: 'Either member_id, visitor_id, or supporter_id is required' });
     }
 
     try {
@@ -39,6 +42,7 @@ module.exports = (app) => {
         data: {
           memberId: member_id ? parseInt(member_id) : null,
           visitorId: visitor_id ? parseInt(visitor_id) : null,
+          supporterId: supporter_id ? parseInt(supporter_id) : null,
           amount: parseFloat(amount),
           donationType: donation_type,
           donationDate: new Date(donation_date),
@@ -54,10 +58,10 @@ module.exports = (app) => {
 
   // Update donation (member or visitor)
   app.put('/donations/:id', async (req, res) => {
-    const { member_id, visitor_id, amount, donation_date, donation_type, notes } = req.body;
+    const { member_id, visitor_id, supporter_id, amount, donation_date, donation_type, notes } = req.body;
 
-    if (!member_id && !visitor_id) {
-      return res.status(400).json({ message: 'Either member_id or visitor_id is required' });
+    if (!member_id && !visitor_id && !supporter_id) {
+      return res.status(400).json({ message: 'Either member_id, visitor_id, or supporter_id is required' });
     }
 
     try {
@@ -66,6 +70,7 @@ module.exports = (app) => {
         data: {
           memberId: member_id ? parseInt(member_id) : null,
           visitorId: visitor_id ? parseInt(visitor_id) : null,
+          supporterId: supporter_id ? parseInt(supporter_id) : null,
           amount: parseFloat(amount),
           donationDate: new Date(donation_date),
           donationType: donation_type,
@@ -222,6 +227,9 @@ module.exports = (app) => {
             select: { id: true, firstName: true, lastName: true }
           },
           visitor: {
+            select: { id: true, firstName: true, lastName: true }
+          },
+          supporter: {
             select: { id: true, firstName: true, lastName: true }
           }
         }

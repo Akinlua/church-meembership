@@ -161,7 +161,7 @@ app.post('/public/visitors', async (req, res) => {
     res.status(500).json({ message: 'Error creating visitor', error: error.message });
   }
 });
-app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/vendors', '/expense-categories', '/charges', '/admin', '/program-owner'], authenticateToken);
+app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/supporters', '/vendors', '/expense-categories', '/charges', '/admin', '/program-owner'], authenticateToken);
 
 // Make authenticateToken available to routes
 app.set('authenticateToken', authenticateToken);
@@ -178,6 +178,7 @@ const reportsRouter = require('./routes/reports')(app);
 app.use('/reports', reportsRouter);
 require('./routes/dashboard')(app);
 require('./routes/visitors')(app);
+require('./routes/supporters')(app);
 require('./routes/vendors')(app);
 require('./routes/expenseCategories')(app);
 require('./routes/charges')(app);

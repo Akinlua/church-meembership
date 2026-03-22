@@ -18,13 +18,15 @@ const customStyles = {
 const DonationForm = ({ donation, onClose, onSubmit }) => {
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(true);
-  const [donorType, setDonorType] = useState('member'); // 'member' | 'visitor'
+  const [donorType, setDonorType] = useState('member'); // 'member' | 'visitor' | 'supporter'
   const [members, setMembers] = useState([]);
   const [visitors, setVisitors] = useState([]);
+  const [supporters, setSupporters] = useState([]);
   const [donationTypes, setDonationTypes] = useState([]);
   const [formData, setFormData] = useState({
     member_id: '',
     visitor_id: '',
+    supporter_id: '',
     amount: '',
     donation_type: '',
     donation_date: new Date(),
@@ -35,16 +37,20 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   useEffect(() => {
     const loadFormData = async () => {
       try {
-        await Promise.all([fetchMembers(), fetchVisitors(), fetchDonationTypes()]);
+        await Promise.all([fetchMembers(), fetchVisitors(), fetchSupporters(), fetchDonationTypes()]);
         if (donation) {
           const isVisitor = !!donation.visitorId;
-          setDonorType(isVisitor ? 'visitor' : 'member');
+          const isSupporter = !!donation.supporterId;
+          setDonorType(isSupporter ? 'supporter' : isVisitor ? 'visitor' : 'member');
           setFormData({
-            member_id: !isVisitor && donation.memberId
+            member_id: !isVisitor && !isSupporter && donation.memberId
               ? { value: donation.memberId, label: `${donation.member.lastName}, ${donation.member.firstName}` }
               : '',
             visitor_id: isVisitor && donation.visitorId
               ? { value: donation.visitorId, label: `${donation.visitor.lastName}, ${donation.visitor.firstName}` }
+              : '',
+            supporter_id: isSupporter && donation.supporterId
+              ? { value: donation.supporterId, label: `${donation.supporter.lastName}, ${donation.supporter.firstName}` }
               : '',
             amount: donation.amount || '',
             donation_type: donation.donationType ? { value: donation.donationType, label: donation.donationType } : '',
@@ -83,6 +89,17 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
     }
   };
 
+  const fetchSupporters = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/supporters`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setSupporters(response.data.map(s => ({ value: s.id, label: `${s.supporterNumber} ${s.lastName}, ${s.firstName}` })));
+    } catch (error) {
+      console.error('Error fetching supporters:', error);
+    }
+  };
+
   const fetchDonationTypes = async () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/donation-types`, {
@@ -96,7 +113,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
 
   const handleDonorTypeChange = (type) => {
     setDonorType(type);
-    setFormData(prev => ({ ...prev, member_id: '', visitor_id: '' }));
+    setFormData(prev => ({ ...prev, member_id: '', visitor_id: '', supporter_id: '' }));
   };
 
   const handleSubmit = async (e) => {
@@ -113,6 +130,11 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       setLoading(false);
       return;
     }
+    if (donorType === 'supporter' && (!formData.supporter_id || !formData.supporter_id.value)) {
+      alert('Please select a valid supporter.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const url = `${process.env.REACT_APP_API_URL}/donations${donation ? `/${donation.id}` : ''}`;
@@ -125,6 +147,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
         notes: formData.notes,
         member_id: donorType === 'member' ? formData.member_id.value : null,
         visitor_id: donorType === 'visitor' ? formData.visitor_id.value : null,
+        supporter_id: donorType === 'supporter' ? formData.supporter_id.value : null,
       };
 
       await axios[method](url, donationData, {
@@ -145,7 +168,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
   };
 
   const handleContinueAdding = () => {
-    setFormData({ member_id: '', visitor_id: '', amount: '', donation_type: '', donation_date: new Date(), notes: '' });
+    setFormData({ member_id: '', visitor_id: '', supporter_id: '', amount: '', donation_type: '', donation_date: new Date(), notes: '' });
     setShowModal(false);
   };
 
@@ -202,12 +225,23 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
               >
                 Visitor
               </button>
+              <button
+                type="button"
+                onClick={() => handleDonorTypeChange('supporter')}
+                className={`px-4 py-1 rounded border text-sm font-medium transition-colors ${
+                  donorType === 'supporter'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-400 hover:bg-gray-100'
+                }`}
+              >
+                Supporter
+              </button>
             </div>
 
-            {/* Member / Visitor selector */}
+            {/* Member / Visitor / Supporter selector */}
             <div className="col-span-3 flex items-center">
               <label className="block text-sm font-medium text-gray-700">
-                {donorType === 'member' ? 'Member' : 'Visitor'}
+                {donorType === 'member' ? 'Member' : donorType === 'visitor' ? 'Visitor' : 'Supporter'}
               </label>
             </div>
             <div className="col-span-9">
@@ -221,12 +255,22 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                   styles={customStyles}
                   required
                 />
-              ) : (
+              ) : donorType === 'visitor' ? (
                 <Select
                   options={visitors}
                   value={formData.visitor_id}
                   onChange={(selected) => setFormData({ ...formData, visitor_id: selected })}
                   placeholder="Select Visitor"
+                  isSearchable
+                  styles={customStyles}
+                  required
+                />
+              ) : (
+                <Select
+                  options={supporters}
+                  value={formData.supporter_id}
+                  onChange={(selected) => setFormData({ ...formData, supporter_id: selected })}
+                  placeholder="Select Supporter"
                   isSearchable
                   styles={customStyles}
                   required
