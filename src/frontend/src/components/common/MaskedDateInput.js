@@ -210,7 +210,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
         <input
           type="text"
           value={dateParts.month}
-          placeholder="MM"
+          placeholder=""
           maxLength="2"
           onChange={handleMonthChange}
           onKeyDown={(e) => handleKeyDown(e, 'month')}
@@ -222,7 +222,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
         <input
           type="text"
           value={dateParts.day}
-          placeholder="DD"
+          placeholder=""
           maxLength="2"
           onChange={handleDayChange}
           onKeyDown={(e) => handleKeyDown(e, 'day')}
@@ -234,7 +234,7 @@ const MaskedDateInput = ({ value, onChange, required = false, inputClassName = '
         <input
           type="text"
           value={dateParts.year}
-          placeholder="YYYY"
+          placeholder=""
           maxLength="4"
           onChange={handleYearChange}
           onKeyDown={(e) => handleKeyDown(e, 'year')}

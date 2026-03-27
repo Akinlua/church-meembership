@@ -126,7 +126,7 @@ const SupporterForm = ({ supporter, onClose, onSubmit, isPublicForm = false }) =
             <input
               type="text"
               required
-              placeholder="First Name"
+              placeholder=""
               value={formData.first_name}
               ref={firstNameRef}
               onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
@@ -137,7 +137,7 @@ const SupporterForm = ({ supporter, onClose, onSubmit, isPublicForm = false }) =
             <input
               type="text"
               required
-              placeholder="Last Name"
+              placeholder=""
               value={formData.last_name}
               onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
               className="w-full px-2 py-1 border border-gray-600"
@@ -192,7 +192,7 @@ const SupporterForm = ({ supporter, onClose, onSubmit, isPublicForm = false }) =
                 }}
                 maxLength={5}
                 pattern="[0-9]{5}"
-                placeholder="12345"
+                placeholder=""
               />
             </div>
           </div>
@@ -206,7 +206,7 @@ const SupporterForm = ({ supporter, onClose, onSubmit, isPublicForm = false }) =
               className="w-full border border-gray-600 px-2 py-1"
               value={formData.phone}
               onChange={handlePhoneChange}
-              placeholder="(123) 456-7890"
+              placeholder=""
             />
           </div>
           

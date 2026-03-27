@@ -238,7 +238,7 @@ const VisitorForm = ({ visitor, onClose, onSubmit, isPublicForm = false }) => {
                     }}
                     maxLength={5}
                     pattern="[0-9]{5}"
-                    placeholder="12345"
+                    placeholder=""
                   />
                 </div>
               </div>
@@ -252,7 +252,7 @@ const VisitorForm = ({ visitor, onClose, onSubmit, isPublicForm = false }) => {
                   className="w-full md:w-40 border border-gray-600 px-2 py-1 mb-2 md:mb-0"
                   value={formData.phone}
                   onChange={handlePhoneChange}
-                  placeholder="(123) 456-7890"
+                  placeholder=""
                 />
                 <div className="flex flex-col md:flex-row md:items-center flex-grow w-full md:w-auto">
                   <span className="text-sm font-medium md:mr-2 mb-1 md:mb-0">Email</span>

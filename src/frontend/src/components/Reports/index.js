@@ -40,20 +40,10 @@ const Reports = ({ initialReport }) => {
   // ── Static option lists ──
   // LEFT dropdown: report category
   const leftOptions = [
-    { value: '', label: '-- Select Report --' },
     { value: 'donationTypeSummary', label: 'Donation Type' },
     { value: 'groupMembership', label: 'Group Type' },
     { value: 'expenses', label: 'Expenses Type' },
     { value: 'deposits', label: 'Deposits' },
-  ];
-
-  // RIGHT dropdown: entity filter
-  const rightOptions = [
-    { value: '', label: '-- Select Filter --' },
-    { value: 'members', label: 'Members', hasMemberFilter: true },
-    { value: 'visitors', label: 'Visitors', hasVisitorFilter: true },
-    { value: 'vendors', label: 'Vendors', hasVendorFilter: true },
-    { value: 'banks', label: 'Banks' },
   ];
 
   // Full list used by renderReportContent
@@ -72,7 +62,6 @@ const Reports = ({ initialReport }) => {
 
   // MIDDLE dropdown: Members/Visitors/Vendors/Banks report types
   const middleOptions = [
-    { value: '', label: '-- Select Report --' },
     { value: 'membership', label: 'Members' },
     { value: 'visitorDonations', label: 'Visitors' },
     { value: 'vendors', label: 'Vendors' },
@@ -82,11 +71,10 @@ const Reports = ({ initialReport }) => {
   // Resolve active report: prefer whichever dropdown has a selection
   const effectiveReport = activeReport || activeReport2;
 
-  // Derive filter flags from the right dropdown selection
-  const rightSel = rightOptions.find(o => o.value === selectedRightOption) || {};
-  const showMemberFilter = !!rightSel.hasMemberFilter;
-  const showVendorFilter = !!rightSel.hasVendorFilter;
-  const showVisitorFilter = !!rightSel.hasVisitorFilter;
+  const currentReportType = reportOptions.find(option => option.value === effectiveReport) || {};
+  const showMemberFilter = !!currentReportType.hasMemberFilter;
+  const showVendorFilter = !!currentReportType.hasVendorFilter;
+  const showVisitorFilter = !!currentReportType.hasVisitorFilter;
   const showGroupFilter = false;
 
   const handleReportChange = (e) => {
@@ -127,9 +115,7 @@ const Reports = ({ initialReport }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialReport]);
 
-  // Check if current report type supports filters (kept for renderReportContent)
-  const currentReportType = reportOptions.find(option => option.value === effectiveReport);
-  // filter flags driven by rightSel above
+  // Check if current report type supports filters (now handled above)
 
   const handleDateChange = (type, date) => {
     setDateRange(prev => ({
@@ -293,13 +279,14 @@ const Reports = ({ initialReport }) => {
         requestData,
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }, responseType: 'blob' }
       );
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${effectiveReport}-report.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      iframe.onload = () => {
+        iframe.contentWindow.print();
+      };
     } catch (error) {
       console.error(`Error printing ${effectiveReport} report:`, error);
     } finally {
@@ -354,7 +341,7 @@ const Reports = ({ initialReport }) => {
               value={dateRange.startDate}
               onChange={(date) => handleDateChange('startDate', date)}
               inputClassName="rounded-md px-3 py-2"
-              useCurrentDateAsDefault={false}
+              useCurrentDateAsDefault={true}
             />
           </div>
 
@@ -364,7 +351,7 @@ const Reports = ({ initialReport }) => {
               value={dateRange.endDate}
               onChange={(date) => handleDateChange('endDate', date)}
               inputClassName="rounded-md px-3 py-2"
-              useCurrentDateAsDefault={false}
+              useCurrentDateAsDefault={true}
             />
           </div>
 
@@ -392,48 +379,43 @@ const Reports = ({ initialReport }) => {
         <div className="flex flex-wrap items-end gap-2 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
-            <select
-              value={activeReport}
-              onChange={handleReportChange}
-              className="border border-gray-300 rounded-md px-3 py-2 h-10"
-            >
-              {leftOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={leftOptions}
+              value={leftOptions.find(o => o.value === activeReport) || null}
+              onChange={(selected) => handleReportChange({ target: { value: selected ? selected.value : '' } })}
+              placeholder=""
+              isSearchable
+              className="w-48"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  height: '40px',
+                  minHeight: '40px'
+                })
+              }}
+            />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
-            <select
-              value={activeReport2}
-              onChange={handleReport2Change}
-              className="border border-gray-300 rounded-md px-3 py-2 h-10"
-            >
-              {middleOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={middleOptions}
+              value={middleOptions.find(o => o.value === activeReport2) || null}
+              onChange={(selected) => handleReport2Change({ target: { value: selected ? selected.value : '' } })}
+              placeholder=""
+              isSearchable
+              className="w-48"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  height: '40px',
+                  minHeight: '40px'
+                })
+              }}
+            />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Filter By</label>
-            <select
-              value={selectedRightOption}
-              onChange={handleRightOptionChange}
-              className="border border-gray-300 rounded-md px-3 py-2 h-10"
-            >
-              {rightOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+
 
           {showMemberFilter && (
             <div>
@@ -442,7 +424,7 @@ const Reports = ({ initialReport }) => {
                 options={members}
                 value={selectedMember}
                 onChange={setSelectedMember}
-                placeholder="Select Member"
+                placeholder=""
                 isClearable
                 isSearchable
                 isLoading={loadingMembers}
@@ -461,15 +443,29 @@ const Reports = ({ initialReport }) => {
           {activeReport === 'membership' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Member Status</label>
-              <select
-                value={memberStatus}
-                onChange={handleMemberStatusChange}
-                className="border border-gray-300 rounded-md px-3 py-2 h-10"
-              >
-                <option value="all">All Members</option>
-                <option value="active">Active Only</option>
-                <option value="inactive">Inactive Only</option>
-              </select>
+              <Select
+                options={[
+                  { value: 'all', label: 'All Members' },
+                  { value: 'active', label: 'Active Only' },
+                  { value: 'inactive', label: 'Inactive Only' }
+                ]}
+                value={[
+                  { value: 'all', label: 'All Members' },
+                  { value: 'active', label: 'Active Only' },
+                  { value: 'inactive', label: 'Inactive Only' }
+                ].find(o => o.value === memberStatus) || { value: 'all', label: 'All Members' }}
+                onChange={(selected) => handleMemberStatusChange({ target: { value: selected.value } })}
+                placeholder=""
+                isSearchable={false}
+                className="w-48"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    height: '40px',
+                    minHeight: '40px'
+                  })
+                }}
+              />
             </div>
           )}
 
@@ -480,7 +476,7 @@ const Reports = ({ initialReport }) => {
                 options={vendors}
                 value={selectedVendor}
                 onChange={setSelectedVendor}
-                placeholder="Select Vendor"
+                placeholder=""
                 isClearable
                 isSearchable
                 isLoading={loadingVendors}
@@ -503,7 +499,7 @@ const Reports = ({ initialReport }) => {
                 options={visitors}
                 value={selectedVisitor}
                 onChange={setSelectedVisitor}
-                placeholder="Select Visitor"
+                placeholder=""
                 isClearable
                 isSearchable
                 isLoading={loadingVisitors}
@@ -526,7 +522,7 @@ const Reports = ({ initialReport }) => {
                 options={groups}
                 value={selectedGroup}
                 onChange={setSelectedGroup}
-                placeholder="Select Group"
+                placeholder=""
                 isClearable
                 isSearchable
                 isLoading={loadingGroups}

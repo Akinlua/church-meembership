@@ -251,6 +251,12 @@ const Navigation = () => {
               </li>
             )}
 
+            <li>
+              <Link to="#" className={linkClass('#')} onClick={closeMobileMenu}>
+                Event
+              </Link>
+            </li>
+
             {/* ── Reports tree ── */}
             {hasAccess('reports') && (
               <li>

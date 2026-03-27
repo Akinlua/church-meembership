@@ -42,7 +42,7 @@ const VisitorDonationEntry = () => {
       });
       setVisitors(response.data.map(v => ({
         value: v.id,
-        label: `${v.visitorNumber} - ${v.lastName}, ${v.firstName}`
+        label: `${v.lastName}, ${v.firstName}`
       })));
     } catch (error) {
       console.error('Error fetching visitors:', error);
@@ -159,7 +159,7 @@ const VisitorDonationEntry = () => {
               options={visitors}
               value={selectedVisitor}
               onChange={setSelectedVisitor}
-              placeholder="Select Visitor"
+              placeholder=""
               isSearchable
               styles={customStyles}
               required
@@ -185,8 +185,15 @@ const VisitorDonationEntry = () => {
                       <input
                         type="number"
                         value={row.amount}
-                        onChange={(e) => updateDonationRow(index, 'amount', e.target.value)}
-                        placeholder="0.00"
+                        onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.includes('.')) {
+                      const parts = val.split('.');
+                      if (parts[1].length > 2) val = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                    updateDonationRow(index, 'amount', val);
+                  }}
+                        placeholder=""
                         step="0.01"
                         className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md"
                         required
@@ -219,7 +226,7 @@ const VisitorDonationEntry = () => {
                       options={donationTypes}
                       value={row.type}
                       onChange={(selected) => updateDonationRow(index, 'type', selected)}
-                      placeholder="Select Type"
+                      placeholder=""
                       isSearchable
                       styles={customStyles}
                       required

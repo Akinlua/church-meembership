@@ -303,7 +303,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                 options={banks}
                 value={formData.bank_id}
                 onChange={handleBankChange}
-                placeholder="Select Bank"
+                placeholder=""
                 isSearchable
                 styles={customStyles}
                 required
@@ -318,7 +318,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                 options={accountOptions}
                 value={formData.account_number}
                 onChange={handleAccountChange}
-                placeholder="Select Account Number"
+                placeholder=""
                 isSearchable
                 styles={customStyles}
                 required
@@ -357,7 +357,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                   value={formData.cash_amount}
                   onChange={(e) => handleAmountChange('cash_amount', e.target.value)}
                   className="w-40 pl-7 px-2 py-1 border border-gray-600 text-right"
-                  placeholder="0.00"
+                  placeholder=""
                   onBlur={() => setFormData({
                     ...formData,
                     cash_amount: formatCurrency(formData.cash_amount)
@@ -381,7 +381,7 @@ const DepositForm = ({ deposit, onClose, onSubmit }) => {
                       value={check.amount}
                       onChange={(e) => handleCheckChange(index, e.target.value)}
                       className="w-40 pl-7 px-2 py-1 border border-gray-600 text-right"
-                      placeholder="0.00"
+                      placeholder=""
                       onBlur={() => {
                         const updatedChecks = [...formData.checks];
                         updatedChecks[index] = {

@@ -95,11 +95,15 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
       const url = `${process.env.REACT_APP_API_URL}/charges${charge ? `/${charge.id}` : ''}`;
       const method = charge ? 'put' : 'post';
 
-      await axios[method](url, formData, {
+      const response = await axios[method](url, formData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
-      setShowModal(true);
+      if (!charge) {
+        setShowModal(true);
+      } else {
+        onSubmit(response.data?.id || charge.id);
+      }
     } catch (error) {
       console.error('Error saving charge:', error);
       alert('Error saving charge. Please try again.');
@@ -154,7 +158,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                 options={vendors}
                 value={vendors.find(v => v.value === (formData.vendorId?.value ?? formData.vendorId)) || null}
                 onChange={(selected) => setFormData({ ...formData, vendorId: selected })}
-                placeholder="Select Vendor"
+                placeholder=""
                 isSearchable
                 styles={customStyles}
                 required
@@ -170,7 +174,7 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                 options={expenseCategories}
                 value={expenseCategories.find(c => c.value === (formData.expenseCategoryId?.value ?? formData.expenseCategoryId)) || null}
                 onChange={(selected) => setFormData({ ...formData, expenseCategoryId: selected })}
-                placeholder="Select Expense Category"
+                placeholder=""
                 isSearchable
                 styles={customStyles}
                 required
@@ -189,9 +193,16 @@ const ChargeForm = ({ charge, onClose, onSubmit }) => {
                   type="number"
                   name="amount"
                   value={formData.amount}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.includes('.')) {
+                      const parts = val.split('.');
+                      if (parts[1].length > 2) val = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                    handleChange({ target: { name: 'amount', value: val } });
+                  }}
                   onBlur={() => setFormData({ ...formData, amount: formatCurrency(formData.amount) })}
-                  placeholder="0.00"
+                  placeholder=""
                   step="0.01"
                   required
                   className="w-34 px-2 py-1 pl-7 border border-gray-600"

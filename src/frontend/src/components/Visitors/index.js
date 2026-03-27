@@ -100,7 +100,7 @@ const Visitors = () => {
         <div className="mb-4">
           <input
             type="text"
-            placeholder="Search visitors by name or visitor number..."
+            placeholder=""
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full p-2 border rounded"

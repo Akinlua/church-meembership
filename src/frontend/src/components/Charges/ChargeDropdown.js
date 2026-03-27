@@ -200,7 +200,7 @@ const ChargeDropdown = () => {
       
       if (chargeId) {
         // Get the full charge details
-        const charge = await fetchChargeDetails(chargeId.id);
+        const charge = await fetchChargeDetails(chargeId);
         
         if (charge) {
           // Select the charge
@@ -591,6 +591,7 @@ const ChargeDropdown = () => {
               onClose={() => {
                 setShowForm(false);
                 setIsEditing(false);
+                fetchCharges();
               }}
               onSubmit={handleFormSubmit}
             />

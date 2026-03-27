@@ -235,7 +235,7 @@ const ProgramOwnerForm = ({ onClose, programOwner, onSave }) => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  placeholder="(123) 456-7890"
+                  placeholder=""
                   className={`w-full px-2 py-1 border border-black ${validationErrors.phone ? 'border-red-500' : ''}`}
                 />
                 {validationErrors.phone && (

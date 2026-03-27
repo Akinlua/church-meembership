@@ -210,7 +210,7 @@ const BankForm = ({ bank, onClose, onSubmit }) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handlePhoneChange}
-                placeholder="(123) 456-7890"
+                placeholder=""
                 className={`w-full px-2 py-1 border ${phoneError ? 'border-red-300' : 'border-black'}`}
               />
               {phoneError && (

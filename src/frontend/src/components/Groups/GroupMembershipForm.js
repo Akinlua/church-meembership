@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { PageLoader } from '../common/Loader';
+import Select from 'react-select';
 
 const GroupMembershipForm = () => {
     const [members, setMembers] = useState([]);
@@ -38,16 +39,16 @@ const GroupMembershipForm = () => {
         fetchData();
     }, []);
 
-    const handleMemberChange = (e) => {
-        const memberId = e.target.value;
+    const handleMemberChange = (selected) => {
+        const memberId = selected ? selected.value : '';
         setFormData({ ...formData, memberId });
-        const member = members.find(m => m.id.toString() === memberId);
+        const member = members.find(m => m.id.toString() === memberId.toString());
         setSelectedMember(member || null);
         setMessage('');
     };
 
-    const handleGroupChange = (e) => {
-        setFormData({ ...formData, groupId: e.target.value });
+    const handleGroupChange = (selected) => {
+        setFormData({ ...formData, groupId: selected ? selected.value : '' });
         setMessage('');
     };
 
@@ -123,38 +124,56 @@ const GroupMembershipForm = () => {
                 <div className="grid grid-cols-4 items-center gap-4">
                     <label className="text-right font-medium">Member</label>
                     <div className="col-span-3">
-                        <select
-                            value={formData.memberId}
+                        <Select
+                            options={members.map(member => ({
+                                value: member.id.toString(),
+                                label: `${member.lastName}, ${member.firstName} ${member.middleName || ''}`.trim()
+                            }))}
+                            value={
+                                formData.memberId
+                                ? {
+                                    value: formData.memberId,
+                                    label: (() => {
+                                        const m = members.find(x => x.id.toString() === formData.memberId.toString());
+                                        return m ? `${m.lastName}, ${m.firstName} ${m.middleName || ''}`.trim() : '';
+                                    })()
+                                  }
+                                : null
+                            }
                             onChange={handleMemberChange}
-                            className="w-full border border-gray-300 rounded p-2 focus:ring-blue-500 focus:border-blue-500"
-                            required
-                        >
-                            <option value="">Select a member</option>
-                            {members.map(member => (
-                                <option key={member.id} value={member.id}>
-                                    {member.lastName}, {member.firstName} {member.middleName || ''}
-                                </option>
-                            ))}
-                        </select>
+                            isSearchable
+                            isClearable
+                            placeholder=""
+                            className="w-full"
+                        />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-4 items-center gap-4">
                     <label className="text-right font-medium">Group</label>
                     <div className="col-span-3">
-                        <select
-                            value={formData.groupId}
+                        <Select
+                            options={groups.map(group => ({
+                                value: group.id.toString(),
+                                label: group.name
+                            }))}
+                            value={
+                                formData.groupId
+                                ? {
+                                    value: formData.groupId,
+                                    label: (() => {
+                                        const g = groups.find(x => x.id.toString() === formData.groupId.toString());
+                                        return g ? g.name : '';
+                                    })()
+                                  }
+                                : null
+                            }
                             onChange={handleGroupChange}
-                            className="w-full border border-gray-300 rounded p-2 focus:ring-blue-500 focus:border-blue-500"
-                            required
-                        >
-                            <option value="">Select a group</option>
-                            {groups.map(group => (
-                                <option key={group.id} value={group.id}>
-                                    {group.name}
-                                </option>
-                            ))}
-                        </select>
+                            isSearchable
+                            isClearable
+                            placeholder=""
+                            className="w-full"
+                        />
                     </div>
                 </div>
 

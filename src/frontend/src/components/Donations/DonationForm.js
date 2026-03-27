@@ -72,7 +72,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/members`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setMembers(response.data.map(m => ({ value: m.id, label: `${m.memberNumber} ${m.lastName}, ${m.firstName}` })));
+      setMembers(response.data.map(m => ({ value: m.id, label: `${m.lastName}, ${m.firstName}` })));
     } catch (error) {
       console.error('Error fetching members:', error);
     }
@@ -83,7 +83,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/visitors`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setVisitors(response.data.map(v => ({ value: v.id, label: `${v.visitorNumber} ${v.lastName}, ${v.firstName}` })));
+      setVisitors(response.data.map(v => ({ value: v.id, label: `${v.lastName}, ${v.firstName}` })));
     } catch (error) {
       console.error('Error fetching visitors:', error);
     }
@@ -94,7 +94,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/supporters`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      setSupporters(response.data.map(s => ({ value: s.id, label: `${s.supporterNumber} ${s.lastName}, ${s.firstName}` })));
+      setSupporters(response.data.map(s => ({ value: s.id, label: `${s.lastName}, ${s.firstName}` })));
     } catch (error) {
       console.error('Error fetching supporters:', error);
     }
@@ -150,14 +150,14 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
         supporter_id: donorType === 'supporter' ? formData.supporter_id.value : null,
       };
 
-      await axios[method](url, donationData, {
+      const response = await axios[method](url, donationData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
       if (!donation) {
         setShowModal(true);
       } else {
-        onClose();
+        onSubmit(response.data?.id || donation.id);
       }
     } catch (error) {
       console.error('Error saving donation:', error);
@@ -250,7 +250,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                   options={members}
                   value={formData.member_id}
                   onChange={(selected) => setFormData({ ...formData, member_id: selected })}
-                  placeholder="Select Member"
+                  placeholder=""
                   isSearchable
                   styles={customStyles}
                   required
@@ -260,7 +260,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                   options={visitors}
                   value={formData.visitor_id}
                   onChange={(selected) => setFormData({ ...formData, visitor_id: selected })}
-                  placeholder="Select Visitor"
+                  placeholder=""
                   isSearchable
                   styles={customStyles}
                   required
@@ -270,7 +270,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                   options={supporters}
                   value={formData.supporter_id}
                   onChange={(selected) => setFormData({ ...formData, supporter_id: selected })}
-                  placeholder="Select Supporter"
+                  placeholder=""
                   isSearchable
                   styles={customStyles}
                   required
@@ -286,7 +286,7 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                 options={donationTypes}
                 value={formData.donation_type}
                 onChange={(selected) => setFormData({ ...formData, donation_type: selected })}
-                placeholder="Select Donation Type"
+                placeholder=""
                 isSearchable
                 styles={customStyles}
                 required
@@ -304,10 +304,17 @@ const DonationForm = ({ donation, onClose, onSubmit }) => {
                 <input
                   type="number"
                   value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (val.includes('.')) {
+                      const parts = val.split('.');
+                      if (parts[1].length > 2) val = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                    setFormData({ ...formData, amount: val });
+                  }}
                   onBlur={() => setFormData({ ...formData, amount: formatCurrency(formData.amount) })}
                   required
-                  placeholder="0.00"
+                  placeholder=""
                   step="0.01"
                   className="w-34 px-2 py-1 pl-7 border border-gray-600"
                 />

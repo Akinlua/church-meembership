@@ -573,7 +573,7 @@ const CheckGenerator = () => {
                 <Select
                   options={vendors}
                   onChange={handleVendorChange}
-                  placeholder="Select a vendor..."
+                  placeholder=""
                   isSearchable
                   styles={customStyles}
                   className="w-full"
@@ -619,7 +619,7 @@ const CheckGenerator = () => {
                 <Select
                   options={banks}
                   onChange={handleBankChange}
-                  placeholder="Select a bank..."
+                  placeholder=""
                   isSearchable
                   styles={customStyles}
                   className="w-full"
@@ -963,7 +963,7 @@ const CheckGenerator = () => {
                 type="text"
                 value={layoutName}
                 onChange={(e) => setLayoutName(e.target.value)}
-                placeholder="My Custom Check Layout"
+                placeholder=""
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 autoFocus
               />

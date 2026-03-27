@@ -85,7 +85,7 @@ const Vendors = () => {
           <div className="mb-6">
             <input
               type="text"
-              placeholder="Search vendors by name, vendor #, or account #..."
+              placeholder=""
               className="w-full px-4 py-2 border rounded-md"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

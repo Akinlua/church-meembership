@@ -37,7 +37,7 @@ const MemberList = ({ members, onEdit, onDelete }) => {
       <div className="flex gap-4 mb-4 p-4">
         <input
           type="text"
-          placeholder="Search by name or member number..."
+          placeholder=""
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1 p-2 border rounded"
