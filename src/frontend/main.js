@@ -190,6 +190,12 @@ function createMenu() {
       ]
     },
     {
+      label: 'Event',
+      submenu: [
+        { label: 'Event', enabled: false }
+      ]
+    },
+    {
       role: 'help',
       submenu: [
         {

@@ -45,10 +45,10 @@ const ElectronTopBar = () => {
   const nav = useNavigate();
   const handleLogout = () => { logout(); nav('/login'); };
   return (
-    <div style={{ background: '#1f2937', color: '#fff', padding: '6px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <span style={{ fontWeight: 600, fontSize: 14 }}>Church Management</span>
+    <div style={{ background: 'transparent', color: '#1f2937', padding: '6px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <span style={{ fontWeight: 600, fontSize: 14 }}>Church Membership</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        {currentUser && <span style={{ fontSize: 13, opacity: 0.75 }}>{currentUser.name || currentUser.username}</span>}
+        {currentUser && <span style={{ fontSize: 13, color: '#4b5563' }}>{currentUser.name || currentUser.username}</span>}
         <button
           onClick={handleLogout}
           style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 14px', cursor: 'pointer', fontSize: 13 }}
