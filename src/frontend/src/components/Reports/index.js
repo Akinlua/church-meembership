@@ -44,49 +44,73 @@ const Reports = ({ initialReport }) => {
   // ── Static option lists ──
   // LEFT dropdown: report category
   const leftOptions = [
-    { value: 'donationTypeSummary', label: 'Donation Type' },
-    { value: 'groupMembership', label: 'Group Type' },
+    { value: '', label: 'None' },
+    { value: 'donation', label: 'Donation Type' },
+    { value: 'group', label: 'Group Type' },
     { value: 'expenses', label: 'Expenses Type' },
     { value: 'deposits', label: 'Deposits' },
+    { value: 'charges', label: 'Charges' },
   ];
 
-  // Full list used by renderReportContent
+  // Full list used by renderReportContent for defining filters
   const reportOptions = [
     { value: 'donationTypeSummary', label: 'Donation Type' },
-    { value: 'groupMembership', label: 'Group Type' },
+    { value: 'groupMembership', label: 'Group Type', hasGroupFilter: true },
     { value: 'expenses', label: 'Expenses Type' },
     { value: 'deposits', label: 'Deposits' },
-    { value: 'membership', label: 'Members' },
+    { value: 'membership', label: 'Members', hasMemberStatusFilter: true },
     { value: 'visitorDonations', label: 'Visitors', hasVisitorFilter: true },
     { value: 'supporterDonations', label: 'Supporters', hasSupporterFilter: true },
     { value: 'vendors', label: 'Vendors', hasVendorFilter: true },
     { value: 'memberDonations', label: 'Member Donations', hasMemberFilter: true },
-    { value: 'groups', label: 'Groups', hasMemberFilter: false },
-    { value: 'charges', label: 'Charges', hasMemberFilter: false },
+    { value: 'groups', label: 'Groups' },
+    { value: 'charges', label: 'Charges' },
+    { value: 'bankReport', label: 'Banks' },
   ];
 
   // MIDDLE dropdown: Members/Visitors/Vendors/Banks report types
   const middleOptions = [
-    { value: 'membership', label: 'Members' },
-    { value: 'supporterDonations', label: 'Supporters' },
-    { value: 'visitorDonations', label: 'Visitors' },
-    { value: 'vendors', label: 'Vendors' },
-    { value: 'bankReport', label: 'Banks' },
+    { value: '', label: 'None' },
+    { value: 'member', label: 'Members' },
+    { value: 'supporter', label: 'Supporters' },
+    { value: 'visitor', label: 'Visitors' },
+    { value: 'vendor', label: 'Vendors' },
+    { value: 'bank', label: 'Banks' },
   ];
 
-  // Resolve active report: prefer whichever dropdown has a selection
-  const effectiveReport = activeReport || activeReport2;
+  // Resolve active report based on combinations
+  let effectiveReport = '';
+  if (activeReport === 'donation') {
+    if (activeReport2 === 'member') effectiveReport = 'memberDonations';
+    else if (activeReport2 === 'visitor') effectiveReport = 'visitorDonations';
+    else if (activeReport2 === 'supporter') effectiveReport = 'supporterDonations';
+    else effectiveReport = 'donationTypeSummary';
+  } else if (activeReport === 'group') {
+    if (activeReport2 === 'member') effectiveReport = 'groupMembership';
+    else effectiveReport = 'groups';
+  } else if (activeReport === 'expenses') {
+    effectiveReport = 'expenses';
+  } else if (activeReport === 'deposits') {
+    effectiveReport = 'deposits';
+  } else if (activeReport === 'charges') {
+    effectiveReport = 'charges';
+  } else if (activeReport === '') {
+    if (activeReport2 === 'member') effectiveReport = 'membership';
+    else if (activeReport2 === 'supporter') effectiveReport = 'supporterDonations';
+    else if (activeReport2 === 'visitor') effectiveReport = 'visitorDonations';
+    else if (activeReport2 === 'vendor') effectiveReport = 'vendors';
+    else if (activeReport2 === 'bank') effectiveReport = 'bankReport';
+  }
 
   const currentReportType = reportOptions.find(option => option.value === effectiveReport) || {};
   const showMemberFilter = !!currentReportType.hasMemberFilter;
   const showVendorFilter = !!currentReportType.hasVendorFilter;
   const showVisitorFilter = !!currentReportType.hasVisitorFilter;
   const showSupporterFilter = !!currentReportType.hasSupporterFilter;
-  const showGroupFilter = false;
+  const showGroupFilter = !!currentReportType.hasGroupFilter;
 
   const handleReportChange = (e) => {
     setActiveReport(e.target.value);
-    if (e.target.value) setActiveReport2(''); // clear other report type
     setSelectedMember(null);
     setSelectedVendor(null);
     setSelectedVisitor(null);
@@ -96,7 +120,6 @@ const Reports = ({ initialReport }) => {
 
   const handleReport2Change = (e) => {
     setActiveReport2(e.target.value);
-    if (e.target.value) setActiveReport(''); // clear other report type
     setSelectedMember(null);
     setSelectedVendor(null);
     setSelectedVisitor(null);
@@ -115,18 +138,51 @@ const Reports = ({ initialReport }) => {
 
   // Sync when initialReport prop changes (navigation)
   useEffect(() => {
-    if (initialReport && initialReport !== activeReport) {
-      setActiveReport(initialReport);
+    if (initialReport) {
+      if (initialReport === 'memberDonations') {
+        setActiveReport('donation');
+        setActiveReport2('member');
+      } else if (initialReport === 'visitorDonations') {
+        setActiveReport('donation');
+        setActiveReport2('visitor');
+      } else if (initialReport === 'supporterDonations') {
+        setActiveReport('donation');
+        setActiveReport2('supporter');
+      } else if (initialReport === 'donationTypeSummary' || initialReport === 'donations') {
+        setActiveReport('donation');
+        setActiveReport2('');
+      } else if (initialReport === 'groups') {
+        setActiveReport('group');
+        setActiveReport2('');
+      } else if (initialReport === 'groupMembership') {
+        setActiveReport('group');
+        setActiveReport2('member');
+      } else if (['membership'].includes(initialReport)) {
+        setActiveReport('');
+        setActiveReport2('member');
+      } else if (['vendors'].includes(initialReport)) {
+        setActiveReport('');
+        setActiveReport2('vendor');
+      } else if (['bankReport'].includes(initialReport)) {
+        setActiveReport('');
+        setActiveReport2('bank');
+      } else if (initialReport === 'expenses') {
+        setActiveReport('expenses');
+        setActiveReport2('');
+      } else if (initialReport === 'deposits') {
+        setActiveReport('deposits');
+        setActiveReport2('');
+      } else if (initialReport === 'charges') {
+        setActiveReport('charges');
+        setActiveReport2('');
+      }
       setSelectedMember(null);
       setSelectedVisitor(null);
       setSelectedSupporter(null);
       setSelectedVendor(null);
       setSelectedGroup(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialReport]);
-
-  // Check if current report type supports filters (now handled above)
 
   const handleDateChange = (type, date) => {
     setDateRange(prev => ({
@@ -479,7 +535,7 @@ const Reports = ({ initialReport }) => {
             </div>
           )}
 
-          {activeReport === 'membership' && (
+          {effectiveReport === 'membership' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Member Status</label>
               <Select
