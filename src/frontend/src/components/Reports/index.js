@@ -7,6 +7,7 @@ import GroupMembershipReport from './GroupMembershipReport';
 import TotalDonationReport from './TotalDonationReport';
 import DonationTypeSummaryReport from './DonationTypeSummaryReport';
 import VisitorDonationReport from './VisitorDonationReport';
+import SupporterDonationReport from './SupporterDonationReport';
 import MaskedDateInput from '../common/MaskedDateInput';
 import { PageLoader } from '../common/Loader';
 import VendorsReport from './VendorsReport';
@@ -32,6 +33,9 @@ const Reports = ({ initialReport }) => {
   const [visitors, setVisitors] = useState([]);
   const [selectedVisitor, setSelectedVisitor] = useState(null);
   const [loadingVisitors, setLoadingVisitors] = useState(false);
+  const [supporters, setSupporters] = useState([]);
+  const [selectedSupporter, setSelectedSupporter] = useState(null);
+  const [loadingSupporters, setLoadingSupporters] = useState(false);
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [loadingGroups, setLoadingGroups] = useState(false);
@@ -53,7 +57,8 @@ const Reports = ({ initialReport }) => {
     { value: 'expenses', label: 'Expenses Type' },
     { value: 'deposits', label: 'Deposits' },
     { value: 'membership', label: 'Members' },
-    { value: 'visitorDonations', label: 'Visitors' },
+    { value: 'visitorDonations', label: 'Visitors', hasVisitorFilter: true },
+    { value: 'supporterDonations', label: 'Supporters', hasSupporterFilter: true },
     { value: 'vendors', label: 'Vendors', hasVendorFilter: true },
     { value: 'memberDonations', label: 'Member Donations', hasMemberFilter: true },
     { value: 'groups', label: 'Groups', hasMemberFilter: false },
@@ -63,6 +68,7 @@ const Reports = ({ initialReport }) => {
   // MIDDLE dropdown: Members/Visitors/Vendors/Banks report types
   const middleOptions = [
     { value: 'membership', label: 'Members' },
+    { value: 'supporterDonations', label: 'Supporters' },
     { value: 'visitorDonations', label: 'Visitors' },
     { value: 'vendors', label: 'Vendors' },
     { value: 'bankReport', label: 'Banks' },
@@ -75,6 +81,7 @@ const Reports = ({ initialReport }) => {
   const showMemberFilter = !!currentReportType.hasMemberFilter;
   const showVendorFilter = !!currentReportType.hasVendorFilter;
   const showVisitorFilter = !!currentReportType.hasVisitorFilter;
+  const showSupporterFilter = !!currentReportType.hasSupporterFilter;
   const showGroupFilter = false;
 
   const handleReportChange = (e) => {
@@ -83,6 +90,7 @@ const Reports = ({ initialReport }) => {
     setSelectedMember(null);
     setSelectedVendor(null);
     setSelectedVisitor(null);
+    setSelectedSupporter(null);
     setSelectedGroup(null);
   };
 
@@ -92,6 +100,7 @@ const Reports = ({ initialReport }) => {
     setSelectedMember(null);
     setSelectedVendor(null);
     setSelectedVisitor(null);
+    setSelectedSupporter(null);
     setSelectedGroup(null);
   };
 
@@ -100,6 +109,7 @@ const Reports = ({ initialReport }) => {
     setSelectedMember(null);
     setSelectedVendor(null);
     setSelectedVisitor(null);
+    setSelectedSupporter(null);
     setSelectedGroup(null);
   };
 
@@ -109,6 +119,7 @@ const Reports = ({ initialReport }) => {
       setActiveReport(initialReport);
       setSelectedMember(null);
       setSelectedVisitor(null);
+      setSelectedSupporter(null);
       setSelectedVendor(null);
       setSelectedGroup(null);
     }
@@ -214,6 +225,30 @@ const Reports = ({ initialReport }) => {
     }
   }, [showVisitorFilter]);
 
+  const fetchSupporters = async () => {
+    if (supporters.length > 0) return;
+    try {
+      setLoadingSupporters(true);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/supporters`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setSupporters(response.data.map(s => ({
+        value: s.id,
+        label: `${s.lastName}, ${s.firstName}`
+      })));
+    } catch (error) {
+      console.error('Error fetching supporters:', error);
+    } finally {
+      setLoadingSupporters(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showSupporterFilter) {
+      fetchSupporters();
+    }
+  }, [showSupporterFilter]);
+
   const fetchGroups = async () => {
     if (groups.length > 0) return;
     try {
@@ -248,6 +283,7 @@ const Reports = ({ initialReport }) => {
       if (selectedMember) params.append('memberId', selectedMember.value);
       if (selectedVendor) params.append('vendorId', selectedVendor.value);
       if (selectedVisitor) params.append('visitorId', selectedVisitor.value);
+      if (selectedSupporter) params.append('supporterId', selectedSupporter.value);
       if (selectedGroup) params.append('groupId', selectedGroup.value);
       if (effectiveReport === 'membership') {
         params.append('memberStatus', memberStatus);
@@ -272,6 +308,7 @@ const Reports = ({ initialReport }) => {
       if (selectedMember) requestData.memberId = selectedMember.value;
       if (selectedVendor) requestData.vendorId = selectedVendor.value;
       if (selectedVisitor) requestData.visitorId = selectedVisitor.value;
+      if (selectedSupporter) requestData.supporterId = selectedSupporter.value;
       if (selectedGroup) requestData.groupId = selectedGroup.value;
       if (effectiveReport === 'membership') requestData.memberStatus = memberStatus;
       const response = await axios.post(
@@ -303,6 +340,8 @@ const Reports = ({ initialReport }) => {
         return <DonationReport reportData={reportData} />;
       case 'visitorDonations':
         return <VisitorDonationReport reportData={reportData} />;
+      case 'supporterDonations':
+        return <SupporterDonationReport reportData={reportData} />;
       case 'donations':
         return <DonationReport reportData={reportData} />;
       case 'membership':
@@ -503,6 +542,29 @@ const Reports = ({ initialReport }) => {
                 isClearable
                 isSearchable
                 isLoading={loadingVisitors}
+                className="w-64"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    height: '40px',
+                    minHeight: '40px'
+                  })
+                }}
+              />
+            </div>
+          )}
+
+          {showSupporterFilter && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Supporter (Optional)</label>
+              <Select
+                options={supporters}
+                value={selectedSupporter}
+                onChange={setSelectedSupporter}
+                placeholder=""
+                isClearable
+                isSearchable
+                isLoading={loadingSupporters}
                 className="w-64"
                 styles={{
                   control: (base) => ({

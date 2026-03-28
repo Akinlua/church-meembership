@@ -126,6 +126,7 @@ function AppContent() {
         <Route path="/reports" element={<PrivateRoute><Layout><Reports /></Layout></PrivateRoute>} />
         <Route path="/reports/member-donations" element={<PrivateRoute><Layout><Reports initialReport="memberDonations" /></Layout></PrivateRoute>} />
         <Route path="/reports/visitor-donations" element={<PrivateRoute><Layout><Reports initialReport="visitorDonations" /></Layout></PrivateRoute>} />
+        <Route path="/reports/supporter-donations" element={<PrivateRoute><Layout><Reports initialReport="supporterDonations" /></Layout></PrivateRoute>} />
         <Route path="/reports/donations" element={<PrivateRoute><Layout><Reports initialReport="donations" /></Layout></PrivateRoute>} />
         <Route path="/reports/membership" element={<PrivateRoute><Layout><Reports initialReport="membership" /></Layout></PrivateRoute>} />
         <Route path="/reports/groups" element={<PrivateRoute><Layout><Reports initialReport="groups" /></Layout></PrivateRoute>} />

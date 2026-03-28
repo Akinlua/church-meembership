@@ -284,6 +284,7 @@ const Navigation = () => {
                         <ul className="mt-0.5 mb-1">
                           <li><Link to="/reports/member-donations" className={deepLinkClass('/reports/member-donations')} onClick={closeMobileMenu}>Member Donations</Link></li>
                           <li><Link to="/reports/visitor-donations" className={deepLinkClass('/reports/visitor-donations')} onClick={closeMobileMenu}>Visitor Donations</Link></li>
+                          <li><Link to="/reports/supporter-donations" className={deepLinkClass('/reports/supporter-donations')} onClick={closeMobileMenu}>Supporter Donations</Link></li>
                         </ul>
                       )}
                     </li>
