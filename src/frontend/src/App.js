@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute, AdminRoute, PasswordChangeRoute } from './components/ProtectedRoute';
 import Login from './components/Login';
@@ -62,6 +62,10 @@ const ElectronTopBar = () => {
 
 // Layout component with left sidebar navigation
 const Layout = ({ children }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const showHomeCancelButton = location.pathname !== '/';
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Show logout top bar on Electron desktop app */}
@@ -69,7 +73,19 @@ const Layout = ({ children }) => {
       <div className="flex flex-1">
         {/* Show left nav on web; on desktop the native OS menu replaces it */}
         {!isElectron && <Navigation />}
-        <main className="flex-1 p-6 overflow-auto">{children}</main>
+        <main className="flex-1 p-6 overflow-auto relative">
+          {showHomeCancelButton && (
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              aria-label="Close and go home"
+              className="absolute top-6 right-6 z-20 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 focus:outline-none"
+            >
+              x
+            </button>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );
