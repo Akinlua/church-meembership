@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const PDFDocument = require('pdfkit');
 const { sendEmail, sendSMS } = require('../services/notificationService');
 
 const getEvents = async (req, res) => {
@@ -103,9 +104,101 @@ const deleteEvent = async (req, res) => {
   }
 };
 
+const generateEventsPDF = async (req, res) => {
+  try {
+    const events = await prisma.event.findMany({
+      include: {
+        group: true,
+      },
+      orderBy: {
+        date: 'asc'
+      }
+    });
+
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=church-events-calendar.pdf');
+
+    doc.pipe(res);
+
+    doc.moveDown(0.5)
+      .fontSize(18)
+      .font('Helvetica')
+      .text('Church Events Calendar', { align: 'center' });
+
+    doc.moveDown(2);
+
+    const tableTop = 130;
+    const columns = {
+      date: { x: 50, width: 80 },
+      time: { x: 140, width: 70 },
+      title: { x: 220, width: 170 },
+      type: { x: 400, width: 70 },
+      group: { x: 480, width: 70 }
+    };
+
+    doc.font('Helvetica-Bold').fontSize(10);
+    doc.rect(50, tableTop - 5, 495, 20).fill('#f3f4f6');
+
+    doc.fillColor('#000000')
+      .text('Date', columns.date.x, tableTop)
+      .text('Time', columns.time.x, tableTop)
+      .text('Event Title', columns.title.x, tableTop)
+      .text('Type', columns.type.x, tableTop)
+      .text('Group', columns.group.x, tableTop);
+
+    let yPosition = tableTop + 25;
+    doc.font('Helvetica').fontSize(9);
+
+    events.forEach((event, i) => {
+      if (yPosition > 750) {
+        doc.addPage();
+        yPosition = 50;
+
+        doc.rect(50, yPosition - 5, 495, 20).fill('#f3f4f6');
+        doc.fillColor('#000000')
+          .font('Helvetica-Bold').fontSize(10)
+          .text('Date', columns.date.x, yPosition)
+          .text('Time', columns.time.x, yPosition)
+          .text('Event Title', columns.title.x, yPosition)
+          .text('Type', columns.type.x, yPosition)
+          .text('Group', columns.group.x, yPosition);
+
+        yPosition += 25;
+        doc.font('Helvetica').fontSize(9);
+      }
+
+      if (i % 2 === 0) {
+        doc.rect(50, yPosition - 5, 495, 16).fill('#f9fafb');
+      }
+
+      const eventDate = new Date(event.date);
+      const formattedDate = eventDate.toLocaleDateString();
+      const formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      doc.fillColor('#1f2937')
+        .text(formattedDate, columns.date.x, yPosition)
+        .text(formattedTime, columns.time.x, yPosition)
+        .text(event.title, columns.title.x, yPosition, { width: columns.title.width })
+        .text(event.eventType || 'N/A', columns.type.x, yPosition)
+        .text(event.group ? event.group.name : 'Church-wide', columns.group.x, yPosition);
+
+      const rowHeight = doc.heightOfString(event.title, { width: columns.title.width });
+      yPosition += Math.max(16, rowHeight + 10);
+    });
+
+    doc.end();
+  } catch (error) {
+    console.error('Error generating events PDF:', error);
+    res.status(500).json({ error: 'Failed to generate events PDF' });
+  }
+};
+
 module.exports = {
   getEvents,
   createEvent,
   updateEvent,
   deleteEvent,
+  generateEventsPDF,
 };

@@ -6,7 +6,6 @@ import startOfWeek from 'date-fns/startOfWeek';
 import getDay from 'date-fns/getDay';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
-import { useReactToPrint } from 'react-to-print';
 import { PageLoader } from '../common/Loader';
 import EventForm from './EventForm';
 
@@ -29,10 +28,27 @@ const EventsCalendar = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const componentRef = useRef();
 
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: 'Church_Events_Calendar',
-  });
+  const handlePrint = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/events/pdf`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      iframe.onload = () => {
+        iframe.contentWindow.print();
+      };
+    } catch (error) {
+      console.error('Error generating events PDF:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -122,18 +138,8 @@ const EventsCalendar = () => {
       {loading ? (
         <PageLoader />
       ) : (
-        <div className="bg-white p-4 rounded shadow print-container">
-          <div ref={componentRef} className="h-[800px] p-4 bg-white">
-            <style>
-              {`
-                @media print {
-                  .rbc-toolbar { margin-bottom: 20px; font-weight: bold; }
-                  .rbc-calendar { height: 1000px !important; }
-                  .rbc-event { padding: 4px; font-size: 12px; }
-                  .print-container { box-shadow: none !important; }
-                }
-              `}
-            </style>
+        <div className="bg-white p-4 rounded shadow">
+          <div className="h-[800px] bg-white">
             <Calendar
               localizer={localizer}
               events={events}
@@ -143,6 +149,8 @@ const EventsCalendar = () => {
               onSelectEvent={handleSelectEvent}
               onSelectSlot={handleSelectSlot}
               selectable
+              views={['month', 'week', 'agenda']}
+              defaultView="month"
             />
           </div>
         </div>
