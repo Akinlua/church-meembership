@@ -35,6 +35,7 @@ import VisitorDonationEntry from './components/Visitors/VisitorDonationEntry';
 import MemberDonationEntry from './components/Members/MemberDonationEntry';
 import SupporterDropdown from './components/Supporters/SupporterDropdown';
 import SupporterDonationEntry from './components/Supporters/SupporterDonationEntry';
+import EventsCalendar from './components/Events/EventsCalendar';
 
 // Detect if running inside Electron desktop app — Electron always sets its own user agent
 const isElectron = navigator.userAgent.toLowerCase().includes('electron');
@@ -137,6 +138,7 @@ function AppContent() {
         <Route path="/groups" element={<PrivateRoute><Layout><Groups /></Layout></PrivateRoute>} />
         <Route path="/group-lookup" element={<PrivateRoute><Layout><GroupDropdown /></Layout></PrivateRoute>} />
         <Route path="/group-membership-form" element={<PrivateRoute><Layout><GroupMembershipForm /></Layout></PrivateRoute>} />
+        <Route path="/events" element={<PrivateRoute><Layout><EventsCalendar /></Layout></PrivateRoute>} />
         <Route path="/donations" element={<PrivateRoute><Layout><Donations /></Layout></PrivateRoute>} />
         <Route path="/donation-lookup" element={<PrivateRoute><Layout><DonationDropdown /></Layout></PrivateRoute>} />
         <Route path="/reports" element={<PrivateRoute><Layout><Reports /></Layout></PrivateRoute>} />

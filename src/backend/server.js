@@ -161,7 +161,7 @@ app.post('/public/visitors', async (req, res) => {
     res.status(500).json({ message: 'Error creating visitor', error: error.message });
   }
 });
-app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/supporters', '/vendors', '/expense-categories', '/charges', '/admin', '/program-owner'], authenticateToken);
+app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/supporters', '/vendors', '/expense-categories', '/charges', '/admin', '/program-owner', '/events'], authenticateToken);
 
 // Make authenticateToken available to routes
 app.set('authenticateToken', authenticateToken);
@@ -187,8 +187,10 @@ require('./routes/programOwner')(app);
 
 const bankRoutes = require('./routes/banks');
 const depositRoutes = require('./routes/deposits');
+const eventRoutes = require('./routes/events');
 app.use('/banks', bankRoutes);
 app.use('/deposits', depositRoutes);
+app.use('/events', eventRoutes);
 
 async function start() {
   await prisma.$connect();

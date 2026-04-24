@@ -40,6 +40,7 @@ model User {
   reportsAccess  Boolean @default(false) @map("reports_access")
   depositAccess  Boolean @default(false) @map("deposit_access")
   bankAccess     Boolean @default(false) @map("bank_access")
+  eventAccess    Boolean @default(false) @map("event_access")
 
   // Data restriction fields
   memberOnlyOwnData  Boolean @default(false) @map("member_only_own_data")
@@ -59,6 +60,7 @@ model User {
   cannotDeleteReports  Boolean @default(true) @map("cannot_delete_reports")
   cannotDeleteDeposit  Boolean @default(true) @map("cannot_delete_deposit")
   cannotDeleteBank     Boolean @default(true) @map("cannot_delete_bank")
+  cannotDeleteEvent    Boolean @default(true) @map("cannot_delete_event")
 
   // Add permissions
   canAddMember   Boolean @default(false) @map("can_add_member")
@@ -73,6 +75,7 @@ model User {
   canAddReports  Boolean @default(false) @map("can_add_reports")
   canAddDeposit  Boolean @default(false) @map("can_add_deposit")
   canAddBank     Boolean @default(false) @map("can_add_bank")
+  canAddEvent    Boolean @default(false) @map("can_add_event")
 
   @@map("users")
 }
@@ -99,6 +102,7 @@ model UserLevel {
   reportsAccess  Boolean  @default(false) @map("reports_access")
   depositAccess  Boolean  @default(false) @map("deposit_access")
   bankAccess     Boolean  @default(false) @map("bank_access")
+  eventAccess    Boolean  @default(false) @map("event_access")
 
   // New cannot delete permissions
   cannotDeleteMember   Boolean @default(true) @map("cannot_delete_member")
@@ -113,6 +117,7 @@ model UserLevel {
   cannotDeleteReports  Boolean @default(true) @map("cannot_delete_reports")
   cannotDeleteDeposit  Boolean @default(true) @map("cannot_delete_deposit")
   cannotDeleteBank     Boolean @default(true) @map("cannot_delete_bank")
+  cannotDeleteEvent    Boolean @default(true) @map("cannot_delete_event")
 
   // Add permissions - new fields
   canAddMember   Boolean @default(false)
@@ -127,6 +132,7 @@ model UserLevel {
   canAddReports  Boolean @default(false)
   canAddDeposit  Boolean @default(false)
   canAddBank     Boolean @default(false)
+  canAddEvent    Boolean @default(false)
 
   @@map("user_levels")
 }
@@ -164,6 +170,7 @@ model Group {
   description String?
   createdAt   DateTime      @default(now()) @map("created_at")
   members     GroupMember[]
+  events      Event[]
 
   @@map("groups")
 }
@@ -344,4 +351,19 @@ model ProgramOwner {
   updatedAt  DateTime @updatedAt @map("updated_at")
 
   @@map("program_owner")
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  date        DateTime // Start date/time of the event
+  duration    Int?     // Duration in minutes
+  eventType   String   @map("event_type")
+  groupId     Int?     @map("group_id")
+  group       Group?   @relation(fields: [groupId], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("events")
 }

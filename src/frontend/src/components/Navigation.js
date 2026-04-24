@@ -49,6 +49,7 @@ const Navigation = () => {
       case 'deposit': return currentUser.depositAccess;
       case 'bank': return currentUser.bankAccess;
       case 'checks': return currentUser.checksAccess;
+      case 'event': return currentUser.eventAccess;
       default: return false;
     }
   };
@@ -251,11 +252,13 @@ const Navigation = () => {
               </li>
             )}
 
-            <li>
-              <Link to="#" className={linkClass('#')} onClick={closeMobileMenu}>
-                Event
-              </Link>
-            </li>
+            {hasAccess('event') && (
+              <li>
+                <Link to="/events" className={linkClass('/events')} onClick={closeMobileMenu}>
+                  Event
+                </Link>
+              </li>
+            )}
 
             {/* ── Reports tree ── */}
             {hasAccess('reports') && (
