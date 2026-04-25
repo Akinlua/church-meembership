@@ -188,9 +188,11 @@ require('./routes/programOwner')(app);
 const bankRoutes = require('./routes/banks');
 const depositRoutes = require('./routes/deposits');
 const eventRoutes = require('./routes/events');
+const communicationRoutes = require('./routes/communication');
 app.use('/banks', bankRoutes);
 app.use('/deposits', depositRoutes);
 app.use('/events', eventRoutes);
+app.use('/communication', communicationRoutes);
 
 async function start() {
   await prisma.$connect();

@@ -184,15 +184,16 @@ function createMenu() {
       ]
     },
     {
-      label: 'Email',
+      label: 'Communication',
       submenu: [
-        { label: 'Send Email', enabled: false } // Placeholder based on old structure
+        { label: 'Send Email', click: () => navigate('/communication/email') },
+        { label: 'Send Text Message', click: () => navigate('/communication/sms') }
       ]
     },
     {
       label: 'Event',
       submenu: [
-        { label: 'Event', enabled: false }
+        { label: 'Events Calendar', click: () => navigate('/events') }
       ]
     },
     {

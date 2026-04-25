@@ -40,6 +40,7 @@ const Reports = ({ initialReport }) => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [selectedRightOption, setSelectedRightOption] = useState('');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   // ── Static option lists ──
   // LEFT dropdown: report category
@@ -393,31 +394,31 @@ const Reports = ({ initialReport }) => {
   const renderReportContent = () => {
     switch (effectiveReport) {
       case 'memberDonations':
-        return <DonationReport reportData={reportData} />;
+        return <DonationReport reportData={reportData} sortOrder={sortOrder} />;
       case 'visitorDonations':
-        return <VisitorDonationReport reportData={reportData} />;
+        return <VisitorDonationReport reportData={reportData} sortOrder={sortOrder} />;
       case 'supporterDonations':
-        return <SupporterDonationReport reportData={reportData} />;
+        return <SupporterDonationReport reportData={reportData} sortOrder={sortOrder} />;
       case 'donations':
-        return <DonationReport reportData={reportData} />;
+        return <DonationReport reportData={reportData} sortOrder={sortOrder} />;
       case 'membership':
-        return <MembershipReport reportData={reportData} />;
+        return <MembershipReport reportData={reportData} sortOrder={sortOrder} />;
       case 'groups':
-        return <GroupReport reportData={reportData} />;
+        return <GroupReport reportData={reportData} sortOrder={sortOrder} />;
       case 'groupMembership':
-        return <GroupMembershipReport reportData={reportData} />;
+        return <GroupMembershipReport reportData={reportData} sortOrder={sortOrder} />;
       case 'totalDonations':
-        return <TotalDonationReport reportData={reportData} />;
+        return <TotalDonationReport reportData={reportData} sortOrder={sortOrder} />;
       case 'donationTypeSummary':
-        return <DonationTypeSummaryReport reportData={reportData} />;
+        return <DonationTypeSummaryReport reportData={reportData} sortOrder={sortOrder} />;
       case 'vendors':
-        return <VendorsReport reportData={reportData} />;
+        return <VendorsReport reportData={reportData} sortOrder={sortOrder} />;
       case 'expenses':
-        return <ExpensesReport reportData={reportData} />;
+        return <ExpensesReport reportData={reportData} sortOrder={sortOrder} />;
       case 'charges':
-        return <ChargesReport reportData={reportData} />;
+        return <ChargesReport reportData={reportData} sortOrder={sortOrder} />;
       case 'deposits':
-        return <DepositReport reportData={reportData} />;
+        return <DepositReport reportData={reportData} sortOrder={sortOrder} />;
       default:
         return <div className="p-6 text-center text-gray-500">Select a report type</div>;
     }
@@ -469,6 +470,18 @@ const Reports = ({ initialReport }) => {
           >
             Print
           </button>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Sort Date</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="h-10 px-3 border border-gray-300 rounded-md text-sm"
+            >
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-end gap-2 mb-4">

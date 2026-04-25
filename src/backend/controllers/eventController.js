@@ -132,8 +132,9 @@ const generateEventsPDF = async (req, res) => {
     const tableTop = 130;
     const columns = {
       date: { x: 50, width: 80 },
-      time: { x: 140, width: 70 },
-      title: { x: 220, width: 170 },
+      time: { x: 130, width: 60 },
+      duration: { x: 195, width: 60 },
+      title: { x: 260, width: 135 },
       type: { x: 400, width: 70 },
       group: { x: 480, width: 70 }
     };
@@ -144,6 +145,7 @@ const generateEventsPDF = async (req, res) => {
     doc.fillColor('#000000')
       .text('Date', columns.date.x, tableTop)
       .text('Time', columns.time.x, tableTop)
+      .text('Duration', columns.duration.x, tableTop)
       .text('Event Title', columns.title.x, tableTop)
       .text('Type', columns.type.x, tableTop)
       .text('Group', columns.group.x, tableTop);
@@ -161,6 +163,7 @@ const generateEventsPDF = async (req, res) => {
           .font('Helvetica-Bold').fontSize(10)
           .text('Date', columns.date.x, yPosition)
           .text('Time', columns.time.x, yPosition)
+          .text('Duration', columns.duration.x, yPosition)
           .text('Event Title', columns.title.x, yPosition)
           .text('Type', columns.type.x, yPosition)
           .text('Group', columns.group.x, yPosition);
@@ -176,10 +179,12 @@ const generateEventsPDF = async (req, res) => {
       const eventDate = new Date(event.date);
       const formattedDate = eventDate.toLocaleDateString();
       const formattedTime = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const durationText = event.duration ? `${event.duration} min` : 'N/A';
       
       doc.fillColor('#1f2937')
         .text(formattedDate, columns.date.x, yPosition)
         .text(formattedTime, columns.time.x, yPosition)
+        .text(durationText, columns.duration.x, yPosition)
         .text(event.title, columns.title.x, yPosition, { width: columns.title.width })
         .text(event.eventType || 'N/A', columns.type.x, yPosition)
         .text(event.group ? event.group.name : 'Church-wide', columns.group.x, yPosition);

@@ -252,6 +252,31 @@ const Navigation = () => {
               </li>
             )}
 
+            {/* ── Communication ── */}
+            <li>
+              <button
+                onClick={() => toggleMenu('communication')}
+                className="w-full flex items-center justify-between px-4 py-2 hover:bg-gray-700 rounded transition-colors text-left"
+              >
+                <span>Communication</span>
+                <ChevronIcon open={openMenus.communication} />
+              </button>
+              {openMenus.communication && (
+                <ul className="mt-1 mb-1">
+                  <li>
+                    <Link to="/communication/email" className={subLinkClass('/communication/email')} onClick={closeMobileMenu}>
+                      ✉ Email
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/communication/sms" className={subLinkClass('/communication/sms')} onClick={closeMobileMenu}>
+                      💬 Text Message
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </li>
+
             {hasAccess('event') && (
               <li>
                 <Link to="/events" className={linkClass('/events')} onClick={closeMobileMenu}>
