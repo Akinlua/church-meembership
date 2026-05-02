@@ -38,7 +38,7 @@ const ResizableTh = ({ width, onResize, children, className = '', style = {} }) 
     <th
       ref={thRef}
       scope="col"
-      className={`relative px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider select-none ${className}`}
+      className={`relative px-3 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider select-none ${className}`}
       style={{ width, minWidth: 40, ...style }}
     >
       <div className="flex items-center gap-1 overflow-hidden">

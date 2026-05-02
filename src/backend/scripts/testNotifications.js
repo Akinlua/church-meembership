@@ -4,8 +4,8 @@ const { sendEmail, sendSMS } = require('../services/notificationService');
 async function runTests() {
   console.log("=== Testing Notification Service ===\n");
 
-  const testEmail = "test@example.com";
-  const testPhone = "+1234567890";
+  const testEmail = "akinluaolorunfunminiyi@gmail.com";
+  const testPhone = "+12316704794";
   const message = "This is a test notification from the Church Membership app.";
 
   console.log("1. Testing Email...");

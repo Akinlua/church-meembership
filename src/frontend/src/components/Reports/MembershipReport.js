@@ -11,12 +11,10 @@ const MembershipReport = ({ reportData, sortOrder = 'desc' }) => {
 
   const { members } = reportData;
 
-  const multiplier = sortOrder === 'asc' ? 1 : -1;
-
-  const rows = [...(members || [])].sort((a, b) => {
+  const sortedMembers = [...(members || [])].sort((a, b) => {
     const ad = a.membershipDate ? new Date(a.membershipDate).getTime() : 0;
     const bd = b.membershipDate ? new Date(b.membershipDate).getTime() : 0;
-    if (bd !== ad) return (bd - ad) * multiplier;
+    if (bd !== ad) return sortOrder === 'asc' ? ad - bd : bd - ad;
     const an = `${a.lastName || ''} ${a.firstName || ''}`.trim().toLowerCase();
     const bn = `${b.lastName || ''} ${b.firstName || ''}`.trim().toLowerCase();
     return an.localeCompare(bn);
@@ -25,8 +23,8 @@ const MembershipReport = ({ reportData, sortOrder = 'desc' }) => {
   return (
     <div className="p-6">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200" style={{ tableLayout: 'fixed' }}>
-          <thead className="bg-gray-50">
+        <table className="min-w-full" style={{ tableLayout: 'fixed' }}>
+          <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <ResizableTh width={colWidths.name} onResize={setCol('name')}>Name</ResizableTh>
               <ResizableTh width={colWidths.phone} onResize={setCol('phone')}>Phone</ResizableTh>
@@ -36,26 +34,38 @@ const MembershipReport = ({ reportData, sortOrder = 'desc' }) => {
               <ResizableTh width={colWidths.groups} onResize={setCol('groups')}>Groups</ResizableTh>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {rows.map(member => (
+          <tbody className="bg-white">
+            {sortedMembers.map(member => (
               <tr key={member.id} className="hover:bg-gray-50">
-                <td className="px-3 py-4 text-sm text-gray-500 truncate" style={{ width: colWidths.name }}>
-                  {member.lastName && member.firstName ? `${member.lastName}, ${member.firstName}` : 'N/A'}
+                <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap" style={{ width: colWidths.name }}>
+                  <div className="truncate">
+                    {member.lastName && member.firstName ? `${member.lastName.trim()}, ${member.firstName.trim()}` : 'N/A'}
+                  </div>
                 </td>
-                <td className="px-3 py-4 text-sm text-gray-500 truncate" style={{ width: colWidths.phone }}>
-                  {member.cellPhone || 'N/A'}
+                <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap" style={{ width: colWidths.phone }}>
+                  <div className="truncate">
+                    {(member.cellPhone || '').trim() || 'N/A'}
+                  </div>
                 </td>
-                <td className="px-3 py-4 text-sm text-gray-500 truncate" style={{ width: colWidths.address }}>
-                  {[member.address, member.city, member.state, member.zipCode].filter(Boolean).join(', ') || 'N/A'}
+                <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap" style={{ width: colWidths.address }}>
+                  <div className="truncate">
+                    {[member.address, member.city, member.state, member.zipCode].filter(Boolean).map(s => s.trim()).join(', ') || 'N/A'}
+                  </div>
                 </td>
-                <td className="px-3 py-4 text-sm text-gray-500 truncate" style={{ width: colWidths.date }}>
-                  {member.membershipDate ? new Date(member.membershipDate).toLocaleDateString() : 'N/A'}
+                <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap" style={{ width: colWidths.date }}>
+                  <div className="truncate">
+                    {member.membershipDate ? new Date(member.membershipDate).toLocaleDateString() : 'N/A'}
+                  </div>
                 </td>
-                <td className="px-3 py-4 text-sm text-gray-500 truncate" style={{ width: colWidths.email }}>
-                  {member.email || 'N/A'}
+                <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap" style={{ width: colWidths.email }}>
+                  <div className="truncate">
+                    {(member.email || '').trim() || 'N/A'}
+                  </div>
                 </td>
-                <td className="px-3 py-4 text-sm text-gray-500" style={{ width: colWidths.groups }}>
-                  {member.groups && member.groups.length > 0 ? member.groups.join(', ') : 'None'}
+                <td className="px-3 py-1 text-sm text-gray-500 whitespace-nowrap" style={{ width: colWidths.groups }}>
+                  <div className="truncate">
+                    {member.groups && member.groups.length > 0 ? member.groups.map(g => g.trim()).join(', ') : 'None'}
+                  </div>
                 </td>
               </tr>
             ))}

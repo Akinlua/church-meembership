@@ -30,29 +30,29 @@ const GroupMembershipReport = ({ reportData }) => {
             <div className="bg-white">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
-                        <thead>
+                        <thead className="bg-gray-50 border-b border-gray-200">
                             <tr className="text-gray-600 text-sm">
-                                <th className="py-4 px-4 font-normal text-left w-[15%]">Group Name</th>
-                                <th className="py-4 px-4 font-normal text-left w-[20%]">Name</th>
-                                <th className="py-4 px-4 font-normal text-left w-[35%]">Address</th>
-                                <th className="py-4 px-4 font-normal text-center w-[15%] min-w-[120px]">Phone Number</th>
-                                <th className="py-4 px-4 font-normal text-center w-[15%]">Email</th>
+                                <th className="py-1 px-4 font-normal text-left w-[15%]">Group Name</th>
+                                <th className="py-1 px-4 font-normal text-left w-[20%]">Name</th>
+                                <th className="py-1 px-4 font-normal text-left w-[35%]">Address</th>
+                                <th className="py-1 px-4 font-normal text-center w-[15%] min-w-[120px]">Phone Number</th>
+                                <th className="py-1 px-4 font-normal text-center w-[15%]">Email</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm">
                             {flatMemberships.map((item, idx) => {
                                 const { groupName, member } = item;
                                 return (
-                                    <tr key={`${groupName}-${member.id || idx}`} className="text-gray-800 border-b border-gray-100 last:border-0 hover:bg-gray-50">
-                                        <td className="py-2 px-4 text-left font-medium">{groupName}</td>
-                                        <td className="py-2 px-4 text-left">
+                                    <tr key={`${groupName}-${member.id || idx}`} className="text-gray-800 hover:bg-gray-50">
+                                        <td className="py-1 px-4 text-left font-medium">{groupName}</td>
+                                        <td className="py-1 px-4 text-left">
                                             {member.firstName} {member.middleName ? `${member.middleName[0]}.` : ''} {member.lastName}
                                         </td>
-                                        <td className="py-2 px-4 text-left">
+                                        <td className="py-1 px-4 text-left">
                                             {member.address ? `${member.address}, ${member.city}, ${member.state} ${member.zipCode}` : ''}
                                         </td>
-                                        <td className="py-2 px-4 text-center">{member.cellPhone || ''}</td>
-                                        <td className="py-2 px-4 text-center text-blue-500 hover:underline">
+                                        <td className="py-1 px-4 text-center">{member.cellPhone || ''}</td>
+                                        <td className="py-1 px-4 text-center text-blue-500 hover:underline">
                                             <a href={`mailto:${member.email}`}>{member.email || ''}</a>
                                         </td>
                                     </tr>

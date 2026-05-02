@@ -44,7 +44,7 @@ const CheckGenerator = () => {
   const defaultLayout = [
     { id: 'c-name', type: 'data', field: 'companyName', x: 20, y: 20, width: 250, style: { fontWeight: 'bold', fontSize: '18px' } },
     { id: 'c-addr', type: 'data', field: 'companyAddress', x: 20, y: 50, width: 250, style: { fontSize: '14px' } },
-    { id: 'b-name', type: 'data', field: 'bankName', x: 300, y: 20, width: 200, style: { fontWeight: 'bold', fontSize: '18px', textAlign: 'center' } },
+    { id: 'b-name', type: 'data', field: 'bankName', x: 300, y: 20, width: 200, style: { fontWeight: 'normal', fontSize: '11px', textAlign: 'center', color: '#444' } },
     { id: 'num', type: 'data', field: 'checkNumber', x: 650, y: 20, width: 100, style: { fontWeight: 'bold', fontSize: '20px', textAlign: 'right' } },
     { id: 'date', type: 'data', field: 'date', x: 650, y: 50, width: 100, style: { fontSize: '14px', textAlign: 'right' } },
 
@@ -56,7 +56,7 @@ const CheckGenerator = () => {
     { id: 'amt-words', type: 'data', field: 'amountInWords', x: 20, y: 160, width: 740, style: { borderBottom: '1px solid #ccc', paddingBottom: '5px' } },
 
     // Bottom section
-    { id: 'b-addr', type: 'data', field: 'bankAddress', x: 20, y: 220, width: 250, style: { fontSize: '12px' } },
+    { id: 'b-addr', type: 'data', field: 'bankAddress', x: 20, y: 220, width: 250, style: { fontSize: '10px', color: '#555' } },
     { id: 'memo-lbl', type: 'static', text: 'MEMO', x: 300, y: 220, width: 50, style: { fontSize: '10px', color: '#666' } },
     { id: 'memo', type: 'data', field: 'memo', x: 350, y: 215, width: 200, style: { borderBottom: '1px solid #ccc' } },
     { id: 'sig-lbl', type: 'static', text: 'AUTHORIZED SIGNATURE', x: 550, y: 270, width: 200, style: { borderTop: '1px solid #ccc', fontSize: '12px', textAlign: 'right', paddingTop: '5px' } },

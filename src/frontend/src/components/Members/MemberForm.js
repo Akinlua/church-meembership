@@ -384,7 +384,6 @@ const MemberForm = ({ member, onClose, onSubmit, isPublicForm = false }) => {
                       value={formData.gender}
                       onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                     >
-                      <option value="">M/F/NA</option>
                       <option value="Male">M</option>
                       <option value="Female">F</option>
                       <option value="NA">NA</option>
