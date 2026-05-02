@@ -17,7 +17,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Make Prisma available to routes
+// Make Prisma available to route.  s
 app.set('prisma', prisma);
 
 // Authentication middleware
