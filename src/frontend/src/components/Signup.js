@@ -103,6 +103,10 @@ const Signup = () => {
             />
           </div>
 
+          <div className="text-sm text-gray-600">
+            By signing up, you agree to receive SMS updates for the phone number added in the forms.
+          </div>
+
           <button
             type="submit"
             className="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md shadow-sm transition duration-150"
