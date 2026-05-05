@@ -1,6 +1,6 @@
 {
   "name": "church-management-frontend",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "homepage": ".",
   "private": true,
   "main": "main.js",
@@ -71,7 +71,10 @@
     "productName": "ChurchMembership",
     "files": [
       "build/**/*",
-      "main.js"
+      "main.js",
+      "preload.js",
+      "package.json",
+      "node_modules/**/*"
     ],
     "directories": {
       "output": "dist"
