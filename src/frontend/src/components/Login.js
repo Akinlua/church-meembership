@@ -19,7 +19,7 @@ const Login = () => {
         if (result.passwordChangeRequired) {
           navigate('/change-password');
         } else {
-          navigate('/');
+          navigate('/dashboard');
         }
       } else {
         setError('Invalid credentials');

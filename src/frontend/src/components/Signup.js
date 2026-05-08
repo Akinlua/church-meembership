@@ -24,7 +24,7 @@ const Signup = () => {
     try { 
         const success = await signup(formData.name, formData.username, formData.password, formData.confirmPassword);
       if (success) {
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error) {
       console.error('Signup error:', error);

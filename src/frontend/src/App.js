@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute, AdminRoute, PasswordChangeRoute } from './components/ProtectedRoute';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import LandingPage from './components/LandingPage';
 import Members from './components/Members';
 import Groups from './components/Groups';
 import Donations from './components/Donations';
@@ -67,7 +68,7 @@ const ElectronTopBar = () => {
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const showHomeCancelButton = location.pathname !== '/';
+  const showHomeCancelButton = location.pathname !== '/dashboard' && location.pathname !== '/';
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -80,7 +81,7 @@ const Layout = ({ children }) => {
           {showHomeCancelButton && (
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
               aria-label="Close and go home"
               className="absolute top-6 right-6 z-20 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 focus:outline-none"
             >
@@ -119,6 +120,7 @@ function AppContent() {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Layout><Signup /></Layout>} />
 
@@ -133,7 +135,7 @@ function AppContent() {
 
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
+        <Route path="/dashboard" element={<PrivateRoute><Layout><Dashboard /></Layout></PrivateRoute>} />
         <Route path="/members" element={<PrivateRoute><Layout><Members /></Layout></PrivateRoute>} />
         <Route path="/member-lookup" element={<PrivateRoute><Layout><MemberDropdown /></Layout></PrivateRoute>} />
         <Route path="/member-donation-entry" element={<PrivateRoute><Layout><MemberDonationEntry /></Layout></PrivateRoute>} />

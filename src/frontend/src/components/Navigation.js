@@ -96,7 +96,7 @@ const Navigation = () => {
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
         <div className="p-4 border-b border-gray-700">
-          <Link to="/" className="text-xl font-bold block hover:text-gray-300" onClick={closeMobileMenu}>
+          <Link to="/dashboard" className="text-xl font-bold block hover:text-gray-300" onClick={closeMobileMenu}>
             Church Management
           </Link>
         </div>
