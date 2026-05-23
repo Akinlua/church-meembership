@@ -7,7 +7,8 @@ const Signup = () => {
     name: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    smsConsent: false
   });
   const [error, setError] = useState('');
   const { signup } = useAuth();
@@ -103,8 +104,25 @@ const Signup = () => {
             />
           </div>
 
-          <div className="text-sm text-gray-600">
-            By signing up, you agree to receive SMS updates for the phone number added in the forms.
+          <div className="flex items-start">
+            <div className="flex items-center h-5">
+              <input
+                id="smsConsent"
+                type="checkbox"
+                required
+                className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                checked={formData.smsConsent}
+                onChange={(e) => setFormData({ ...formData, smsConsent: e.target.checked })}
+              />
+            </div>
+            <div className="ml-3 text-sm">
+              <label htmlFor="smsConsent" className="font-medium text-gray-700">
+                Opt-in to SMS text messages
+              </label>
+              <p className="text-gray-500">
+                By checking this box, I consent to receive SMS text messages from Church Membership regarding community updates, announcements, and event notifications. Message and data rates may apply. Reply STOP to opt-out.
+              </p>
+            </div>
           </div>
 
           <button
