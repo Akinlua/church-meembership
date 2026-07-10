@@ -199,9 +199,14 @@ app.use('/deposits', depositRoutes);
 app.use('/events', eventRoutes);
 app.use('/communication', communicationRoutes);
 
+const { initCronJobs } = require('./services/communicationService');
+
 async function start() {
   await prisma.$connect();
   console.log('Connected to database');
+
+  // Initialize background cron jobs
+  initCronJobs();
 
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {

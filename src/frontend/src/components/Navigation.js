@@ -262,15 +262,20 @@ const Navigation = () => {
                 <ChevronIcon open={openMenus.communication} />
               </button>
               {openMenus.communication && (
-                <ul className="mt-1 mb-1">
+                <ul className="pl-6 space-y-1">
                   <li>
                     <Link to="/communication/email" className={subLinkClass('/communication/email')} onClick={closeMobileMenu}>
-                      ✉ Email
+                      Email Compose
                     </Link>
                   </li>
                   <li>
                     <Link to="/communication/sms" className={subLinkClass('/communication/sms')} onClick={closeMobileMenu}>
-                      💬 Text Message
+                      Single SMS
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/communication/mass" className={subLinkClass('/communication/mass')} onClick={closeMobileMenu}>
+                      Mass Communication
                     </Link>
                   </li>
                 </ul>

@@ -39,6 +39,7 @@ import SupporterDonationEntry from './components/Supporters/SupporterDonationEnt
 import EventsCalendar from './components/Events/EventsCalendar';
 import EmailCompose from './components/Communication/EmailCompose';
 import SmsCompose from './components/Communication/SmsCompose';
+import MassCommunication from './components/Communication/MassCommunication';
 
 // Detect if running inside Electron desktop app — Electron always sets its own user agent
 const isElectron = navigator.userAgent.toLowerCase().includes('electron');
@@ -145,6 +146,7 @@ function AppContent() {
         <Route path="/events" element={<PrivateRoute><Layout><EventsCalendar /></Layout></PrivateRoute>} />
         <Route path="/communication/email" element={<PrivateRoute><Layout><EmailCompose /></Layout></PrivateRoute>} />
         <Route path="/communication/sms" element={<PrivateRoute><Layout><SmsCompose /></Layout></PrivateRoute>} />
+        <Route path="/communication/mass" element={<PrivateRoute><Layout><MassCommunication /></Layout></PrivateRoute>} />
         <Route path="/donations" element={<PrivateRoute><Layout><Donations /></Layout></PrivateRoute>} />
         <Route path="/donation-lookup" element={<PrivateRoute><Layout><DonationDropdown /></Layout></PrivateRoute>} />
         <Route path="/reports" element={<PrivateRoute><Layout><Reports /></Layout></PrivateRoute>} />

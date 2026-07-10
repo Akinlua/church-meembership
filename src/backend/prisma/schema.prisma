@@ -23,59 +23,60 @@ model User {
   visitor                Visitor? @relation(fields: [visitorId], references: [id])
 
   // Supporter relation
-  supporterId            Int?     @map("supporter_id")
-  supporter              Supporter? @relation(fields: [supporterId], references: [id])
+  supporterId Int?       @map("supporter_id")
+  supporter   Supporter? @relation(fields: [supporterId], references: [id])
 
   // Direct permission access fields
-  memberAccess   Boolean @default(false) @map("member_access")
-  visitorAccess  Boolean @default(false) @map("visitor_access")
+  memberAccess    Boolean @default(false) @map("member_access")
+  visitorAccess   Boolean @default(false) @map("visitor_access")
   supporterAccess Boolean @default(false) @map("supporter_access")
-  vendorAccess   Boolean @default(false) @map("vendor_access")
-  groupAccess    Boolean @default(false) @map("group_access")
-  donationAccess Boolean @default(false) @map("donation_access")
-  adminAccess    Boolean @default(false) @map("admin_access")
-  expenseAccess  Boolean @default(false) @map("expense_access")
-  chargesAccess  Boolean @default(false) @map("charges_access")
-  checksAccess   Boolean @default(false) @map("checks_access")
-  reportsAccess  Boolean @default(false) @map("reports_access")
-  depositAccess  Boolean @default(false) @map("deposit_access")
-  bankAccess     Boolean @default(false) @map("bank_access")
-  eventAccess    Boolean @default(false) @map("event_access")
+  vendorAccess    Boolean @default(false) @map("vendor_access")
+  groupAccess     Boolean @default(false) @map("group_access")
+  donationAccess  Boolean @default(false) @map("donation_access")
+  adminAccess     Boolean @default(false) @map("admin_access")
+  expenseAccess   Boolean @default(false) @map("expense_access")
+  chargesAccess   Boolean @default(false) @map("charges_access")
+  checksAccess    Boolean @default(false) @map("checks_access")
+  reportsAccess   Boolean @default(false) @map("reports_access")
+  depositAccess   Boolean @default(false) @map("deposit_access")
+  bankAccess      Boolean @default(false) @map("bank_access")
+  eventAccess     Boolean @default(false) @map("event_access")
 
   // Data restriction fields
-  memberOnlyOwnData  Boolean @default(false) @map("member_only_own_data")
-  visitorOnlyOwnData Boolean @default(false) @map("visitor_only_own_data")
+  memberOnlyOwnData    Boolean @default(false) @map("member_only_own_data")
+  visitorOnlyOwnData   Boolean @default(false) @map("visitor_only_own_data")
   supporterOnlyOwnData Boolean @default(false) @map("supporter_only_own_data")
 
   // Delete permissions
-  cannotDeleteMember   Boolean @default(true) @map("cannot_delete_member")
-  cannotDeleteVisitor  Boolean @default(true) @map("cannot_delete_visitor")
+  cannotDeleteMember    Boolean @default(true) @map("cannot_delete_member")
+  cannotDeleteVisitor   Boolean @default(true) @map("cannot_delete_visitor")
   cannotDeleteSupporter Boolean @default(true) @map("cannot_delete_supporter")
-  cannotDeleteVendor   Boolean @default(true) @map("cannot_delete_vendor")
-  cannotDeleteGroup    Boolean @default(true) @map("cannot_delete_group")
-  cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
-  cannotDeleteExpense  Boolean @default(true) @map("cannot_delete_expense")
-  cannotDeleteCharges  Boolean @default(true) @map("cannot_delete_charges")
-  cannotDeleteChecks   Boolean @default(true) @map("cannot_delete_checks")
-  cannotDeleteReports  Boolean @default(true) @map("cannot_delete_reports")
-  cannotDeleteDeposit  Boolean @default(true) @map("cannot_delete_deposit")
-  cannotDeleteBank     Boolean @default(true) @map("cannot_delete_bank")
-  cannotDeleteEvent    Boolean @default(true) @map("cannot_delete_event")
+  cannotDeleteVendor    Boolean @default(true) @map("cannot_delete_vendor")
+  cannotDeleteGroup     Boolean @default(true) @map("cannot_delete_group")
+  cannotDeleteDonation  Boolean @default(true) @map("cannot_delete_donation")
+  cannotDeleteExpense   Boolean @default(true) @map("cannot_delete_expense")
+  cannotDeleteCharges   Boolean @default(true) @map("cannot_delete_charges")
+  cannotDeleteChecks    Boolean @default(true) @map("cannot_delete_checks")
+  cannotDeleteReports   Boolean @default(true) @map("cannot_delete_reports")
+  cannotDeleteDeposit   Boolean @default(true) @map("cannot_delete_deposit")
+  cannotDeleteBank      Boolean @default(true) @map("cannot_delete_bank")
+  cannotDeleteEvent     Boolean @default(true) @map("cannot_delete_event")
 
   // Add permissions
-  canAddMember   Boolean @default(false) @map("can_add_member")
-  canAddVisitor  Boolean @default(false) @map("can_add_visitor")
-  canAddSupporter Boolean @default(false) @map("can_add_supporter")
-  canAddVendor   Boolean @default(false) @map("can_add_vendor")
-  canAddGroup    Boolean @default(false) @map("can_add_group")
-  canAddDonation Boolean @default(false) @map("can_add_donation")
-  canAddExpense  Boolean @default(false) @map("can_add_expense")
-  canAddCharges  Boolean @default(false) @map("can_add_charges")
-  canAddChecks   Boolean @default(false) @map("can_add_checks")
-  canAddReports  Boolean @default(false) @map("can_add_reports")
-  canAddDeposit  Boolean @default(false) @map("can_add_deposit")
-  canAddBank     Boolean @default(false) @map("can_add_bank")
-  canAddEvent    Boolean @default(false) @map("can_add_event")
+  canAddMember     Boolean            @default(false) @map("can_add_member")
+  canAddVisitor    Boolean            @default(false) @map("can_add_visitor")
+  canAddSupporter  Boolean            @default(false) @map("can_add_supporter")
+  canAddVendor     Boolean            @default(false) @map("can_add_vendor")
+  canAddGroup      Boolean            @default(false) @map("can_add_group")
+  canAddDonation   Boolean            @default(false) @map("can_add_donation")
+  canAddExpense    Boolean            @default(false) @map("can_add_expense")
+  canAddCharges    Boolean            @default(false) @map("can_add_charges")
+  canAddChecks     Boolean            @default(false) @map("can_add_checks")
+  canAddReports    Boolean            @default(false) @map("can_add_reports")
+  canAddDeposit    Boolean            @default(false) @map("can_add_deposit")
+  canAddBank       Boolean            @default(false) @map("can_add_bank")
+  canAddEvent      Boolean            @default(false) @map("can_add_event")
+  CommunicationLog CommunicationLog[]
 
   @@map("users")
 }
@@ -84,93 +85,95 @@ model User {
 // Will eventually be removed once migration is complete
 /// @deprecated Use permissions directly on User model instead
 model UserLevel {
-  id             Int      @id @default(autoincrement())
-  name           String   @unique
-  description    String?
-  createdAt      DateTime @default(now()) @map("created_at")
+  id              Int      @id @default(autoincrement())
+  name            String   @unique
+  description     String?
+  createdAt       DateTime @default(now()) @map("created_at")
   // users       User[]
-  memberAccess   Boolean  @default(false) @map("member_access")
-  visitorAccess  Boolean  @default(false) @map("visitor_access")
+  memberAccess    Boolean  @default(false) @map("member_access")
+  visitorAccess   Boolean  @default(false) @map("visitor_access")
   supporterAccess Boolean  @default(false) @map("supporter_access")
-  vendorAccess   Boolean  @default(false) @map("vendor_access")
-  groupAccess    Boolean  @default(false) @map("group_access")
-  donationAccess Boolean  @default(false) @map("donation_access")
-  adminAccess    Boolean  @default(false) @map("admin_access")
-  expenseAccess  Boolean  @default(false) @map("expense_access")
-  chargesAccess  Boolean  @default(false) @map("charges_access")
-  checksAccess   Boolean  @default(false) @map("checks_access")
-  reportsAccess  Boolean  @default(false) @map("reports_access")
-  depositAccess  Boolean  @default(false) @map("deposit_access")
-  bankAccess     Boolean  @default(false) @map("bank_access")
-  eventAccess    Boolean  @default(false) @map("event_access")
+  vendorAccess    Boolean  @default(false) @map("vendor_access")
+  groupAccess     Boolean  @default(false) @map("group_access")
+  donationAccess  Boolean  @default(false) @map("donation_access")
+  adminAccess     Boolean  @default(false) @map("admin_access")
+  expenseAccess   Boolean  @default(false) @map("expense_access")
+  chargesAccess   Boolean  @default(false) @map("charges_access")
+  checksAccess    Boolean  @default(false) @map("checks_access")
+  reportsAccess   Boolean  @default(false) @map("reports_access")
+  depositAccess   Boolean  @default(false) @map("deposit_access")
+  bankAccess      Boolean  @default(false) @map("bank_access")
+  eventAccess     Boolean  @default(false) @map("event_access")
 
   // New cannot delete permissions
-  cannotDeleteMember   Boolean @default(true) @map("cannot_delete_member")
-  cannotDeleteVisitor  Boolean @default(true) @map("cannot_delete_visitor")
+  cannotDeleteMember    Boolean @default(true) @map("cannot_delete_member")
+  cannotDeleteVisitor   Boolean @default(true) @map("cannot_delete_visitor")
   cannotDeleteSupporter Boolean @default(true) @map("cannot_delete_supporter")
-  cannotDeleteVendor   Boolean @default(true) @map("cannot_delete_vendor")
-  cannotDeleteGroup    Boolean @default(true) @map("cannot_delete_group")
-  cannotDeleteDonation Boolean @default(true) @map("cannot_delete_donation")
-  cannotDeleteExpense  Boolean @default(true) @map("cannot_delete_expense")
-  cannotDeleteCharges  Boolean @default(true) @map("cannot_delete_charges")
-  cannotDeleteChecks   Boolean @default(true) @map("cannot_delete_checks")
-  cannotDeleteReports  Boolean @default(true) @map("cannot_delete_reports")
-  cannotDeleteDeposit  Boolean @default(true) @map("cannot_delete_deposit")
-  cannotDeleteBank     Boolean @default(true) @map("cannot_delete_bank")
-  cannotDeleteEvent    Boolean @default(true) @map("cannot_delete_event")
+  cannotDeleteVendor    Boolean @default(true) @map("cannot_delete_vendor")
+  cannotDeleteGroup     Boolean @default(true) @map("cannot_delete_group")
+  cannotDeleteDonation  Boolean @default(true) @map("cannot_delete_donation")
+  cannotDeleteExpense   Boolean @default(true) @map("cannot_delete_expense")
+  cannotDeleteCharges   Boolean @default(true) @map("cannot_delete_charges")
+  cannotDeleteChecks    Boolean @default(true) @map("cannot_delete_checks")
+  cannotDeleteReports   Boolean @default(true) @map("cannot_delete_reports")
+  cannotDeleteDeposit   Boolean @default(true) @map("cannot_delete_deposit")
+  cannotDeleteBank      Boolean @default(true) @map("cannot_delete_bank")
+  cannotDeleteEvent     Boolean @default(true) @map("cannot_delete_event")
 
   // Add permissions - new fields
-  canAddMember   Boolean @default(false)
-  canAddVisitor  Boolean @default(false)
+  canAddMember    Boolean @default(false)
+  canAddVisitor   Boolean @default(false)
   canAddSupporter Boolean @default(false)
-  canAddVendor   Boolean @default(false)
-  canAddGroup    Boolean @default(false)
-  canAddDonation Boolean @default(false)
-  canAddExpense  Boolean @default(false)
-  canAddCharges  Boolean @default(false)
-  canAddChecks   Boolean @default(false)
-  canAddReports  Boolean @default(false)
-  canAddDeposit  Boolean @default(false)
-  canAddBank     Boolean @default(false)
-  canAddEvent    Boolean @default(false)
+  canAddVendor    Boolean @default(false)
+  canAddGroup     Boolean @default(false)
+  canAddDonation  Boolean @default(false)
+  canAddExpense   Boolean @default(false)
+  canAddCharges   Boolean @default(false)
+  canAddChecks    Boolean @default(false)
+  canAddReports   Boolean @default(false)
+  canAddDeposit   Boolean @default(false)
+  canAddBank      Boolean @default(false)
+  canAddEvent     Boolean @default(false)
 
   @@map("user_levels")
 }
 
 model Member {
-  id             Int           @id @default(autoincrement())
-  firstName      String        @map("first_name")
-  middleName     String?       @map("middle_name")
-  lastName       String        @map("last_name")
-  memberNumber   String        @unique @map("member_number")
-  isActive       Boolean       @default(true) @map("is_active")
-  address        String?
-  city           String?
-  state          String?
-  zipCode        String?       @map("zip_code")
-  birthday       DateTime?
-  gender         String?
-  cellPhone      String?       @map("cell_phone")
-  email          String?
-  membershipDate DateTime?     @map("membership_date")
-  baptismalDate  DateTime?     @map("baptismal_date")
-  profileImage   String?       @map("profile_image")
-  pastChurch     String?       @map("past_church")
-  createdAt      DateTime      @default(now()) @map("created_at")
-  donations      Donation[]
-  groups         GroupMember[]
-  users          User[]
+  id                     Int                      @id @default(autoincrement())
+  firstName              String                   @map("first_name")
+  middleName             String?                  @map("middle_name")
+  lastName               String                   @map("last_name")
+  memberNumber           String                   @unique @map("member_number")
+  isActive               Boolean                  @default(true) @map("is_active")
+  address                String?
+  city                   String?
+  state                  String?
+  zipCode                String?                  @map("zip_code")
+  birthday               DateTime?
+  gender                 String?
+  cellPhone              String?                  @map("cell_phone")
+  email                  String?
+  membershipDate         DateTime?                @map("membership_date")
+  baptismalDate          DateTime?                @map("baptismal_date")
+  profileImage           String?                  @map("profile_image")
+  pastChurch             String?                  @map("past_church")
+  createdAt              DateTime                 @default(now()) @map("created_at")
+  donations              Donation[]
+  groups                 GroupMember[]
+  users                  User[]
+  CommunicationRecipient CommunicationRecipient[]
 
   @@map("members")
 }
 
 model Group {
-  id          Int           @id @default(autoincrement())
-  name        String
-  description String?
-  createdAt   DateTime      @default(now()) @map("created_at")
-  members     GroupMember[]
-  events      Event[]
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String?
+  createdAt        DateTime           @default(now()) @map("created_at")
+  members          GroupMember[]
+  events           Event[]
+  CommunicationLog CommunicationLog[]
 
   @@map("groups")
 }
@@ -358,7 +361,7 @@ model Event {
   title       String
   description String?
   date        DateTime // Start date/time of the event
-  duration    Int?     // Duration in minutes
+  duration    Int? // Duration in minutes
   eventType   String   @map("event_type")
   groupId     Int?     @map("group_id")
   group       Group?   @relation(fields: [groupId], references: [id])
@@ -366,4 +369,39 @@ model Event {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("events")
+}
+
+model CommunicationLog {
+  id          Int       @id @default(autoincrement())
+  senderId    Int       @map("sender_id")
+  sender      User      @relation(fields: [senderId], references: [id])
+  type        String // 'SMS', 'WHATSAPP', 'EMAIL'
+  content     String
+  audience    String // 'ALL_MEMBERS', 'SPECIFIC_GROUPS'
+  groupId     Int?      @map("group_id")
+  group       Group?    @relation(fields: [groupId], references: [id])
+  status      String    @default("PENDING") // 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED'
+  scheduledAt DateTime? @map("scheduled_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  recipients CommunicationRecipient[]
+
+  @@map("communication_logs")
+}
+
+model CommunicationRecipient {
+  id                 Int              @id @default(autoincrement())
+  communicationLogId Int              @map("communication_log_id")
+  communicationLog   CommunicationLog @relation(fields: [communicationLogId], references: [id], onDelete: Cascade)
+  memberId           Int?             @map("member_id")
+  member             Member?          @relation(fields: [memberId], references: [id])
+  phoneNumber        String?          @map("phone_number")
+  status             String           @default("PENDING") // 'PENDING', 'SENT', 'DELIVERED', 'FAILED'
+  externalId         String?          @map("external_id") // Twilio Message SID
+  errorMessage       String?          @map("error_message")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  @@map("communication_recipients")
 }
