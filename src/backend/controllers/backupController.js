@@ -23,8 +23,8 @@ exports.downloadBackup = async (req, res) => {
             fs.mkdirSync(uploadsDir, { recursive: true });
         }
 
-        // Run pg_dump command
-        const command = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${backupFilePath}"`;
+        // Run pg_dump command (ONLY dumping the 'public' schema to avoid Supabase system schemas)
+        const command = `pg_dump --clean --if-exists --no-owner --no-privileges --schema=public -d "${dbUrl}" -f "${backupFilePath}"`;
 
         exec(command, (error, stdout, stderr) => {
             if (error) {

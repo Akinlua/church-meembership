@@ -71,7 +71,7 @@ const performAutomatedBackup = () => {
         return;
     }
 
-    const command = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${automatedBackupPath}"`;
+    const command = `pg_dump --clean --if-exists --no-owner --no-privileges --schema=public -d "${dbUrl}" -f "${automatedBackupPath}"`;
 
     exec(command, (error, stdout, stderr) => {
         if (error) {
