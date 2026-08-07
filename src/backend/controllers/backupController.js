@@ -29,7 +29,11 @@ exports.downloadBackup = async (req, res) => {
         exec(command, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Backup error: ${error.message}`);
-                return res.status(500).json({ message: 'Failed to generate backup.', error: error.message });
+                let userMessage = 'Failed to generate backup.';
+                if (error.message.includes('server version mismatch')) {
+                    userMessage = 'Backup failed: The database server version is newer than the pg_dump client installed on this server. Please upgrade your postgresql-client to version 17 or higher.';
+                }
+                return res.status(500).json({ message: userMessage, error: error.message });
             }
 
             res.download(backupFilePath, backupFileName, (err) => {
