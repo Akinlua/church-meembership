@@ -29,6 +29,7 @@ import DepositDropdown from './components/Deposits/DepositDropdown';
 import Deposits from './components/Deposits';
 import ChangePassword from './components/ChangePassword';
 import UserManagement from './components/UserManagement';
+import BackupRestore from './components/BackupRestore';
 import CheckGenerator from './components/Reports/CheckGenerator';
 import MemberFormPage from './components/Forms/MemberFormPage';
 import VisitorFormPage from './components/Forms/VisitorFormPage';
@@ -184,6 +185,7 @@ function AppContent() {
       {/* Admin routes */}
       <Route element={<AdminRoute />}>
         <Route path="/admin/users" element={<Layout><UserManagement /></Layout>} />
+        <Route path="/admin/backup" element={<Layout><BackupRestore /></Layout>} />
       </Route>
 
       {/* Fallback route */}

@@ -245,11 +245,18 @@ const Navigation = () => {
             )}
 
             {hasAccess('admin') && (
-              <li>
-                <Link to="/admin/users" className={linkClass('/admin/users')} onClick={closeMobileMenu}>
-                  Administrator
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link to="/admin/users" className={linkClass('/admin/users')} onClick={closeMobileMenu}>
+                    Administrator
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/admin/backup" className={linkClass('/admin/backup')} onClick={closeMobileMenu}>
+                    Database Backup
+                  </Link>
+                </li>
+              </>
             )}
 
             {/* ── Communication ── */}

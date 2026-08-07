@@ -166,7 +166,7 @@ app.post('/public/visitors', async (req, res) => {
     res.status(500).json({ message: 'Error creating visitor', error: error.message });
   }
 });
-app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/supporters', '/vendors', '/expense-categories', '/charges', '/admin', '/program-owner', '/events'], authenticateToken);
+app.use(['/members', '/groups', '/donations', '/reports', '/dashboard', '/visitors', '/supporters', '/vendors', '/expense-categories', '/charges', '/admin', '/program-owner', '/events', '/backup'], authenticateToken);
 
 // Make authenticateToken available to routes
 app.set('authenticateToken', authenticateToken);
@@ -198,6 +198,9 @@ app.use('/banks', bankRoutes);
 app.use('/deposits', depositRoutes);
 app.use('/events', eventRoutes);
 app.use('/communication', communicationRoutes);
+
+const backupRoutes = require('./routes/backup');
+app.use('/backup', backupRoutes);
 
 const { initCronJobs } = require('./services/communicationService');
 
