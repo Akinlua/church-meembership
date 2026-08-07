@@ -203,6 +203,7 @@ const backupRoutes = require('./routes/backup');
 app.use('/backup', backupRoutes);
 
 const { initCronJobs } = require('./services/communicationService');
+const { initAutomatedBackup } = require('./services/backupService');
 
 async function start() {
   await prisma.$connect();
@@ -210,6 +211,7 @@ async function start() {
 
   // Initialize background cron jobs
   initCronJobs();
+  initAutomatedBackup();
 
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {

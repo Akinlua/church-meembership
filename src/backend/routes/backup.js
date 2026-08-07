@@ -4,10 +4,12 @@ const multer = require('multer');
 const path = require('path');
 const backupController = require('../controllers/backupController');
 
+const os = require('os');
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '..', 'public', 'uploads'));
+        cb(null, os.tmpdir());
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -20,5 +22,10 @@ const upload = multer({ storage: storage });
 // Define routes
 router.get('/download', backupController.downloadBackup);
 router.post('/restore', upload.single('backupFile'), backupController.restoreBackup);
+
+// Automated Backup Routes
+router.get('/settings', backupController.getSettings);
+router.post('/settings', backupController.updateSettings);
+router.get('/download-latest', backupController.downloadAutomatedBackup);
 
 module.exports = router;

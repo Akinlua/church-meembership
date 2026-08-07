@@ -89,3 +89,43 @@ exports.restoreBackup = async (req, res) => {
         res.status(500).json({ message: 'Server error during restore.', error: error.message });
     }
 };
+
+const backupService = require('../services/backupService');
+
+exports.getSettings = async (req, res) => {
+    try {
+        const settings = backupService.getSettings();
+        const status = backupService.getBackupStatus();
+        res.json({ settings, status });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to retrieve automated backup settings.', error: error.message });
+    }
+};
+
+exports.updateSettings = async (req, res) => {
+    try {
+        const { enabled, frequency } = req.body;
+        const newSettings = backupService.updateSettings({ enabled, frequency });
+        res.json({ message: 'Settings updated successfully.', settings: newSettings });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update automated backup settings.', error: error.message });
+    }
+};
+
+exports.downloadAutomatedBackup = async (req, res) => {
+    try {
+        const status = backupService.getBackupStatus();
+        if (!status.exists) {
+            return res.status(404).json({ message: 'No automated backup available yet.' });
+        }
+        
+        const fileName = `automated-backup-${new Date(status.lastBackupDate).toISOString().split('T')[0]}.sql`;
+        res.download(backupService.automatedBackupPath, fileName, (err) => {
+            if (err) {
+                console.error(`Download automated backup error: ${err.message}`);
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to download automated backup.', error: error.message });
+    }
+};
